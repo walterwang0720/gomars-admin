@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 開發日誌（不上傳）
+GOMARS_開發日誌.md
+
+# 暫存
+*.tmp
+*.log
