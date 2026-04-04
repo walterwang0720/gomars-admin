@@ -336,6 +336,290 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
 .coming-soon .cs-title{font-size:15px;font-weight:600;color:var(--tx2);}
 .coming-soon .cs-sub{font-size:12px;}
 
+/* ── SHARED FORM / BUTTONS ── */
+.btn{padding:7px 14px;border-radius:7px;border:.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--tx);font-family:var(--font);font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:var(--bg-hover);}
+.btn-primary{background:var(--br);color:#fff;border-color:var(--br);}
+.btn-primary:hover{background:var(--brd);}
+.btn-ghost{color:var(--br);border-color:var(--brm);}
+.btn-ghost:hover{background:var(--brl);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-danger{color:#A32D2D;border-color:#F7C1C1;}
+.btn-danger:hover{background:#FCEBEB;}
+.inp{font-size:13px;color:var(--tx);background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:7px 10px;width:100%;font-family:var(--font);outline:none;transition:border .15s;}
+.inp:focus{border-color:var(--br);background:var(--bg-card);}
+.inp::placeholder{color:var(--tx3);}
+.inp select{-webkit-appearance:none;}
+.f{display:flex;flex-direction:column;gap:4px;}
+.f.full{grid-column:1/-1;}
+.lbl{font-size:11px;color:var(--tx3);font-weight:500;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── SETTINGS ── */
+.settings-layout{display:grid;grid-template-columns:196px 1fr;gap:16px;padding:20px;}
+.settings-nav{display:flex;flex-direction:column;gap:2px;}
+.settings-nav-item{padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--tx2);transition:all .15s;border:none;background:none;font-family:var(--font);text-align:left;width:100%;}
+.settings-nav-item:hover{background:var(--bg-hover);}
+.settings-nav-item.active{background:var(--brl);color:var(--br);font-weight:500;}
+.settings-panel{display:none;}
+.settings-panel.active{display:block;}
+.settings-section{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.settings-section-title{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:14px;padding-bottom:8px;border-bottom:.5px solid var(--border);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:.5px solid var(--border-soft);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-left{flex:1;}
+.settings-row-label{font-size:13px;color:var(--tx);font-weight:500;}
+.settings-row-desc{font-size:11px;color:var(--tx3);margin-top:2px;}
+
+/* ── TOGGLE ── */
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:10px;transition:background .2s;}
+.toggle input:checked + .toggle-track{background:var(--br);}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
+
+/* ── THEME PICKER ── */
+.theme-opt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
+.theme-preview{width:64px;height:44px;border-radius:8px;border:2px solid transparent;overflow:hidden;transition:border .15s;}
+.theme-preview.selected{border-color:var(--br);}
+.theme-preview-light{background:#F0EFE9;}
+.theme-preview-dark{background:#111110;}
+.theme-preview-light::after,.theme-preview-dark::after{content:'';display:block;height:10px;margin:6px 8px 0;border-radius:2px;background:rgba(234,84,4,.3);}
+.theme-label{font-size:10px;color:var(--tx3);}
+.theme-label.selected{color:var(--br);font-weight:600;}
+
+/* ── CIS CHIPS ── */
+.cis-chips{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.cis-chip{border-radius:8px;overflow:hidden;border:.5px solid var(--border);}
+.cis-chip-swatch{height:44px;}
+.cis-chip-info{padding:5px 7px;background:var(--bg-surface);}
+.cis-chip-name{font-size:10px;font-weight:600;color:var(--tx);display:block;}
+.cis-chip-hex{font-size:9px;color:var(--tx3);font-family:"SF Mono","Cascadia Code","Consolas",monospace;}
+
+/* ── FX TABLE ── */
+.fx-table{width:100%;border-collapse:collapse;}
+.fx-table th{font-size:10px;font-weight:600;color:var(--tx3);padding:6px 10px;text-align:left;border-bottom:.5px solid var(--border);}
+.fx-table td{padding:7px 10px;font-size:12.5px;border-bottom:.5px solid var(--border-soft);color:var(--tx);vertical-align:middle;}
+.fx-table tr:last-child td{border-bottom:none;}
+.fx-rate-ref{font-size:12px;color:var(--tx3);font-family:"SF Mono","Cascadia Code","Consolas",monospace;}
+.fx-rate-spread{font-size:11px;color:var(--gr);font-weight:500;}
+.fx-note{font-size:11px;color:var(--tx3);line-height:1.7;margin-top:10px;padding:10px 12px;background:var(--bg-surface);border-radius:8px;border:.5px solid var(--border);}
+
+/* ── DEVLOG ── */
+.devlog-wrap{padding:20px;}
+.devlog-tabs{display:flex;gap:0;border-bottom:.5px solid var(--border);margin-bottom:16px;}
+.devlog-tab{padding:9px 16px;font-size:12px;font-weight:500;color:var(--tx3);cursor:pointer;border:none;background:none;font-family:var(--font);border-bottom:2px solid transparent;transition:all .15s;}
+.devlog-tab.active{color:var(--br);border-bottom-color:var(--br);}
+.devlog-panel{display:none;}
+.devlog-panel.active{display:block;}
+.changelog-item{display:flex;gap:14px;padding:14px 0;border-bottom:.5px solid var(--border-soft);}
+.changelog-item:last-child{border-bottom:none;}
+.changelog-ver{flex-shrink:0;width:72px;}
+.changelog-ver-num{font-family:var(--font-cond);font-size:15px;font-weight:700;color:var(--br);}
+.changelog-ver-date{font-size:10px;color:var(--tx3);}
+.changelog-body{flex:1;}
+.changelog-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:6px;}
+.changelog-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.cl-tag{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;}
+.cl-tag-feat{background:#E6F4ED;color:var(--grd);}
+.cl-tag-fix{background:#FFF3E0;color:#B85C00;}
+.cl-tag-design{background:var(--pub);color:var(--pu);}
+.changelog-items{font-size:12px;color:var(--tx2);line-height:1.9;}
+.changelog-items li{margin-left:14px;}
+
+/* ── DEF TABLE ── */
+.def-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
+.def-table th{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:6px 10px;text-align:left;border-bottom:.5px solid var(--border);}
+.def-table td{padding:8px 10px;border-bottom:.5px solid var(--border-soft);color:var(--tx);vertical-align:top;line-height:1.6;}
+.def-table tr:last-child td{border-bottom:none;}
+.def-table td:first-child{font-weight:600;color:var(--br);white-space:nowrap;}
+.doc-section{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;}
+.doc-section h3{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:10px;padding-bottom:8px;border-bottom:.5px solid var(--border);}
+.doc-section h4{font-size:12px;font-weight:600;color:var(--tx);margin:12px 0 6px;}
+.doc-section p{font-size:13px;color:var(--tx2);line-height:1.75;margin-bottom:8px;}
+.doc-section ul{margin-left:16px;font-size:13px;color:var(--tx2);line-height:1.85;}
+
+/* ── BANNER MGMT ── */
+.banner-mgmt-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg-card);border:.5px solid var(--border);border-radius:10px;margin-bottom:8px;transition:box-shadow .15s;}
+.banner-mgmt-item:hover{box-shadow:var(--shadow-md);}
+.bmi-drag{color:var(--tx3);cursor:grab;font-size:14px;flex-shrink:0;user-select:none;}
+.bmi-preview{width:72px;height:48px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:6px;}
+.bmi-info{flex:1;min-width:0;}
+.bmi-title{font-size:12px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.bmi-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.bmi-type-badge{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;}
+.bmi-type-text{background:var(--blb);color:var(--bld);}
+.bmi-status{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.bmi-status-lbl{font-size:11px;color:var(--gr);font-weight:500;white-space:nowrap;}
+.bmi-status-lbl.off{color:var(--tx3);}
+.bmi-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ── BANNER EDITOR MODAL ── */
+.banner-editor-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center;}
+.banner-editor-overlay.open{display:flex;}
+.banner-editor{background:var(--bg-card);border-radius:16px;width:640px;max-width:96vw;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.35);}
+.be-hdr{padding:16px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.be-hdr-title{font-size:15px;font-weight:600;color:var(--tx);}
+.be-body{flex:1;overflow-y:auto;padding:18px 20px;}
+.be-footer{padding:12px 20px;border-top:.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+.be-type-tabs{display:flex;gap:0;margin-bottom:16px;background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:3px;}
+.be-type-tab{flex:1;padding:7px;border-radius:6px;border:none;background:transparent;font-family:var(--font);font-size:12px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all .15s;text-align:center;}
+.be-type-tab.active{background:var(--bg-card);color:var(--br);box-shadow:var(--shadow);}
+.be-field{margin-bottom:14px;}
+.be-field label{display:block;font-size:11px;font-weight:500;color:var(--tx3);margin-bottom:5px;}
+.be-upload-zone{border:1.5px dashed var(--border);border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-surface);}
+.be-upload-zone:hover{border-color:var(--br);background:var(--brl);}
+.be-upload-icon{font-size:28px;margin-bottom:8px;}
+.be-upload-main{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:4px;}
+.be-upload-sub{font-size:11px;color:var(--tx3);}
+.be-upload-spec{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+.be-spec-chip{padding:3px 9px;border-radius:5px;font-size:10px;font-weight:600;background:var(--bg-hover);color:var(--tx3);border:.5px solid var(--border);}
+.be-url-row{display:flex;align-items:center;gap:8px;}
+.be-url-hint{font-size:11px;color:var(--tx3);margin-top:4px;}
+.be-color-row{display:flex;gap:8px;flex-wrap:wrap;}
+.be-color-chip{width:32px;height:32px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:border .15s;flex-shrink:0;}
+.be-color-chip.selected{border-color:var(--br);}
+.be-preview-box{border-radius:10px;overflow:hidden;margin-top:10px;height:80px;display:flex;align-items:center;padding:0 20px;}
+.be-preview-inner{flex:1;}
+.be-preview-tag{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(234,84,4,.8);margin-bottom:4px;}
+.be-preview-title{font-family:var(--font-cond);font-size:18px;font-weight:700;color:#fff;line-height:1.1;}
+.be-preview-sub{font-size:11px;color:rgba(200,196,190,.6);margin-top:3px;}
+.modal-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--bg-surface);cursor:pointer;color:var(--tx2);font-size:14px;display:flex;align-items:center;justify-content:center;}
+
+/* ── FLIGHT DB ── */
+.fdb-wrap{padding:20px;display:flex;flex-direction:column;gap:14px;}
+.fdb-stats{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 14px;background:var(--bg-card);border:.5px solid var(--border);border-radius:10px;}
+.fdb-stat{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;}
+.fdb-stat-total{background:var(--bg-surface);color:var(--tx);}
+.fdb-stat-ok{background:#E6F4ED;color:var(--grd);}
+.fdb-stat-warn{background:#FFF3E0;color:#B85C00;}
+.fdb-stat-stale{background:#FCEBEB;color:#A32D2D;}
+.fdb-stat-sep{color:var(--border);font-size:16px;margin:0 2px;}
+.fdb-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.fdb-search{flex:1;min-width:180px;}
+.fdb-table-wrap{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.fdb-table{width:100%;border-collapse:collapse;}
+.fdb-table th{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:.5px solid var(--border);background:var(--bg-surface);}
+.fdb-table th.sortable{cursor:pointer;user-select:none;}
+.fdb-table th.sortable:hover{color:var(--tx);background:var(--bg-hover);}
+.fdb-table th.sort-active{color:var(--br);}
+.fdb-sort-icon{display:inline-block;margin-left:5px;opacity:.4;font-size:9px;font-style:normal;}
+.fdb-table th.sort-active .fdb-sort-icon{opacity:1;color:var(--br);}
+.fdb-toolbar-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.fdb-toolbar-sep{width:.5px;height:22px;background:var(--border);flex-shrink:0;}
+.fdb-dup-warn{font-size:11px;color:#B85C00;background:#FFF3E0;border:.5px solid #F7C9A8;border-radius:7px;padding:7px 10px;margin-top:6px;line-height:1.6;}
+.fdb-dup-warn strong{color:#944100;}
+.fdb-format-hint{font-size:10px;color:var(--tx3);margin-top:3px;}
+/* ── Custom searchable select ── */
+.fdb-sel{position:relative;display:inline-block;}
+.fdb-sel-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--bg-card);border:.5px solid var(--border);border-radius:8px;padding:0 10px;height:34px;cursor:pointer;white-space:nowrap;min-width:120px;font-size:13px;color:var(--tx);width:100%;}
+.fdb-sel-btn:hover{border-color:var(--br);}
+.fdb-sel-btn.has-value{border-color:var(--br);color:var(--br);}
+.fdb-sel-arrow{font-style:normal;font-size:10px;color:var(--tx3);flex-shrink:0;transition:transform .15s;}
+.fdb-sel.open .fdb-sel-arrow{transform:rotate(180deg);}
+.fdb-sel-drop{position:absolute;top:calc(100% + 4px);left:0;min-width:160px;background:var(--bg-card);border:.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:400;overflow:hidden;display:none;}
+.fdb-sel.open .fdb-sel-drop{display:block;}
+.fdb-sel-search{width:100%;box-sizing:border-box;padding:8px 10px;border:none;border-bottom:.5px solid var(--border);font-size:12px;background:var(--bg-surface);color:var(--tx);outline:none;}
+.fdb-sel-search::placeholder{color:var(--tx3);}
+.fdb-sel-list{list-style:none;margin:0;padding:4px 0;max-height:220px;overflow-y:auto;}
+.fdb-sel-opt{padding:7px 12px;font-size:13px;cursor:pointer;color:var(--tx);display:flex;align-items:center;gap:8px;}
+.fdb-sel-opt:hover{background:var(--bg-surface);}
+.fdb-sel-opt.active{color:var(--br);font-weight:600;}
+.fdb-sel-opt.hidden{display:none;}
+.fdb-sel-divider{height:.5px;background:var(--border);margin:4px 0;}
+.fdb-sel-badge{font-size:10px;background:var(--bg-surface);color:var(--tx3);padding:1px 5px;border-radius:4px;}
+.fdb-table td{padding:8px 12px;font-size:12.5px;border-bottom:.5px solid var(--border-soft);color:var(--tx);vertical-align:middle;}
+.fdb-table tr:last-child td{border-bottom:none;}
+.fdb-table tr:hover td{background:var(--bg-surface);}
+.fdb-num{font-family:"SF Mono","Cascadia Code","Consolas",monospace;font-weight:700;font-size:13px;color:var(--br);}
+.fdb-route{font-size:12px;color:var(--tx2);}
+.fdb-time{font-family:"SF Mono","Cascadia Code","Consolas",monospace;font-size:12px;color:var(--tx);}
+.fdb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
+.fdb-dot-ok{background:#2ECC71;}
+.fdb-dot-warn{background:#F39C12;}
+.fdb-dot-stale{background:#E74C3C;}
+.fdb-dot-unknown{background:var(--border);}
+.fdb-status-cell{display:flex;align-items:center;gap:6px;font-size:11px;}
+.fdb-empty{padding:40px;text-align:center;color:var(--tx3);font-size:13px;}
+
+/* CSV Import Modal */
+.fdb-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center;}
+.fdb-modal-overlay.open{display:flex;}
+.fdb-modal{background:var(--bg-card);border-radius:14px;width:600px;max-width:96vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.3);}
+.fdb-modal-hdr{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.fdb-modal-title{font-size:14px;font-weight:600;color:var(--tx);}
+.fdb-modal-body{padding:18px 20px;overflow-y:auto;flex:1;}
+.fdb-modal-footer{padding:12px 20px;border-top:.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.fdb-csv-area{font-family:"SF Mono","Cascadia Code","Consolas",monospace;font-size:12px;min-height:180px;resize:vertical;white-space:pre;}
+.fdb-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── ARCH DIAGRAM ── */
+.arch-wrap{padding:4px 0 16px;}
+.arch-login-row{background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:12px;}
+.arch-modules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.arch-box{border-radius:10px;padding:14px;border:.5px solid;}
+.arch-box-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+.arch-box-items{font-size:11px;line-height:1.8;color:var(--tx2);}
+.arch-data-row{background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;font-size:13px;font-weight:500;color:var(--tx2);}
+.arch-data-row span{font-size:11px;color:var(--tx3);display:block;margin-top:3px;}
+.arch-arrow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0;}
+.arch-arrow{text-align:center;color:var(--tx3);font-size:13px;}
+
+/* ── CASES LIST ── */
+.cases-wrap{padding:20px;}
+.cases-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.cases-filter-tabs{display:flex;gap:0;background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:2px;}
+.cases-filter-tab{padding:5px 12px;border-radius:6px;border:none;background:transparent;font-family:var(--font);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .15s;}
+.cases-filter-tab.active{background:var(--bg-card);color:var(--tx);font-weight:500;box-shadow:var(--shadow);}
+.cases-table-wrap{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.cases-table{width:100%;border-collapse:collapse;}
+.cases-table th{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:9px 14px;text-align:left;border-bottom:.5px solid var(--border);background:var(--bg-surface);}
+.cases-table td{padding:10px 14px;font-size:12.5px;border-bottom:.5px solid var(--border-soft);color:var(--tx);vertical-align:middle;}
+.cases-table tr:last-child td{border-bottom:none;}
+.cases-table tbody tr:hover td{background:var(--bg-surface);cursor:pointer;}
+.case-num{font-family:"SF Mono","Cascadia Code","Consolas",monospace;font-size:12px;color:var(--br);font-weight:700;}
+.case-client{font-weight:600;}
+.case-dest{color:var(--tx2);}
+.cpill{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;white-space:nowrap;}
+.cpill-done{background:var(--grb);color:var(--grd);}
+.cpill-wip{background:#FFF3E0;color:#B85C00;}
+.cpill-todo{background:var(--g100);color:var(--tx3);}
+[data-theme="dark"] .cpill-wip{background:#2A1E06;color:#F5C97A;}
+
+/* ── CASE DETAIL ── */
+.case-detail-wrap{display:flex;flex-direction:column;flex:1;min-height:0;}
+.case-detail-hdr{padding:12px 20px;background:var(--bg-card);border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.case-back{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);background:none;border:.5px solid var(--border);border-radius:7px;cursor:pointer;padding:5px 10px;font-family:var(--font);transition:all .15s;}
+.case-back:hover{background:var(--bg-hover);color:var(--tx);}
+.case-hdr-divider{width:.5px;height:28px;background:var(--border);flex-shrink:0;}
+.case-hdr-info{flex:1;min-width:0;}
+.case-hdr-num{font-size:10px;color:var(--tx3);font-family:"SF Mono","Cascadia Code","Consolas",monospace;letter-spacing:.04em;}
+.case-hdr-name{font-size:14px;font-weight:600;color:var(--tx);margin-top:1px;}
+.case-hdr-meta{font-size:11px;color:var(--tx2);margin-top:1px;}
+.case-tabs-bar{display:flex;align-items:center;background:var(--bg-card);border-bottom:.5px solid var(--border);padding:0 20px;flex-shrink:0;}
+.case-tab-btn{display:flex;align-items:center;gap:7px;padding:11px 16px;border:none;background:none;font-family:var(--font);font-size:13px;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px;white-space:nowrap;}
+.case-tab-btn:hover{color:var(--tx);}
+.case-tab-btn.active{color:var(--br);border-bottom-color:var(--br);font-weight:500;}
+.case-tab-pill{padding:2px 7px;border-radius:999px;font-size:10px;font-weight:600;transition:all .15s;}
+.ctp-done{background:var(--grb);color:var(--grd);}
+.ctp-wip{background:#FFF3E0;color:#B85C00;}
+.ctp-todo{background:var(--g100);color:var(--tx3);}
+.ctp-locked{background:var(--g100);color:var(--tx3);opacity:.5;}
+[data-theme="dark"] .ctp-wip{background:#2A1E06;color:#F5C97A;}
+.case-content{flex:1;display:flex;flex-direction:column;min-height:0;}
+.case-panel{display:none;flex:1;flex-direction:column;}
+.case-panel.active{display:flex;}
+.case-panel iframe{flex:1;width:100%;border:none;min-height:calc(100vh - 136px);}
+.case-empty-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tx3);}
+.case-empty-panel .ce-icon{font-size:36px;opacity:.35;}
+.case-empty-panel .ce-title{font-size:14px;font-weight:600;color:var(--tx2);}
+.case-empty-panel .ce-sub{font-size:12px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.settings-layout{grid-template-columns:1fr;}.arch-modules{grid-template-columns:1fr 1fr;}.cis-chips{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){.g2{grid-template-columns:1fr;}.arch-modules{grid-template-columns:1fr;}}
+
 /* ── TOAST ── */
 .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
 .toast{
@@ -453,15 +737,7 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
         <div class="sb-section-lbl">報價</div>
         <button class="nav-item" data-view="cases" onclick="switchView('cases',this)">
           <span class="ni">🗂</span><span class="nl">案件管理</span>
-        </button>
-        <button class="nav-item" data-view="inquiry" onclick="switchView('inquiry',this)">
-          <span class="ni">📋</span><span class="nl">詢價單製作</span>
-        </button>
-        <button class="nav-item" data-view="cost-quote" onclick="switchView('cost-quote',this)">
-          <span class="ni">🧮</span><span class="nl">線控報價單（成本）</span>
-        </button>
-        <button class="nav-item" data-view="client-quote" onclick="switchView('client-quote',this)">
-          <span class="ni">📄</span><span class="nl">報價單製作（客報）</span>
+          <span class="nbadge" id="badge-cases">—</span>
         </button>
       </div>
       <div class="sb-section">
@@ -619,27 +895,154 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
       <div class="coming-soon"><div class="cs-icon">💬</div><div class="cs-title">留言／協作</div><div class="cs-sub">開發中</div></div>
     </div>
 
-    <!-- ── 案件管理 ── -->
+    <!-- ── 案件管理 list ── -->
     <div class="view" id="view-cases">
-      <div class="coming-soon"><div class="cs-icon">🗂</div><div class="cs-title">案件管理</div><div class="cs-sub">開發中</div></div>
+      <div class="cases-wrap">
+        <div class="cases-toolbar">
+          <input class="inp" id="cases-search" placeholder="🔍 搜尋案號、客戶、目的地…" oninput="renderCasesList()" style="flex:1;min-width:180px;"/>
+          <div class="cases-filter-tabs">
+            <button class="cases-filter-tab active" onclick="setCasesFilter('all',this)">全部</button>
+            <button class="cases-filter-tab" onclick="setCasesFilter('active',this)">進行中</button>
+            <button class="cases-filter-tab" onclick="setCasesFilter('finalized',this)">已完成</button>
+          </div>
+          <button class="btn btn-primary" onclick="newCase()">＋ 新增案件</button>
+        </div>
+        <div class="cases-table-wrap">
+          <table class="cases-table">
+            <thead>
+              <tr>
+                <th>案號</th>
+                <th>客戶</th>
+                <th>目的地</th>
+                <th>出發日</th>
+                <th>詢價單</th>
+                <th>成本報價</th>
+                <th>客報</th>
+                <th>售價（/人）</th>
+                <th>建立時間</th>
+              </tr>
+            </thead>
+            <tbody id="cases-tbody">
+              <tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:28px;">載入中…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- ── 線控報價單（成本） ── -->
-    <div class="view" id="view-cost-quote">
-      <div class="coming-soon"><div class="cs-icon">🧮</div><div class="cs-title">線控報價單（成本）</div><div class="cs-sub">開發中</div></div>
-    </div>
-
-    <!-- ── 報價單製作（客報） ── -->
-    <div class="view" id="view-client-quote">
-      <div class="coming-soon"><div class="cs-icon">📄</div><div class="cs-title">報價單製作（客報）</div><div class="cs-sub">開發中</div></div>
+    <!-- ── 案件詳細（三頁籤） ── -->
+    <div class="view" id="view-case-detail">
+      <div class="case-detail-wrap">
+        <!-- Header -->
+        <div class="case-detail-hdr">
+          <button class="case-back" onclick="backToCases()">← 案件管理</button>
+          <div class="case-hdr-divider"></div>
+          <div class="case-hdr-info">
+            <div class="case-hdr-num" id="cd-num">GM-2026-MMDD-NNN</div>
+            <div class="case-hdr-name" id="cd-name">—</div>
+            <div class="case-hdr-meta" id="cd-meta">—</div>
+          </div>
+        </div>
+        <!-- Tabs -->
+        <div class="case-tabs-bar">
+          <button class="case-tab-btn active" id="ct-inquiry" onclick="switchCaseTab('inquiry')">
+            <span class="case-tab-pill ctp-todo" id="ctp-inquiry">未開始</span>詢價單
+          </button>
+          <button class="case-tab-btn" id="ct-cost-quote" onclick="switchCaseTab('cost-quote')">
+            <span class="case-tab-pill ctp-todo" id="ctp-cost-quote">未開始</span>成本報價
+          </button>
+          <button class="case-tab-btn" id="ct-client-quote" onclick="switchCaseTab('client-quote')">
+            <span class="case-tab-pill ctp-locked" id="ctp-client-quote">未開始</span>客報
+          </button>
+        </div>
+        <!-- Content panels -->
+        <div class="case-content">
+          <div class="case-panel active" id="cp-inquiry">
+            <iframe id="cp-inquiry-iframe" src="" title="詢價單"></iframe>
+          </div>
+          <div class="case-panel" id="cp-cost-quote">
+            <iframe id="cp-cost-quote-iframe" src="" title="成本報價單"></iframe>
+          </div>
+          <div class="case-panel" id="cp-client-quote">
+            <div class="case-empty-panel">
+              <div class="ce-icon">📄</div>
+              <div class="ce-title">客報</div>
+              <div class="ce-sub">成本報價完成後開放 — 開發中</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ── 航班資料庫 ── -->
     <div class="view" id="view-flightdb">
-      <div class="coming-soon">
-        <div class="cs-icon">✈️</div>
-        <div class="cs-title">航班資料庫管理</div>
-        <div class="cs-sub">查看 / 編輯 / 刪除 gomars_flight_db — 開發中</div>
+      <div class="fdb-wrap">
+
+        <!-- Stats bar -->
+        <div class="fdb-stats" id="fdb-stats">
+          <span class="fdb-stat fdb-stat-total">載入中…</span>
+        </div>
+
+        <!-- Toolbar row 1: filters -->
+        <div class="fdb-toolbar-row">
+          <input class="inp fdb-search" id="fdb-search" placeholder="🔍 搜尋航班號 / 航空公司…" oninput="renderFlightTable()" style="flex:1;min-width:160px;"/>
+          <!-- 出發地 custom select -->
+          <div class="fdb-sel" id="fdb-sel-from">
+            <button class="fdb-sel-btn" onclick="fdbSelToggle('fdb-sel-from')">
+              <span class="fdb-sel-val">出發地 全部</span><i class="fdb-sel-arrow">▾</i>
+            </button>
+            <div class="fdb-sel-drop">
+              <input class="fdb-sel-search" placeholder="搜尋機場代碼…" oninput="fdbSelSearch(this)"/>
+              <ul class="fdb-sel-list" id="fdb-sel-from-list"></ul>
+            </div>
+          </div>
+          <!-- 目的地 custom select -->
+          <div class="fdb-sel" id="fdb-sel-to">
+            <button class="fdb-sel-btn" onclick="fdbSelToggle('fdb-sel-to')">
+              <span class="fdb-sel-val">目的地 全部</span><i class="fdb-sel-arrow">▾</i>
+            </button>
+            <div class="fdb-sel-drop">
+              <input class="fdb-sel-search" placeholder="搜尋機場代碼…" oninput="fdbSelSearch(this)"/>
+              <ul class="fdb-sel-list" id="fdb-sel-to-list"></ul>
+            </div>
+          </div>
+          <select class="inp" id="fdb-filter-status" style="max-width:130px;" onchange="renderFlightTable()">
+            <option value="">全部狀態</option>
+            <option value="ok">🟢 本季正常</option>
+            <option value="warn">🟡 需確認</option>
+            <option value="stale">🔴 已過期</option>
+          </select>
+        </div>
+        <!-- Toolbar row 2: actions -->
+        <div class="fdb-toolbar-row">
+          <button class="btn btn-ghost btn-sm" onclick="openFdbAdd()">＋ 新增航班</button>
+          <div class="fdb-toolbar-sep"></div>
+          <button class="btn btn-sm" onclick="openFdbImport()">📥 匯入 CSV</button>
+          <button class="btn btn-sm" onclick="fdbExportCSV()">📤 匯出 CSV</button>
+          <button class="btn btn-sm" onclick="fdbExportJSON()">💾 備份 JSON</button>
+          <div class="fdb-toolbar-sep"></div>
+          <button class="btn btn-sm" onclick="fdbNormalizeAll()" title="統整現有資料格式，移除重複">🧹 整理資料</button>
+        </div>
+
+        <!-- Table -->
+        <div class="fdb-table-wrap">
+          <table class="fdb-table">
+            <thead id="fdb-thead">
+              <tr>
+                <th class="sortable sort-active" data-col="num"    onclick="fdbSetSort('num')">航班號 <i class="fdb-sort-icon">↑</i></th>
+                <th class="sortable"             data-col="airline" onclick="fdbSetSort('airline')">航空公司 <i class="fdb-sort-icon">↕</i></th>
+                <th class="sortable"             data-col="from"   onclick="fdbSetSort('from')">出發地 <i class="fdb-sort-icon">↕</i></th>
+                <th class="sortable"             data-col="to"     onclick="fdbSetSort('to')">目的地 <i class="fdb-sort-icon">↕</i></th>
+                <th class="sortable"             data-col="dep"    onclick="fdbSetSort('dep')">出發時刻 <i class="fdb-sort-icon">↕</i></th>
+                <th class="sortable"             data-col="arr"    onclick="fdbSetSort('arr')">抵達時刻 <i class="fdb-sort-icon">↕</i></th>
+                <th class="sortable"             data-col="status" onclick="fdbSetSort('status')">狀態 <i class="fdb-sort-icon">↕</i></th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="fdb-tbody"></tbody>
+          </table>
+        </div>
+
       </div>
     </div>
 
@@ -685,51 +1088,578 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
 
     <!-- ── 開發者日誌 ── -->
     <div class="view" id="view-devlog">
-      <div class="coming-soon"><div class="cs-icon">🛠</div><div class="cs-title">開發者日誌</div><div class="cs-sub">開發中</div></div>
+      <div class="devlog-wrap">
+        <div class="devlog-tabs">
+          <button class="devlog-tab active" onclick="switchDevTab(this,'dl-changelog')">更新日誌</button>
+          <button class="devlog-tab" onclick="switchDevTab(this,'dl-arch')">系統架構圖</button>
+          <button class="devlog-tab" onclick="switchDevTab(this,'dl-docs')">開發者文件</button>
+        </div>
+
+        <!-- 更新日誌 -->
+        <div class="devlog-panel active" id="dl-changelog">
+          <div class="doc-section">
+            <h3>版本更新日誌</h3>
+
+            <div class="changelog-item">
+              <div class="changelog-ver"><div class="changelog-ver-num">v0.2</div><div class="changelog-ver-date">2026/04/04</div></div>
+              <div class="changelog-body">
+                <div class="changelog-title">開發者日誌 · 設定頁面 · 頁面架構移植</div>
+                <div class="changelog-tags"><span class="cl-tag cl-tag-feat">新功能</span><span class="cl-tag cl-tag-design">設計</span></div>
+                <ul class="changelog-items">
+                  <li>從 lttw_platform_v13 移植完整設定頁面：外觀 / CIS 品牌 / 匯率 / Banner 管理 / 帳號 / 密碼 / 通知 / 團隊 / 資料備份</li>
+                  <li>開發者日誌：三分頁架構（更新日誌 / 系統架構圖 / 開發者文件），架構圖改為 CSS 文字版</li>
+                  <li>補充完整 CSS token 系統：.btn / .inp / .toggle / .settings-* / .devlog-* / .changelog-*</li>
+                  <li>移植 Banner 管理 Modal 編輯器、Banner 列表管理 UI</li>
+                  <li>主題切換同步更新設定頁面的主題選取狀態</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="changelog-item">
+              <div class="changelog-ver"><div class="changelog-ver-num">v0.1</div><div class="changelog-ver-date">2026/03/31</div></div>
+              <div class="changelog-body">
+                <div class="changelog-title">首版發布 — Supabase 登入 + 側邊欄導覽架構</div>
+                <div class="changelog-tags"><span class="cl-tag cl-tag-feat">新功能</span></div>
+                <ul class="changelog-items">
+                  <li>Supabase Auth 整合：Email/密碼 + Google OAuth 登入，session 自動還原</li>
+                  <li>側邊欄導覽：可收合，總覽 / 報價 / 工具 / 文件中心 / 系統五個分區</li>
+                  <li>深色 / 淺色主題切換，localStorage 記憶偏好</li>
+                  <li>詢價單頁面：iframe 嵌入 gomars_inquiry.html</li>
+                  <li>儀表板：Supabase 資料表連線統計（customers / orders）</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 系統架構圖 -->
+        <div class="devlog-panel" id="dl-arch">
+          <div class="doc-section">
+            <h3>GOMARS 後台管理系統 v0.2 — 系統架構</h3>
+            <div class="arch-wrap">
+              <div class="arch-login-row">🔐 帳號登入層 — Supabase Auth（Email / 密碼 · Google OAuth · Session 自動還原）</div>
+
+              <div class="arch-arrow-row">
+                <div class="arch-arrow">↓</div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-arrow">↓</div>
+              </div>
+
+              <div class="arch-modules">
+                <div class="arch-box" style="background:var(--brl);border-color:var(--brm);">
+                  <div class="arch-box-title" style="color:var(--mars);">🏠 首頁儀表板</div>
+                  <div class="arch-box-items">統計卡片<br>快速入口<br>最新詢價列表<br>Supabase 即時統計</div>
+                </div>
+                <div class="arch-box" style="background:var(--blb);border-color:#B2D0F0;">
+                  <div class="arch-box-title" style="color:var(--bld);">🗂 案件管理</div>
+                  <div class="arch-box-items">篩選 / 搜尋<br>狀態流轉<br>案件詳情<br>版本時間軸</div>
+                </div>
+                <div class="arch-box" style="background:var(--grb);border-color:#B2DAC8;">
+                  <div class="arch-box-title" style="color:var(--grd);">📊 報價工具</div>
+                  <div class="arch-box-items">供應商詢價單（iframe）<br>線控報價單（成本）<br>廠商比價整理<br>客人報價單製作</div>
+                </div>
+                <div class="arch-box" style="background:var(--pub);border-color:#C8B8F4;">
+                  <div class="arch-box-title" style="color:var(--pu);">📁 文件中心</div>
+                  <div class="arch-box-items">旅遊手冊 / 說資<br>DM 專區<br>同業通訊錄<br>網卡 / 接駁 / 贈品價目</div>
+                </div>
+                <div class="arch-box" style="background:#FFF3E0;border-color:#F7C9A8;">
+                  <div class="arch-box-title" style="color:var(--dust);">🛠 資料庫工具</div>
+                  <div class="arch-box-items">航班資料庫（LocalStorage）<br>飯店資料庫<br>門票資料庫</div>
+                </div>
+                <div class="arch-box" style="background:var(--g50);border-color:var(--border);">
+                  <div class="arch-box-title" style="color:var(--tx);">⚙️ 系統設定</div>
+                  <div class="arch-box-items">外觀 / CIS 品牌<br>匯率設定<br>帳號 / 通知 / 團隊<br>資料備份</div>
+                </div>
+              </div>
+
+              <div class="arch-arrow-row">
+                <div class="arch-arrow">↓</div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-arrow">↓</div>
+              </div>
+
+              <div class="arch-data-row">
+                🗄 資料層 — Supabase PostgreSQL（現行）· LocalStorage Prototype（工具類）
+                <span>案件 · 客戶 · 版本紀錄 · 帳號 · 留言 · gomars_flight_db · gomars_inquiry_draft</span>
+              </div>
+            </div>
+            <p style="font-size:11px;color:var(--tx3);margin-top:10px;">架構圖版本：v0.2 · 2026/04/04 — 此圖隨系統演進手動更新，詳細規格請見開發者文件頁籤。</p>
+          </div>
+        </div>
+
+        <!-- 開發者文件 -->
+        <div class="devlog-panel" id="dl-docs">
+          <div class="doc-section">
+            <h3>📌 版本號規則</h3>
+            <table class="def-table">
+              <thead><tr><th>格式</th><th>定義</th><th>範例情境</th></tr></thead>
+              <tbody>
+                <tr><td>PATCH x.x.+1</td><td>小修正、文字調整、bug fix、單一欄位新增</td><td>修掉按鈕跑版、改標籤文字</td></tr>
+                <tr><td>MINOR x.+1.0</td><td>新增功能區塊、既有頁面大幅重設計</td><td>新增設定頁面、開發者日誌移植</td></tr>
+                <tr><td>MAJOR +1.0.0</td><td>架構性變動、核心流程重構、上線里程碑</td><td>Prototype 轉正式系統、auth 系統更換</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="doc-section">
+            <h3>🗂 側邊欄導覽結構</h3>
+            <table class="def-table">
+              <thead><tr><th>分區</th><th>項目</th><th>狀態</th></tr></thead>
+              <tbody>
+                <tr><td>總覽</td><td>首頁 / 客戶管理 / 留言協作</td><td>首頁已實作，其餘開發中</td></tr>
+                <tr><td>報價</td><td>案件管理 / 詢價單 / 線控 / 客報</td><td>詢價單 iframe 已接，其餘開發中</td></tr>
+                <tr><td>工具</td><td>航班 / 門票 / 飯店資料庫</td><td>開發中（高優先：航班 DB 管理 UI）</td></tr>
+                <tr><td>文件中心</td><td>手冊 / DM / 通訊錄 / 價目表</td><td>開發中</td></tr>
+                <tr><td>系統</td><td>開發者日誌 / 設定</td><td>✓ 已實作</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="doc-section">
+            <h3>💱 匯率設計說明</h3>
+            <h4>三欄定義</h4>
+            <ul>
+              <li><strong>參考匯率</strong>：從台銀牌告 API 抓取的市場即時匯率，唯讀，僅供參考。</li>
+              <li><strong>固定加成</strong>：系統預設百分比（建議 3%），自動計算在參考匯率上。</li>
+              <li><strong>報價匯率</strong>：實際計算用，業務可手動覆蓋。旅行業慣例比市場匯率高 2–5%。</li>
+            </ul>
+            <h4>旅行業匯率慣例</h4>
+            <p>機票款採航空公司每月公告匯率；地面費用採台銀即期匯率加 2–4%。包套報價建議鎖匯（固定加成），避免出發前匯率波動造成虧損。</p>
+          </div>
+
+          <div class="doc-section">
+            <h3>📣 Banner 管理規格</h3>
+            <ul>
+              <li>建議尺寸：1200 × 400 px（比例 3:1）</li>
+              <li>檔案格式：JPG / PNG / WebP，上限 2 MB</li>
+              <li>最多顯示：5 張，自動輪播間隔預設 5 秒（3–30 秒可調）</li>
+              <li>權限：只有管理員可新增 / 編輯 / 刪除，一般業務只能瀏覽</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">
+            <h3>🔗 關鍵 LocalStorage 鍵值</h3>
+            <table class="def-table">
+              <thead><tr><th>鍵值</th><th>用途</th></tr></thead>
+              <tbody>
+                <tr><td>gomars_inquiry_draft</td><td>詢價單草稿（gomars_inquiry.html）</td></tr>
+                <tr><td>gomars_flight_db</td><td>航班資料庫 prototype 資料</td></tr>
+                <tr><td>gomars_theme</td><td>使用者主題偏好（light / dark）</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ── 設定 ── -->
     <div class="view" id="view-settings">
-      <div class="dash-content">
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">帳號資訊</span></div>
-          <div class="card-body">
-            <div style="display:grid;grid-template-columns:120px 1fr;gap:8px 16px;font-size:13px;">
-              <span style="color:var(--tx3);">Email</span><span id="setting-email" style="color:var(--tx);">—</span>
-              <span style="color:var(--tx3);">登入方式</span><span id="setting-provider" style="color:var(--tx);">—</span>
-              <span style="color:var(--tx3);">上次登入</span><span id="setting-last" style="color:var(--tx);">—</span>
-            </div>
+      <div class="settings-layout">
+        <!-- Left nav -->
+        <div>
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">設定項目</div>
+          <div class="settings-nav">
+            <button class="settings-nav-item active" onclick="switchSettings(this,'s-appearance')">🎨 外觀 &amp; 主題</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-cis')">🔴 CIS 品牌設定</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-fx')">💱 匯率設定</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-banner')">📣 Banner 管理</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-account')">👤 帳號管理</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-password')">🔒 密碼更換</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-notify')">🔔 通知偏好</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-team')">👥 團隊成員</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-data')">🗄 資料 &amp; 備份</button>
           </div>
         </div>
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">外觀</span></div>
-          <div class="card-body" style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:13px;color:var(--tx2);">主題</span>
-            <button class="tb-btn" onclick="toggleTheme()" id="theme-setting-btn">🌙 切換深色模式</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">Supabase 連線</span></div>
-          <div class="card-body">
-            <div style="font-size:12px;color:var(--tx2);font-family:'SF Mono',monospace;word-break:break-all;">
-              Project URL: <span style="color:var(--bl);">https://wghvduyyuvbnggddvdal.supabase.co</span>
+        <!-- Panels -->
+        <div>
+
+          <!-- 外觀 -->
+          <div class="settings-panel active" id="s-appearance">
+            <div class="settings-section">
+              <div class="settings-section-title">🎨 介面主題</div>
+              <div style="display:flex;gap:16px;padding:8px 0;">
+                <div class="theme-opt" onclick="setTheme('light')">
+                  <div class="theme-preview theme-preview-light" id="tp-light"></div>
+                  <div class="theme-label" id="tl-light">☀ 淺色模式</div>
+                </div>
+                <div class="theme-opt" onclick="setTheme('dark')">
+                  <div class="theme-preview theme-preview-dark" id="tp-dark"></div>
+                  <div class="theme-label" id="tl-dark">🌙 深色模式</div>
+                </div>
+              </div>
             </div>
-            <div style="margin-top:8px;">
-              <button class="tb-btn" onclick="testSupabase()">🔌 測試連線</button>
+            <div class="settings-section">
+              <div class="settings-section-title">🔠 語系 &amp; 格式</div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">介面語言</div></div><select class="inp" style="max-width:160px;"><option selected>繁體中文</option><option>简体中文</option><option>English</option></select></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">日期格式</div></div><select class="inp" style="max-width:160px;"><option selected>YYYY/MM/DD</option><option>MM/DD/YYYY</option></select></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">主顯貨幣</div></div><select class="inp" style="max-width:160px;"><option selected>NT$（台幣）</option><option>JPY</option><option>USD</option></select></div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">🔌 Supabase 連線</div>
+              <div style="font-size:12px;color:var(--tx2);font-family:'SF Mono','Cascadia Code','Consolas',monospace;word-break:break-all;margin-bottom:10px;">
+                Project URL: <span style="color:var(--bl);">https://wghvduyyuvbnggddvdal.supabase.co</span>
+              </div>
+              <button class="btn btn-sm" onclick="testSupabase()">🔌 測試連線</button>
             </div>
           </div>
-        </div>
-        <div class="card" style="border-color:#F7C1C1;">
-          <div class="card-hdr"><span class="card-title" style="color:#A32D2D;">登出</span></div>
-          <div class="card-body">
-            <button class="tb-btn" style="color:#A32D2D;border-color:#F7C1C1;" onclick="doLogout()">🚪 登出帳號</button>
+
+          <!-- CIS -->
+          <div class="settings-panel" id="s-cis">
+            <div class="settings-section">
+              <div class="settings-section-title">🔴 GOMARS 火星 — CIS 品牌色系</div>
+              <p style="font-size:12px;color:var(--tx3);margin-bottom:14px;">官方色彩規範，適用於所有文件輸出、報價單及系統介面。</p>
+              <div class="cis-chips">
+                <div class="cis-chip"><div class="cis-chip-swatch" style="background:#C43A10;"></div><div class="cis-chip-info"><span class="cis-chip-name">Mars Red</span><span class="cis-chip-hex">#C43A10</span></div></div>
+                <div class="cis-chip"><div class="cis-chip-swatch" style="background:#EA5404;"></div><div class="cis-chip-info"><span class="cis-chip-name">Orbit Orange</span><span class="cis-chip-hex">#EA5404</span></div></div>
+                <div class="cis-chip"><div class="cis-chip-swatch" style="background:#B85C00;"></div><div class="cis-chip-info"><span class="cis-chip-name">Dust Amber</span><span class="cis-chip-hex">#B85C00</span></div></div>
+                <div class="cis-chip"><div class="cis-chip-swatch" style="background:#0D0A08;"></div><div class="cis-chip-info"><span class="cis-chip-name">Deep Space</span><span class="cis-chip-hex">#0D0A08</span></div></div>
+                <div class="cis-chip"><div class="cis-chip-swatch" style="background:#2A1F18;"></div><div class="cis-chip-info"><span class="cis-chip-name">Crater Grey</span><span class="cis-chip-hex">#2A1F18</span></div></div>
+                <div class="cis-chip"><div class="cis-chip-swatch" style="background:#F7F3EF;border-bottom:.5px solid #E0DDD8;"></div><div class="cis-chip-info"><span class="cis-chip-name">Star White</span><span class="cis-chip-hex">#F7F3EF</span></div></div>
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">LOGO 版本</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <div style="background:#0D0A08;padding:14px 18px;border-radius:8px;">
+                  <div style="font-family:var(--font-cond);font-size:20px;font-weight:700;letter-spacing:.06em;color:#fff;line-height:1;">GO<span style="color:#EA5404;">MARS</span></div>
+                  <div style="font-size:9px;letter-spacing:.16em;color:#C43A10;margin-top:2px;">火星 · 旅遊管理平台</div>
+                  <div style="font-size:9px;color:rgba(200,196,190,.3);margin-top:1px;">深色版</div>
+                </div>
+                <div style="background:#F7F3EF;padding:14px 18px;border-radius:8px;border:.5px solid #E0DDD8;">
+                  <div style="font-family:var(--font-cond);font-size:20px;font-weight:700;letter-spacing:.06em;color:#0D0A08;line-height:1;">GO<span style="color:#EA5404;">MARS</span></div>
+                  <div style="font-size:9px;letter-spacing:.16em;color:#C43A10;margin-top:2px;">火星 · 旅遊管理平台</div>
+                  <div style="font-size:9px;color:#9A9690;margin-top:1px;">淺色版</div>
+                </div>
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">字體規範</div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">標題 / CTA</div><div class="settings-row-desc">Barlow Condensed → 降級為 Arial Narrow</div></div><span style="font-family:var(--font-cond);font-size:15px;font-weight:700;color:var(--br);">GO MARS 火星</span></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">繁中正文</div><div class="settings-row-desc">PingFang TC（Mac） / Microsoft JhengHei（Win）</div></div><span style="font-size:13px;">旅遊管理平台</span></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">等寬 / 代碼</div><div class="settings-row-desc">SF Mono / Cascadia Code / Consolas</div></div><span style="font-size:13px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;">gomars_admin</span></div>
+            </div>
           </div>
+
+          <!-- 匯率 -->
+          <div class="settings-panel" id="s-fx">
+            <div class="settings-section">
+              <div class="settings-section-title">💱 匯率設定</div>
+              <p style="font-size:12px;color:var(--tx3);margin-bottom:6px;">參考匯率來自台銀牌告（唯讀）。報價匯率為實際計算用，預設為參考匯率＋固定加成。</p>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg-surface);border-radius:7px;margin-bottom:12px;flex-wrap:wrap;">
+                <span style="font-size:12px;color:var(--tx2);">固定加成（套用至所有幣別）：</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input class="inp" id="fx-spread" value="3" style="max-width:60px;text-align:center;" oninput="updateFxRows()"/>
+                  <span style="font-size:12px;color:var(--tx2);">%</span>
+                </div>
+                <span style="font-size:11px;color:var(--tx3);">建議值 2–5%</span>
+                <button class="btn btn-sm btn-ghost" onclick="showToast('已套用加成至所有幣別')">套用</button>
+              </div>
+              <table class="fx-table">
+                <thead><tr><th>貨幣</th><th>代碼</th><th>參考匯率（台銀）</th><th>固定加成後</th><th>報價匯率（手動）</th><th>適用情境</th></tr></thead>
+                <tbody>
+                  <tr><td>🇯🇵 日圓</td><td>JPY</td><td class="fx-rate-ref">0.2150</td><td><span class="fx-rate-spread" id="fx-jpy-spread">→ 0.2215 (+3%)</span></td><td><input class="inp" value="0.221" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">日本行程費用換算</td></tr>
+                  <tr><td>🇺🇸 美元</td><td>USD</td><td class="fx-rate-ref">32.10</td><td><span class="fx-rate-spread">→ 33.06 (+3%)</span></td><td><input class="inp" value="33.10" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">歐美長程費用</td></tr>
+                  <tr><td>🇪🇺 歐元</td><td>EUR</td><td class="fx-rate-ref">34.85</td><td><span class="fx-rate-spread">→ 35.90 (+3%)</span></td><td><input class="inp" value="35.90" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">歐洲行程費用</td></tr>
+                  <tr><td>🇹🇭 泰銖</td><td>THB</td><td class="fx-rate-ref">0.920</td><td><span class="fx-rate-spread">→ 0.948 (+3%)</span></td><td><input class="inp" value="0.950" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">泰國地面費用</td></tr>
+                  <tr><td>🇰🇷 韓圜</td><td>KRW</td><td class="fx-rate-ref">0.0241</td><td><span class="fx-rate-spread">→ 0.0248 (+3%)</span></td><td><input class="inp" value="0.025" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">韓國行程費用</td></tr>
+                  <tr><td>🇬🇧 英鎊</td><td>GBP</td><td class="fx-rate-ref">40.20</td><td><span class="fx-rate-spread">→ 41.41 (+3%)</span></td><td><input class="inp" value="41.40" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">英國行程費用</td></tr>
+                  <tr><td>🇦🇺 澳幣</td><td>AUD</td><td class="fx-rate-ref">21.40</td><td><span class="fx-rate-spread">→ 22.04 (+3%)</span></td><td><input class="inp" value="22.00" style="max-width:80px;font-size:12px;"/></td><td style="font-size:11px;color:var(--tx3);">澳洲 / 紐西蘭</td></tr>
+                </tbody>
+              </table>
+              <div class="fx-note">● 旅行業慣例：機票款採航空公司每月公告匯率；地面費用採台銀即期匯率加 2–5%。<br>● 最後同步：手動 · 未來版本將串接台銀 API 自動更新</div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button class="btn btn-primary btn-sm" onclick="showToast('匯率已儲存')">儲存匯率</button>
+                <button class="btn btn-sm" onclick="showToast('已同步台銀最新匯率')">🔄 同步台銀匯率</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Banner -->
+          <div class="settings-panel" id="s-banner">
+            <div class="settings-section">
+              <div class="settings-section-title">📣 Banner 管理說明</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;">
+                <div style="background:var(--bg-surface);border-radius:8px;padding:10px 12px;border:.5px solid var(--border);">
+                  <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">圖片尺寸</div>
+                  <div style="font-size:13px;font-weight:600;color:var(--tx);">1200 × 400 px</div>
+                  <div style="font-size:11px;color:var(--tx3);margin-top:2px;">比例 3:1（寬:高）</div>
+                </div>
+                <div style="background:var(--bg-surface);border-radius:8px;padding:10px 12px;border:.5px solid var(--border);">
+                  <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">檔案大小</div>
+                  <div style="font-size:13px;font-weight:600;color:var(--tx);">上限 2 MB</div>
+                  <div style="font-size:11px;color:var(--tx3);margin-top:2px;">JPG · PNG · WebP</div>
+                </div>
+                <div style="background:var(--bg-surface);border-radius:8px;padding:10px 12px;border:.5px solid var(--border);">
+                  <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">輪播設定</div>
+                  <div style="font-size:13px;font-weight:600;color:var(--tx);">最多 5 張</div>
+                  <div style="font-size:11px;color:var(--tx3);margin-top:2px;">自動切換間隔可調</div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--tx3);margin-top:8px;padding:8px 10px;background:var(--bg-surface);border-radius:7px;border:.5px solid var(--border);">
+                💡 只有管理員帳號可以新增 / 編輯 / 刪除 Banner。
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">⏱ 輪播設定</div>
+              <div class="settings-row">
+                <div class="settings-row-left"><div class="settings-row-label">自動切換間隔</div><div class="settings-row-desc">每張 Banner 停留時間（秒）</div></div>
+                <div style="display:flex;align-items:center;gap:8px;"><input class="inp" id="banner-interval" value="5" type="number" min="3" max="30" style="max-width:64px;text-align:center;"/><span style="font-size:12px;color:var(--tx3);">秒</span></div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-left"><div class="settings-row-label">自動輪播</div><div class="settings-row-desc">關閉後 Banner 靜止，只能手動切換</div></div>
+                <label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+                <span>目前 Banner 列表</span>
+                <button class="btn btn-primary btn-sm" onclick="openBannerEditor(null)">＋ 新增 Banner</button>
+              </div>
+              <div class="banner-mgmt-item" id="bmi-1">
+                <div class="bmi-drag">⠿</div>
+                <div class="bmi-preview" style="background:linear-gradient(135deg,#1C0A02,#3A1208,#0D1A30);"><div style="font-family:var(--font-cond);font-size:11px;font-weight:700;color:#fff;line-height:1.2;">日本京都秋楓<br>早鳥優惠</div></div>
+                <div class="bmi-info"><div class="bmi-title">日本京都秋楓 8天7夜 早鳥優惠開跑</div><div class="bmi-meta"><span class="bmi-type-badge bmi-type-text">文字型</span><span style="font-size:11px;color:var(--tx3);">CTA → 查看詳情</span></div></div>
+                <div class="bmi-status on"><label class="toggle" style="margin:0;"><input type="checkbox" checked onchange="toggleBanner(1,this)"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label><span class="bmi-status-lbl" id="bsl-1">顯示中</span></div>
+                <div class="bmi-actions"><button class="btn btn-sm" onclick="openBannerEditor(1)">編輯</button><button class="btn btn-sm btn-danger" onclick="deleteBanner(1)">刪除</button></div>
+              </div>
+              <div class="banner-mgmt-item" id="bmi-2">
+                <div class="bmi-drag">⠿</div>
+                <div class="bmi-preview" style="background:linear-gradient(135deg,#0A1520,#0D2A3A,#1A2010);"><div style="font-family:var(--font-cond);font-size:11px;font-weight:700;color:#fff;line-height:1.2;">泰國曼谷清邁<br>雙城深度</div></div>
+                <div class="bmi-info"><div class="bmi-title">泰國曼谷清邁雙城深度 6天5夜</div><div class="bmi-meta"><span class="bmi-type-badge bmi-type-text">文字型</span><span style="font-size:11px;color:var(--tx3);">CTA → 查看詳情</span></div></div>
+                <div class="bmi-status on"><label class="toggle" style="margin:0;"><input type="checkbox" checked onchange="toggleBanner(2,this)"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label><span class="bmi-status-lbl" id="bsl-2">顯示中</span></div>
+                <div class="bmi-actions"><button class="btn btn-sm" onclick="openBannerEditor(2)">編輯</button><button class="btn btn-sm btn-danger" onclick="deleteBanner(2)">刪除</button></div>
+              </div>
+              <div class="banner-mgmt-item" id="bmi-3">
+                <div class="bmi-drag">⠿</div>
+                <div class="bmi-preview" style="background:linear-gradient(135deg,#1A0F28,#2A0F1A,#1A1008);"><div style="font-family:var(--font-cond);font-size:11px;font-weight:700;color:#fff;line-height:1.2;">GOMARS v0.2<br>系統更新</div></div>
+                <div class="bmi-info"><div class="bmi-title">GOMARS v0.2 更新 — 設定中心 · 開發者日誌上線</div><div class="bmi-meta"><span class="bmi-type-badge bmi-type-text">文字型</span><span style="font-size:11px;color:var(--tx3);">CTA → 查看更新日誌</span></div></div>
+                <div class="bmi-status on"><label class="toggle" style="margin:0;"><input type="checkbox" checked onchange="toggleBanner(3,this)"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label><span class="bmi-status-lbl" id="bsl-3">顯示中</span></div>
+                <div class="bmi-actions"><button class="btn btn-sm" onclick="openBannerEditor(3)">編輯</button><button class="btn btn-sm btn-danger" onclick="deleteBanner(3)">刪除</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 帳號 -->
+          <div class="settings-panel" id="s-account">
+            <div class="settings-section">
+              <div class="settings-section-title">👤 個人帳號資訊</div>
+              <div class="g2" style="margin-bottom:14px;">
+                <div class="f"><span class="lbl">姓名</span><input class="inp" id="setting-name" placeholder="—"/></div>
+                <div class="f"><span class="lbl">電子郵件</span><input class="inp" id="setting-email" placeholder="—" readonly style="opacity:.7;"/></div>
+                <div class="f"><span class="lbl">職稱</span><input class="inp" placeholder="例：業務"/></div>
+                <div class="f"><span class="lbl">所屬團隊</span><input class="inp" placeholder="例：台北團隊"/></div>
+              </div>
+              <div style="padding-top:8px;border-top:.5px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                <div style="font-size:11px;color:var(--tx3);">登入方式：<span id="setting-provider">—</span> · 上次登入：<span id="setting-last">—</span></div>
+                <button class="btn btn-primary btn-sm" onclick="showToast('帳號資訊已更新')">儲存變更</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 密碼 -->
+          <div class="settings-panel" id="s-password">
+            <div class="settings-section">
+              <div class="settings-section-title">🔒 更換密碼</div>
+              <div style="max-width:380px;">
+                <div class="f" style="margin-bottom:12px;"><span class="lbl">目前密碼</span><input class="inp" type="password" placeholder="輸入目前密碼"/></div>
+                <div class="f" style="margin-bottom:12px;"><span class="lbl">新密碼</span><input class="inp" type="password" placeholder="至少 8 碼，含英數字"/></div>
+                <div class="f" style="margin-bottom:16px;"><span class="lbl">確認新密碼</span><input class="inp" type="password" placeholder="再次輸入新密碼"/></div>
+                <p style="font-size:11px;color:var(--tx3);margin-bottom:12px;">密碼需至少 8 碼，含大小寫字母與數字。</p>
+                <button class="btn btn-primary btn-sm" onclick="showToast('密碼已成功更換')">確認更換密碼</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 通知 -->
+          <div class="settings-panel" id="s-notify">
+            <div class="settings-section">
+              <div class="settings-section-title">🔔 通知偏好設定</div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">供應商報價回覆通知</div><div class="settings-row-desc">供應商上傳報價回覆時通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">報價有效期到期提醒</div><div class="settings-row-desc">到期前 3 天提醒</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">客人回覆通知</div><div class="settings-row-desc">客人確認或詢問報價單時通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">出發日提前提醒</div><div class="settings-row-desc">距出發日 7 天、3 天前各一次</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">匯率異動通知</div><div class="settings-row-desc">主要幣別波動超過 ±3% 時提醒</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">系統更新公告</div><div class="settings-row-desc">新版本發布通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+          </div>
+
+          <!-- 團隊 -->
+          <div class="settings-panel" id="s-team">
+            <div class="settings-section">
+              <div class="settings-section-title">👥 團隊成員管理</div>
+              <table class="data-table" style="margin-bottom:12px;">
+                <thead><tr><th>姓名</th><th>Email</th><th>職稱</th><th>狀態</th><th>操作</th></tr></thead>
+                <tbody>
+                  <tr><td>（登入中）</td><td id="team-email-1">—</td><td>管理員</td><td><span class="badge badge-green">啟用</span></td><td><button class="btn btn-sm">編輯</button></td></tr>
+                </tbody>
+              </table>
+              <button class="btn btn-ghost btn-sm" onclick="showToast('新增成員功能即將上線')">＋ 邀請新成員</button>
+            </div>
+          </div>
+
+          <!-- 資料 -->
+          <div class="settings-panel" id="s-data">
+            <div class="settings-section">
+              <div class="settings-section-title">🗄 資料管理</div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">匯出所有案件資料</div><div class="settings-row-desc">Excel / CSV 格式匯出全部案件記錄</div></div><button class="btn btn-sm" onclick="showToast('資料匯出準備中…')">匯出 Excel</button></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">資料備份</div><div class="settings-row-desc">目前：LocalStorage · 未來：Supabase 雲端</div></div><button class="btn btn-sm" onclick="showToast('備份成功')">立即備份</button></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">清除詢價單暫存</div><div class="settings-row-desc">清除 gomars_inquiry_draft，不影響已送出案件</div></div><button class="btn btn-sm btn-danger" onclick="if(confirm('確定清除草稿？')){localStorage.removeItem('gomars_inquiry_draft');showToast('草稿暫存已清除')}">清除暫存</button></div>
+            </div>
+            <div class="settings-section" style="border-color:#F7C1C1;">
+              <div class="settings-section-title" style="color:#A32D2D;">帳號操作</div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">登出帳號</div><div class="settings-row-desc">登出後需重新使用 Email 或 Google 登入</div></div><button class="btn btn-sm btn-danger" onclick="doLogout()">🚪 登出</button></div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
   </div><!-- /main -->
 </div><!-- /app -->
+
+<!-- Flight DB: CSV Import Modal -->
+<div class="fdb-modal-overlay" id="fdb-import-overlay">
+  <div class="fdb-modal">
+    <div class="fdb-modal-hdr">
+      <div class="fdb-modal-title">📥 匯入航班資料（CSV）</div>
+      <button class="modal-close" onclick="closeFdbImport()">✕</button>
+    </div>
+    <div class="fdb-modal-body">
+      <p style="font-size:12px;color:var(--tx2);margin-bottom:10px;">每行一筆，格式：<code style="background:var(--bg-surface);padding:2px 6px;border-radius:4px;font-size:11px;">航班號,航空公司,出發機場,目的地機場,出發時刻,抵達時刻</code></p>
+      <p style="font-size:11px;color:var(--tx3);margin-bottom:12px;">範例：<code style="background:var(--bg-surface);padding:2px 6px;border-radius:4px;font-size:11px;">CI101,中華航空,TPE,NRT,08:00,12:30</code><br>時刻格式 HH:MM，出發/目的地填 IATA 三碼。可略去最後幾欄，只需航班號+航空公司也能匯入。</p>
+      <textarea class="inp fdb-csv-area" id="fdb-csv-input" placeholder="在此貼上 CSV 內容…&#10;CI101,中華航空,TPE,NRT,08:00,12:30&#10;BR197,長榮航空,TPE,KIX,09:15,13:20&#10;JX826,星宇航空,TPE,HND,07:30,11:45"></textarea>
+      <div style="margin-top:10px;padding:10px 12px;background:var(--bg-surface);border-radius:8px;border:.5px solid var(--border);">
+        <div style="font-size:11px;font-weight:600;color:var(--tx);margin-bottom:6px;">重複航班號處理方式</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2);cursor:pointer;margin-bottom:4px;">
+          <input type="radio" name="fdb-dup" value="overwrite" checked/> 覆蓋（以新資料為主）
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2);cursor:pointer;">
+          <input type="radio" name="fdb-dup" value="keep"/> 保留舊資料（略過重複）
+        </label>
+      </div>
+      <div id="fdb-import-result" style="margin-top:10px;font-size:12px;display:none;"></div>
+    </div>
+    <div class="fdb-modal-footer">
+      <button class="btn" onclick="closeFdbImport()">取消</button>
+      <button class="btn btn-primary" onclick="fdbDoImport()">匯入</button>
+    </div>
+  </div>
+</div>
+
+<!-- Flight DB: Add/Edit Modal -->
+<div class="fdb-modal-overlay" id="fdb-edit-overlay">
+  <div class="fdb-modal" style="width:480px;">
+    <div class="fdb-modal-hdr">
+      <div class="fdb-modal-title" id="fdb-edit-title">新增航班</div>
+      <button class="modal-close" onclick="closeFdbEdit()">✕</button>
+    </div>
+    <div class="fdb-modal-body">
+      <div class="fdb-edit-grid">
+        <div class="f full">
+          <span class="lbl">航班號 <span style="color:var(--br);">*</span></span>
+          <input class="inp" id="fdb-e-num" placeholder="例：CI101"
+            oninput="this.value=normalizeFlightNum(this.value);fdbCheckDup(this.value)"/>
+          <div class="fdb-format-hint">英文字母＋數字，無空格（CI101、BR197、NH807）</div>
+          <div class="fdb-dup-warn" id="fdb-dup-warn" style="display:none;"></div>
+        </div>
+        <div class="f">
+          <span class="lbl">航空公司</span>
+          <input class="inp" id="fdb-e-airline" placeholder="例：中華航空 或 CI 中華航空"
+            onblur="this.value=normalizeAirlineName(this.value)"/>
+          <div class="fdb-format-hint">輸入中文名自動補代碼，或直接輸入「CI 中華航空」</div>
+        </div>
+        <div class="f"></div>
+        <div class="f">
+          <span class="lbl">出發機場</span>
+          <input class="inp" id="fdb-e-from" placeholder="例：TPE 或 PUS 釜山" list="fdb-edit-from-list"
+            onblur="this.value=normalizeAirportCode(this.value)"/>
+          <datalist id="fdb-edit-from-list"></datalist>
+        </div>
+        <div class="f">
+          <span class="lbl">目的地機場</span>
+          <input class="inp" id="fdb-e-to" placeholder="例：NRT 或 ICN 首爾" list="fdb-edit-to-list"
+            onblur="this.value=normalizeAirportCode(this.value)"/>
+          <datalist id="fdb-edit-to-list"></datalist>
+        </div>
+        <div class="f"><span class="lbl">出發時刻</span><input class="inp" id="fdb-e-dep" placeholder="08:00" type="time"/></div>
+        <div class="f"><span class="lbl">抵達時刻</span><input class="inp" id="fdb-e-arr" placeholder="12:30" type="time"/></div>
+      </div>
+      <input type="hidden" id="fdb-e-orig-key"/>
+    </div>
+    <div class="fdb-modal-footer">
+      <button class="btn" onclick="closeFdbEdit()">取消</button>
+      <button class="btn btn-primary" onclick="fdbSaveEntry()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Banner Editor Modal -->
+<div class="banner-editor-overlay" id="banner-editor-overlay">
+  <div class="banner-editor">
+    <div class="be-hdr">
+      <div class="be-hdr-title" id="be-title">新增 Banner</div>
+      <button class="modal-close" onclick="closeBannerEditor()">✕</button>
+    </div>
+    <div class="be-body">
+      <div class="be-type-tabs">
+        <button class="be-type-tab active" id="be-tab-text" onclick="switchBannerType('text')">✏ 文字型</button>
+        <button class="be-type-tab" id="be-tab-image" onclick="switchBannerType('image')">🖼 圖片型</button>
+      </div>
+      <div id="be-text-fields">
+        <div class="be-field"><label>標題 <span style="color:var(--tx3);font-weight:400;">（Banner 上最大的字）</span></label><input class="inp" id="be-f-title" placeholder="例：日本京都秋楓 8天7夜" oninput="updateBannerPreview()"/></div>
+        <div class="be-field"><label>副標文字</label><input class="inp" id="be-f-sub" placeholder="例：出發日 2025/10/25 · 20人成團 · 含機票飯店" oninput="updateBannerPreview()"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div class="be-field"><label>左上角標籤小字</label><input class="inp" id="be-f-tag" placeholder="例：限時優惠 · 東北亞" oninput="updateBannerPreview()"/></div>
+          <div class="be-field"><label>CTA 按鈕文字</label><input class="inp" id="be-f-cta" placeholder="例：查看詳情" value="查看詳情"/></div>
+        </div>
+        <div class="be-field"><label>背景色方案</label>
+          <div class="be-color-row">
+            <div class="be-color-chip selected" style="background:linear-gradient(135deg,#1C0A02,#3A1208,#0D1A30);" onclick="selectBannerColor(this,'linear-gradient(135deg,#1C0A02,#3A1208,#0D1A30)')" title="火星夜"></div>
+            <div class="be-color-chip" style="background:linear-gradient(135deg,#0A1520,#0D2A3A,#1A2010);" onclick="selectBannerColor(this,'linear-gradient(135deg,#0A1520,#0D2A3A,#1A2010)')" title="深海藍"></div>
+            <div class="be-color-chip" style="background:linear-gradient(135deg,#1A0F28,#2A0F1A,#1A1008);" onclick="selectBannerColor(this,'linear-gradient(135deg,#1A0F28,#2A0F1A,#1A1008)')" title="星空紫"></div>
+            <div class="be-color-chip" style="background:linear-gradient(135deg,#0A1E0D,#0F2E14,#061808);" onclick="selectBannerColor(this,'linear-gradient(135deg,#0A1E0D,#0F2E14,#061808)')" title="森林綠"></div>
+            <div class="be-color-chip" style="background:linear-gradient(135deg,#1E1208,#2A1A08,#0D0A02);" onclick="selectBannerColor(this,'linear-gradient(135deg,#1E1208,#2A1A08,#0D0A02)')" title="焦糖棕"></div>
+            <div class="be-color-chip" style="background:linear-gradient(135deg,#18060A,#2A0C14,#0E0E1E);" onclick="selectBannerColor(this,'linear-gradient(135deg,#18060A,#2A0C14,#0E0E1E)')" title="玫瑰深紅"></div>
+          </div>
+        </div>
+        <div class="be-field"><label>即時預覽</label>
+          <div class="be-preview-box" id="be-preview-box" style="background:linear-gradient(135deg,#1C0A02,#3A1208,#0D1A30);">
+            <div class="be-preview-inner">
+              <div class="be-preview-tag" id="be-prev-tag" style="display:none;"></div>
+              <div class="be-preview-title" id="be-prev-title">在這裡輸入標題</div>
+              <div class="be-preview-sub" id="be-prev-sub">副標文字</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="be-image-fields" style="display:none;">
+        <div class="be-upload-zone" onclick="showToast('檔案上傳功能即將上線')">
+          <div class="be-upload-icon">🖼</div>
+          <div class="be-upload-main">點擊上傳 Banner 圖片</div>
+          <div class="be-upload-sub">或將圖片拖曳到此處</div>
+          <div class="be-upload-spec"><span class="be-spec-chip">1200 × 400 px</span><span class="be-spec-chip">比例 3:1</span><span class="be-spec-chip">上限 2 MB</span><span class="be-spec-chip">JPG · PNG · WebP</span></div>
+        </div>
+      </div>
+      <div class="be-field" style="margin-top:14px;">
+        <label>CTA 連結 <span style="color:var(--tx3);font-weight:400;">（選填）</span></label>
+        <div class="be-url-row">
+          <select class="inp" style="max-width:130px;" id="be-url-type" onchange="updateUrlType()"><option value="none">無連結</option><option value="internal">內部頁面</option><option value="external">外部連結</option></select>
+          <input class="inp" id="be-url-val" placeholder="選擇連結類型後填入" disabled style="flex:1;"/>
+        </div>
+        <div class="be-url-hint" id="be-url-hint">不填則 CTA 按鈕無動作</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-surface);border-radius:8px;border:.5px solid var(--border);margin-top:14px;">
+        <div><div style="font-size:13px;font-weight:500;color:var(--tx);">立即顯示</div><div style="font-size:11px;color:var(--tx3);">關閉則儲存為草稿，不在首頁輪播</div></div>
+        <label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+    </div>
+    <div class="be-footer">
+      <button class="btn" onclick="closeBannerEditor()">取消</button>
+      <button class="btn btn-primary" onclick="saveBanner()">儲存 Banner</button>
+    </div>
+  </div>
+</div>
 
 <!-- Toast container -->
 <div class="toast-wrap" id="toast-wrap"></div>
@@ -806,9 +1736,18 @@ function enterApp(user) {
   document.getElementById('sb-avatar').textContent    = initial
   document.getElementById('topbar-avatar').textContent = initial
 
-  document.getElementById('setting-email').textContent    = email
-  document.getElementById('setting-provider').textContent = provider
-  document.getElementById('setting-last').textContent     = lastLogin
+  // Settings account panel
+  const nameInp = document.getElementById('setting-name')
+  const emailInp = document.getElementById('setting-email')
+  if (nameInp)  nameInp.value = name
+  if (emailInp) emailInp.value = email
+  const provEl = document.getElementById('setting-provider')
+  const lastEl = document.getElementById('setting-last')
+  if (provEl) provEl.textContent = provider
+  if (lastEl) lastEl.textContent = lastLogin
+  // Team panel email
+  const teamEmail = document.getElementById('team-email-1')
+  if (teamEmail) teamEmail.textContent = email
 
   loadDashboard()
   toast(`歡迎回來，${name}！`, 'ok')
@@ -854,28 +1793,25 @@ async function testSupabase() {
 //  Navigation
 // ══════════════════════════════════════
 const viewMeta = {
-  dash:         { title: '首頁',              sub: '' },
-  customers:    { title: '客戶管理',          sub: '' },
-  messages:     { title: '留言／協作',        sub: '' },
-  cases:        { title: '案件管理',          sub: '' },
-  inquiry:      { title: '詢價單製作',        sub: '供應商詢價工具' },
-  'cost-quote': { title: '線控報價單（成本）',sub: '' },
-  'client-quote':{ title: '報價單製作（客報）',sub: '' },
-  flightdb:     { title: '航班資料庫',        sub: '' },
-  ticketdb:     { title: '門票資料庫',        sub: '' },
-  hoteldb:      { title: '飯店資料庫',        sub: '' },
-  'travel-guide':{ title: '旅遊手冊／說資',  sub: '' },
-  dm:           { title: 'DM 專區',           sub: '' },
-  contacts:     { title: '同業通訊錄',        sub: '' },
-  simcard:      { title: '網卡價目表',        sub: '' },
-  transfer:     { title: '機場接駁價目表',    sub: '' },
-  gifts:        { title: '贈品價目表',        sub: '' },
-  devlog:       { title: '開發者日誌',        sub: '' },
-  settings:     { title: '設定',              sub: '' },
+  dash:           { title: '首頁',              sub: '' },
+  customers:      { title: '客戶管理',          sub: '' },
+  messages:       { title: '留言／協作',        sub: '' },
+  cases:          { title: '案件管理',          sub: '' },
+  'case-detail':  { title: '案件管理',          sub: '' },
+  flightdb:       { title: '航班資料庫',        sub: '' },
+  ticketdb:       { title: '門票資料庫',        sub: '' },
+  hoteldb:        { title: '飯店資料庫',        sub: '' },
+  'travel-guide': { title: '旅遊手冊／說資',   sub: '' },
+  dm:             { title: 'DM 專區',           sub: '' },
+  contacts:       { title: '同業通訊錄',        sub: '' },
+  simcard:        { title: '網卡價目表',        sub: '' },
+  transfer:       { title: '機場接駁價目表',    sub: '' },
+  gifts:          { title: '贈品價目表',        sub: '' },
+  devlog:         { title: '開發者日誌',        sub: '' },
+  settings:       { title: '設定',              sub: '' },
 }
 
 function switchView(id, btn) {
-  // Deactivate all views
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
 
@@ -886,7 +1822,157 @@ function switchView(id, btn) {
   const meta = viewMeta[id] || {}
   document.getElementById('topbar-title').textContent = meta.title || id
   document.getElementById('topbar-sub').textContent   = meta.sub   || ''
+
+  if (id === 'cases') renderCasesList()
 }
+
+// ══════════════════════════════════════
+//  CASES LIST
+// ══════════════════════════════════════
+
+// Mock data — replace with Supabase fetch when ready
+const MOCK_CASES = [
+  { id:'1', case_number:'GM-2026-0320-001', client_name:'台積電員旅',     destination:'日本東京', depart_date:'2026-05-10', inquiry_status:'sent',  quote_status:'draft',     selling_price:null,  created_at:'2026-03-20' },
+  { id:'2', case_number:'GM-2026-0322-002', client_name:'聯發科旅遊組',   destination:'韓國首爾', depart_date:'2026-06-01', inquiry_status:'sent',  quote_status:'finalized', selling_price:28500, created_at:'2026-03-22' },
+  { id:'3', case_number:'GM-2026-0325-003', client_name:'王小明（FIT）',  destination:'泰國曼谷', depart_date:'2026-04-22', inquiry_status:'draft', quote_status:null,        selling_price:null,  created_at:'2026-03-25' },
+  { id:'4', case_number:'GM-2026-0328-004', client_name:'台大校友會',     destination:'義大利羅馬',depart_date:'2026-09-15',inquiry_status:'sent',  quote_status:'draft',     selling_price:null,  created_at:'2026-03-28' },
+  { id:'5', case_number:'GM-2026-0401-005', client_name:'新光三越獎勵旅遊',destination:'北海道', depart_date:'2026-07-08', inquiry_status:'draft', quote_status:null,        selling_price:null,  created_at:'2026-04-01' },
+  { id:'6', case_number:'GM-2026-0403-006', client_name:'林先生家族遊',   destination:'峇里島',   depart_date:'2026-05-28', inquiry_status:'sent',  quote_status:'finalized', selling_price:45200, created_at:'2026-04-03' },
+]
+
+let _casesFilter = 'all'
+let _casesData   = MOCK_CASES
+
+function setCasesFilter(f, btn) {
+  _casesFilter = f
+  document.querySelectorAll('.cases-filter-tab').forEach(b => b.classList.remove('active'))
+  if (btn) btn.classList.add('active')
+  renderCasesList()
+}
+
+function renderCasesList() {
+  const q     = (document.getElementById('cases-search')?.value || '').toLowerCase()
+  const tbody = document.getElementById('cases-tbody')
+  if (!tbody) return
+
+  let data = _casesData.filter(c => {
+    if (q && !`${c.case_number} ${c.client_name} ${c.destination}`.toLowerCase().includes(q)) return false
+    if (_casesFilter === 'active'    && c.quote_status === 'finalized') return false
+    if (_casesFilter === 'finalized' && c.quote_status !== 'finalized') return false
+    return true
+  })
+
+  // Update badge
+  const badge = document.getElementById('badge-cases')
+  if (badge) badge.textContent = _casesData.length
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:28px;">沒有符合條件的案件</td></tr>`
+    return
+  }
+
+  tbody.innerHTML = data.map(c => {
+    const price = c.selling_price
+      ? `NT$ ${c.selling_price.toLocaleString()}`
+      : `<span style="color:var(--tx3)">—</span>`
+    return `<tr onclick="openCase('${c.id}')">
+      <td><span class="case-num">${c.case_number}</span></td>
+      <td class="case-client">${c.client_name}</td>
+      <td class="case-dest">${c.destination}</td>
+      <td style="color:var(--tx2);font-size:12px;">${c.depart_date}</td>
+      <td>${caseStatusPill(c.inquiry_status, 'inquiry')}</td>
+      <td>${caseStatusPill(c.quote_status,   'quote')}</td>
+      <td><span class="cpill cpill-todo">—</span></td>
+      <td style="font-size:12.5px;">${price}</td>
+      <td style="color:var(--tx3);font-size:11px;">${c.created_at}</td>
+    </tr>`
+  }).join('')
+}
+
+function caseStatusPill(status, type) {
+  if (type === 'inquiry') {
+    if (status === 'sent')  return '<span class="cpill cpill-done">已發送</span>'
+    if (status === 'draft') return '<span class="cpill cpill-wip">草稿</span>'
+    return '<span class="cpill cpill-todo">未開始</span>'
+  }
+  if (status === 'finalized') return '<span class="cpill cpill-done">已完成</span>'
+  if (status === 'draft')     return '<span class="cpill cpill-wip">進行中</span>'
+  return '<span class="cpill cpill-todo">未開始</span>'
+}
+
+function newCase() {
+  toast('新增案件 — Supabase 串接後啟用', 'info')
+}
+
+// ══════════════════════════════════════
+//  CASE DETAIL
+// ══════════════════════════════════════
+let _currentCase   = null
+let _iframeLoaded  = {}
+
+function openCase(id) {
+  const c = _casesData.find(x => x.id === id)
+  if (!c) return
+  _currentCase  = c
+  _iframeLoaded = {}
+
+  // Update header
+  document.getElementById('cd-num').textContent  = c.case_number
+  document.getElementById('cd-name').textContent = c.client_name
+  document.getElementById('cd-meta').textContent = `${c.destination}　　出發：${c.depart_date}`
+  document.getElementById('topbar-sub').textContent = c.case_number
+
+  // Update tab status pills
+  setCaseTabPill('inquiry',     c.inquiry_status)
+  setCaseTabPill('cost-quote',  c.quote_status)
+  setCaseTabPill('client-quote', null, true)
+
+  // Switch view (keep sidebar highlight on "cases")
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+  document.getElementById('view-case-detail').classList.add('active')
+  document.getElementById('topbar-title').textContent = '案件管理'
+
+  switchCaseTab('inquiry')
+}
+
+function setCaseTabPill(tab, status, locked) {
+  const el = document.getElementById(`ctp-${tab}`)
+  if (!el) return
+  el.className = 'case-tab-pill'
+  if (locked) { el.classList.add('ctp-locked'); el.textContent = '未開放'; return }
+  if (status === 'sent' || status === 'finalized') { el.classList.add('ctp-done'); el.textContent = '已完成' }
+  else if (status === 'draft') { el.classList.add('ctp-wip');  el.textContent = '進行中' }
+  else { el.classList.add('ctp-todo'); el.textContent = '未開始' }
+}
+
+function switchCaseTab(tab) {
+  document.querySelectorAll('.case-tab-btn').forEach(b => b.classList.remove('active'))
+  document.querySelectorAll('.case-panel').forEach(p => p.classList.remove('active'))
+  document.getElementById(`ct-${tab}`)?.classList.add('active')
+  document.getElementById(`cp-${tab}`)?.classList.add('active')
+
+  // Lazy-load iframes
+  if (!_iframeLoaded[tab]) {
+    const src = tab === 'inquiry' ? 'gomars_inquiry.html'
+              : tab === 'cost-quote' ? 'gomars_quote.html' : ''
+    if (src) {
+      const iframe = document.getElementById(`cp-${tab}-iframe`)
+      if (iframe) iframe.src = src
+    }
+    _iframeLoaded[tab] = true
+  }
+}
+
+function backToCases() {
+  switchView('cases', document.querySelector('[data-view=cases]'))
+}
+
+// Listen for 「轉報價」 postMessage from inquiry iframe
+window.addEventListener('message', e => {
+  if (e.data?.type === 'gomars:to-cost-quote') {
+    switchCaseTab('cost-quote')
+  }
+})
 
 // ══════════════════════════════════════
 //  Sidebar collapse
@@ -903,15 +1989,122 @@ function toggleSidebar() {
 // ══════════════════════════════════════
 //  Theme
 // ══════════════════════════════════════
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t)
+  localStorage.setItem('gomars_theme', t)
+  const isDark = t === 'dark'
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙'
+  // Update settings theme picker
+  const tpLight = document.getElementById('tp-light')
+  const tpDark  = document.getElementById('tp-dark')
+  const tlLight = document.getElementById('tl-light')
+  const tlDark  = document.getElementById('tl-dark')
+  if (tpLight) { tpLight.style.borderColor = isDark ? '' : 'var(--br)'; tpLight.classList.toggle('selected', !isDark) }
+  if (tpDark)  { tpDark.style.borderColor  = isDark ? 'var(--br)' : ''; tpDark.classList.toggle('selected', isDark) }
+  if (tlLight) { tlLight.className = 'theme-label' + (isDark ? '' : ' selected') }
+  if (tlDark)  { tlDark.className  = 'theme-label' + (isDark ? ' selected' : '') }
+}
+
 function toggleTheme() {
-  const html = document.documentElement
-  const dark = html.getAttribute('data-theme') === 'dark'
-  html.setAttribute('data-theme', dark ? 'light' : 'dark')
-  const icon = dark ? '🌙' : '☀️'
-  document.getElementById('theme-btn').textContent = icon
-  if (document.getElementById('theme-setting-btn'))
-    document.getElementById('theme-setting-btn').textContent = dark ? '🌙 切換深色模式' : '☀️ 切換淺色模式'
-  localStorage.setItem('gomars_theme', dark ? 'light' : 'dark')
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark'
+  setTheme(dark ? 'light' : 'dark')
+}
+
+// ══════════════════════════════════════
+//  Devlog tabs
+// ══════════════════════════════════════
+function switchDevTab(btn, panelId) {
+  document.querySelectorAll('.devlog-tab').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  document.querySelectorAll('.devlog-panel').forEach(p => p.classList.remove('active'))
+  document.getElementById(panelId).classList.add('active')
+}
+
+// ══════════════════════════════════════
+//  Settings panels
+// ══════════════════════════════════════
+function switchSettings(btn, panelId) {
+  document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'))
+  document.getElementById(panelId).classList.add('active')
+}
+
+// showToast alias (bridge to existing toast())
+function showToast(msg) { toast(msg, 'info') }
+
+// ══════════════════════════════════════
+//  FX rows
+// ══════════════════════════════════════
+function updateFxRows() {
+  const pct = parseFloat(document.getElementById('fx-spread')?.value) || 0
+  const base = { jpy: 0.2150 }
+  const el = document.getElementById('fx-jpy-spread')
+  if (el) el.textContent = `→ ${(base.jpy * (1 + pct/100)).toFixed(4)} (+${pct}%)`
+}
+
+// ══════════════════════════════════════
+//  Banner management
+// ══════════════════════════════════════
+let _bannerColor = 'linear-gradient(135deg,#1C0A02,#3A1208,#0D1A30)'
+function openBannerEditor(id) {
+  document.getElementById('be-title').textContent = id ? '編輯 Banner' : '新增 Banner'
+  if (!id) {
+    document.getElementById('be-f-title').value = ''
+    document.getElementById('be-f-sub').value   = ''
+    document.getElementById('be-f-tag').value   = ''
+    updateBannerPreview()
+  }
+  document.getElementById('banner-editor-overlay').classList.add('open')
+}
+function closeBannerEditor() { document.getElementById('banner-editor-overlay').classList.remove('open') }
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('banner-editor-overlay')?.addEventListener('click', function(e) {
+    if (e.target === this) closeBannerEditor()
+  })
+})
+function switchBannerType(t) {
+  document.getElementById('be-tab-text').classList.toggle('active', t === 'text')
+  document.getElementById('be-tab-image').classList.toggle('active', t === 'image')
+  document.getElementById('be-text-fields').style.display = t === 'text' ? 'block' : 'none'
+  document.getElementById('be-image-fields').style.display = t === 'image' ? 'block' : 'none'
+}
+function selectBannerColor(el, gradient) {
+  _bannerColor = gradient
+  document.querySelectorAll('.be-color-chip').forEach(c => c.classList.remove('selected'))
+  el.classList.add('selected')
+  document.getElementById('be-preview-box').style.background = gradient
+}
+function updateBannerPreview() {
+  const t = document.getElementById('be-f-title')?.value || '在這裡輸入標題'
+  const s = document.getElementById('be-f-sub')?.value   || '副標文字'
+  const g = document.getElementById('be-f-tag')?.value   || ''
+  document.getElementById('be-prev-title').textContent = t
+  document.getElementById('be-prev-sub').textContent   = s
+  const tagEl = document.getElementById('be-prev-tag')
+  if (tagEl) { tagEl.textContent = g; tagEl.style.display = g ? 'block' : 'none' }
+}
+function updateUrlType() {
+  const t   = document.getElementById('be-url-type').value
+  const inp = document.getElementById('be-url-val')
+  const hint= document.getElementById('be-url-hint')
+  if (t === 'none')     { inp.disabled = true;  inp.placeholder = '選擇連結類型後填入'; hint.textContent = '不填則 CTA 按鈕無動作' }
+  else if (t === 'internal') { inp.disabled = false; inp.placeholder = '例：devlog'; hint.textContent = '系統內部頁面 ID' }
+  else                  { inp.disabled = false; inp.placeholder = 'https://'; hint.textContent = '外部連結，在新分頁開啟' }
+}
+function saveBanner() { showToast('Banner 已儲存'); closeBannerEditor() }
+function toggleBanner(id, cb) {
+  const lbl = document.getElementById('bsl-' + id)
+  if (!lbl) return
+  lbl.textContent = cb.checked ? '顯示中' : '已隱藏'
+  lbl.className = 'bmi-status-lbl' + (cb.checked ? '' : ' off')
+}
+function deleteBanner(id) {
+  if (confirm('確定要刪除這張 Banner？')) {
+    const el = document.getElementById('bmi-' + id)
+    if (el) el.style.display = 'none'
+    showToast('Banner 已刪除')
+  }
 }
 
 // ══════════════════════════════════════
@@ -932,10 +2125,7 @@ function toast(msg, type='info') {
 ;(async () => {
   // Restore theme
   const savedTheme = localStorage.getItem('gomars_theme')
-  if (savedTheme) {
-    document.documentElement.setAttribute('data-theme', savedTheme)
-    document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀️' : '🌙'
-  }
+  if (savedTheme) setTheme(savedTheme)
 
   // Check anon key placeholder
   if (SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
@@ -967,6 +2157,524 @@ function toast(msg, type='info') {
     if (e.key === 'Enter') document.getElementById('login-pw').focus()
   })
 })()
+
+// ══════════════════════════════════════
+//  FLIGHT DB MANAGER
+// ══════════════════════════════════════
+
+// ── IATA season boundary ──
+function getSeasonStart(refDate) {
+  const d = refDate || new Date()
+  const y = d.getFullYear()
+  function lastSundayOf(year, month) { // month 0-indexed
+    const last = new Date(year, month + 1, 0)
+    last.setDate(last.getDate() - last.getDay())
+    return last
+  }
+  const sumS = lastSundayOf(y, 2)     // last Sun of March
+  const winS = lastSundayOf(y, 9)     // last Sun of October
+  if (d >= sumS && d < winS) return sumS
+  if (d >= winS) return winS
+  return lastSundayOf(y - 1, 9)       // prev winter start
+}
+
+function getEntryStatus(savedAt) {
+  if (!savedAt) return { code:'unknown', label:'未知', dotClass:'fdb-dot-unknown' }
+  const saved = new Date(savedAt)
+  const now = new Date()
+  const seasonStart = getSeasonStart(now)
+  const prevSeasonStart = getSeasonStart(new Date(seasonStart.getTime() - 1))
+  if (saved >= seasonStart) return { code:'ok',    label:'本季正常', dotClass:'fdb-dot-ok' }
+  if (saved >= prevSeasonStart) return { code:'warn',  label:'需確認',   dotClass:'fdb-dot-warn' }
+  return { code:'stale', label:'已過期',   dotClass:'fdb-dot-stale' }
+}
+
+function getFdb() {
+  return JSON.parse(localStorage.getItem('gomars_flight_db') || '{}')
+}
+function setFdb(db) {
+  localStorage.setItem('gomars_flight_db', JSON.stringify(db))
+}
+
+// ── Render table ──
+// Sort state
+let fdbSortState = { col: 'num', dir: 'asc' }
+
+function fdbSetSort(col) {
+  if (fdbSortState.col === col) {
+    fdbSortState.dir = fdbSortState.dir === 'asc' ? 'desc' : 'asc'
+  } else {
+    fdbSortState.col = col
+    fdbSortState.dir = 'asc'
+  }
+  // Update header visuals
+  document.querySelectorAll('#fdb-thead th').forEach(th => {
+    const isActive = th.dataset.col === col
+    th.classList.toggle('sort-active', isActive)
+    const icon = th.querySelector('.fdb-sort-icon')
+    if (!icon) return
+    if (isActive) icon.textContent = fdbSortState.dir === 'asc' ? '↑' : '↓'
+    else if (th.classList.contains('sortable')) icon.textContent = '↕'
+  })
+  renderFlightTable()
+}
+
+function fdbSortEntries(entries, db) {
+  const { col, dir } = fdbSortState
+  const statusOrder = { ok:0, warn:1, stale:2, unknown:3 }
+  return entries.slice().sort((a, b) => {
+    let va, vb
+    if (col === 'num')     { va = a;                 vb = b }
+    else if (col === 'status') {
+      va = statusOrder[getEntryStatus(db[a].savedAt).code] ?? 9
+      vb = statusOrder[getEntryStatus(db[b].savedAt).code] ?? 9
+    }
+    else { va = (db[a][col] || '').toLowerCase(); vb = (db[b][col] || '').toLowerCase() }
+    if (va < vb) return dir === 'asc' ? -1 : 1
+    if (va > vb) return dir === 'asc' ?  1 : -1
+    return 0
+  })
+}
+
+// ── Normalize helpers ──
+const TW_AIRPORTS = ['TPE','TSA','KHH','RMQ','TNN','TTT','HUN','KNH','MZG']
+
+// 常見航空公司中文名 → IATA 代碼對照表
+const AIRLINE_CODE_MAP = {
+  '中華航空':'CI','長榮航空':'BR','星宇航空':'JX','台灣虎航':'IT','立榮航空':'B7',
+  '遠東航空':'FE','德威航空':'GT',
+  '國泰航空':'CX','國泰':'CX','香港快運':'UO','港龍航空':'KA',
+  '日本航空':'JL','日航':'JL','全日空':'NH','全日空航空':'NH',
+  '樂桃航空':'MM','捷星日本':'GK','春秋航空日本':'IJ',
+  '大韓航空':'KE','韓亞航空':'OZ','濟州航空':'7C','真航空':'LJ','德威韓國':'TW',
+  '新加坡航空':'SQ','酷航':'TR','勝安航空':'MI','欣豐虎航':'TR',
+  '泰國航空':'TG','泰國獅航':'SL','泰獅航':'SL','曼谷航空':'PG','泰亞航空':'I8',
+  '越捷航空':'VJ','越南航空':'VN','竹蜻蜓航空':'QH',
+  '菲律賓航空':'PR','宿霧太平洋':'5J',
+  '馬來西亞航空':'MH','亞洲航空':'AK','馬印航空':'OD',
+  '澳門航空':'NX','空澳':'NX',
+  '中國南方航空':'CZ','中國東方航空':'MU','中國國際航空':'CA',
+  '廈門航空':'MF','海南航空':'HU','深圳航空':'ZH','四川航空':'3U',
+  '聯合航空':'UA','美國航空':'AA','達美航空':'DL',
+  '英國航空':'BA','荷蘭皇家航空':'KL','荷航':'KL','法國航空':'AF','法航':'AF',
+  '土耳其航空':'TK','阿聯酋航空':'EK','阿提哈德航空':'EY','卡達航空':'QR',
+}
+
+function normalizeFlightNum(val) {
+  return val.replace(/\s+/g, '').toUpperCase()
+}
+
+// 航空公司名稱正規化：
+//   "中華航空"       → "CI 中華航空"   （純中文 → 查表補代碼）
+//   "CI中華航空"     → "CI 中華航空"   （補空格）
+//   "CI 中華航空"    → "CI 中華航空"   （已正確，不動）
+function normalizeAirlineName(name) {
+  if (!name) return name
+  name = name.trim()
+  // 純中文（或中文＋全形）→ 查表
+  if (/^[^\x00-\x7F\s]+$/.test(name) && AIRLINE_CODE_MAP[name]) {
+    return `${AIRLINE_CODE_MAP[name]} ${name}`
+  }
+  // 在 ASCII ↔ CJK 邊界補空格
+  return name
+    .replace(/([A-Za-z0-9])([^\x00-\x7F])/g, '$1 $2')
+    .replace(/([^\x00-\x7F])([A-Za-z0-9])/g, '$1 $2')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+// 機場碼正規化：
+//   "PUS釜山"   → "PUS 釜山"
+//   "tpe"       → "TPE"
+//   "TPE 台北"  → "TPE 台北"（不動）
+function normalizeAirportCode(val) {
+  if (!val) return val
+  return val
+    .replace(/([A-Za-z0-9])([^\x00-\x7F])/g, '$1 $2')
+    .replace(/([^\x00-\x7F])([A-Za-z0-9])/g, '$1 $2')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+    .replace(/^[a-z0-9]+/i, m => m.toUpperCase())
+}
+
+function fdbCheckDup(num) {
+  const warnEl  = document.getElementById('fdb-dup-warn')
+  const origKey = document.getElementById('fdb-e-orig-key').value
+  if (!warnEl) return
+  if (!num || num.length < 3 || origKey) { warnEl.style.display = 'none'; return }
+  const db = getFdb()
+  const e  = db[num]
+  if (e) {
+    warnEl.style.display = 'block'
+    warnEl.innerHTML = `⚠ <strong>${num}</strong> 已存在（${e.airline||'—'} · ${e.from||'?'}→${e.to||'?'} ${e.dep||''}）。儲存將覆蓋——這是換季更新的正常操作。`
+  } else {
+    warnEl.style.display = 'none'
+  }
+}
+
+// ── Custom searchable select ──
+function fdbSelToggle(id) {
+  const wrap = document.getElementById(id)
+  if (!wrap) return
+  const isOpen = wrap.classList.contains('open')
+  // close all
+  document.querySelectorAll('.fdb-sel.open').forEach(w => w.classList.remove('open'))
+  if (!isOpen) {
+    wrap.classList.add('open')
+    const inp = wrap.querySelector('.fdb-sel-search')
+    if (inp) { inp.value = ''; fdbSelSearch(inp); setTimeout(() => inp.focus(), 50) }
+  }
+}
+
+function fdbSelSearch(inp) {
+  const q    = inp.value.trim().toLowerCase()
+  const list = inp.closest('.fdb-sel-drop').querySelector('.fdb-sel-list')
+  list.querySelectorAll('.fdb-sel-opt').forEach(li => {
+    li.classList.toggle('hidden', q ? !li.dataset.value.toLowerCase().includes(q) : false)
+  })
+  // dividers: hide if both sides hidden
+  list.querySelectorAll('.fdb-sel-divider').forEach(div => {
+    const prev = div.previousElementSibling
+    const next = div.nextElementSibling
+    div.style.display = (prev && !prev.classList.contains('hidden') && next && !next.classList.contains('hidden')) ? '' : 'none'
+  })
+}
+
+function fdbSelPick(li) {
+  const wrap  = li.closest('.fdb-sel')
+  const val   = li.dataset.value
+  const label = li.dataset.label || val || (wrap.id === 'fdb-sel-from' ? '出發地 全部' : '目的地 全部')
+  wrap.querySelectorAll('.fdb-sel-opt').forEach(o => o.classList.remove('active'))
+  li.classList.add('active')
+  wrap.querySelector('.fdb-sel-val').textContent = label
+  wrap.querySelector('.fdb-sel-btn').classList.toggle('has-value', !!val)
+  wrap.dataset.selValue = val
+  wrap.classList.remove('open')
+  renderFlightTable()
+}
+
+// close on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.fdb-sel')) {
+    document.querySelectorAll('.fdb-sel.open').forEach(w => w.classList.remove('open'))
+  }
+})
+
+// Build airport options HTML (TW pinned, then divider, then rest)
+function fdbBuildAirportOptions(airports, currentVal) {
+  const tw   = TW_AIRPORTS.filter(a => airports.includes(a))
+  const rest = airports.filter(a => !TW_AIRPORTS.includes(a)).sort()
+  const all  = '全部'
+  let html = `<li class="fdb-sel-opt${!currentVal?' active':''}" data-value="" data-label="${all}" onclick="fdbSelPick(this)">${all}</li>`
+  if (tw.length) {
+    html += tw.map(a =>
+      `<li class="fdb-sel-opt${a===currentVal?' active':''}" data-value="${a}" onclick="fdbSelPick(this)">${a} <span class="fdb-sel-badge">TW</span></li>`
+    ).join('')
+  }
+  if (tw.length && rest.length) html += `<li class="fdb-sel-divider"></li>`
+  html += rest.map(a =>
+    `<li class="fdb-sel-opt${a===currentVal?' active':''}" data-value="${a}" onclick="fdbSelPick(this)">${a}</li>`
+  ).join('')
+  return html
+}
+
+// Populate custom selects for toolbar filters + datalists for edit modal
+function fdbRefreshFilterOptions() {
+  const db    = getFdb()
+  const froms = [...new Set(Object.values(db).map(e => e.from).filter(Boolean))]
+  const tos   = [...new Set(Object.values(db).map(e => e.to  ).filter(Boolean))]
+
+  // Custom selects (toolbar)
+  const curFrom = document.getElementById('fdb-sel-from')?.dataset.selValue || ''
+  const curTo   = document.getElementById('fdb-sel-to')?.dataset.selValue   || ''
+  const fromList = document.getElementById('fdb-sel-from-list')
+  const toList   = document.getElementById('fdb-sel-to-list')
+  if (fromList) fromList.innerHTML = fdbBuildAirportOptions(froms, curFrom)
+  if (toList)   toList.innerHTML   = fdbBuildAirportOptions(tos,   curTo)
+
+  // Datalists for edit modal inputs
+  const allAirports = [...new Set([...froms, ...tos, ...TW_AIRPORTS])].sort((a,b)=>{
+    const ai = TW_AIRPORTS.indexOf(a), bi = TW_AIRPORTS.indexOf(b)
+    if (ai >= 0 && bi < 0) return -1
+    if (bi >= 0 && ai < 0) return 1
+    return a.localeCompare(b)
+  })
+  const dlHtml = allAirports.map(a => `<option value="${a}">`).join('')
+  const dlFrom = document.getElementById('fdb-edit-from-list')
+  const dlTo   = document.getElementById('fdb-edit-to-list')
+  if (dlFrom) dlFrom.innerHTML = dlHtml
+  if (dlTo)   dlTo.innerHTML   = dlHtml
+}
+
+// ── Normalize all existing DB entries (format + deduplicate) ──
+function fdbNormalizeAll() {
+  const db    = getFdb()
+  const newDb = {}
+  let fixed = 0, dupes = 0
+
+  Object.entries(db).forEach(([key, entry]) => {
+    const normKey     = normalizeFlightNum(key)
+    const normAirline = normalizeAirlineName(entry.airline || '')
+    const normFrom    = normalizeAirportCode(entry.from    || '')
+    const normTo      = normalizeAirportCode(entry.to      || '')
+    const changed     = normKey !== key
+                     || normAirline !== (entry.airline || '')
+                     || normFrom    !== (entry.from    || '')
+                     || normTo      !== (entry.to      || '')
+    if (changed) fixed++
+    const normEntry = { ...entry, airline: normAirline, from: normFrom, to: normTo }
+    if (newDb[normKey]) {
+      // duplicate after normalization → keep the more recently saved one
+      const existDate = newDb[normKey].savedAt ? new Date(newDb[normKey].savedAt) : 0
+      const thisDate  = entry.savedAt           ? new Date(entry.savedAt)          : 0
+      if (thisDate > existDate) newDb[normKey] = normEntry
+      dupes++
+    } else {
+      newDb[normKey] = normEntry
+    }
+  })
+
+  setFdb(newDb)
+  renderFlightTable()
+  const msg = dupes
+    ? `整理完成：${fixed} 筆格式修正，移除 ${dupes} 筆重複`
+    : fixed
+      ? `整理完成：${fixed} 筆格式修正，無重複`
+      : '資料已是最新格式，無需修正'
+  showToast(msg)
+}
+
+function renderFlightTable() {
+  const db     = getFdb()
+  const q      = (document.getElementById('fdb-search')?.value || '').toLowerCase()
+  const fStatus = document.getElementById('fdb-filter-status')?.value          || ''
+  const fFrom   = document.getElementById('fdb-sel-from')?.dataset.selValue   || ''
+  const fTo     = document.getElementById('fdb-sel-to')?.dataset.selValue     || ''
+
+  const keys = Object.keys(db)
+  let counts = { ok:0, warn:0, stale:0, unknown:0 }
+  keys.forEach(k => { const s = getEntryStatus(db[k].savedAt); counts[s.code] = (counts[s.code]||0)+1 })
+
+  // Stats bar
+  const statsEl = document.getElementById('fdb-stats')
+  if (statsEl) statsEl.innerHTML = `
+    <span class="fdb-stat fdb-stat-total">✈ 共 ${keys.length} 筆</span>
+    <span class="fdb-stat-sep">·</span>
+    <span class="fdb-stat fdb-stat-ok">🟢 ${counts.ok} 本季</span>
+    <span class="fdb-stat fdb-stat-warn">🟡 ${counts.warn} 需確認</span>
+    <span class="fdb-stat fdb-stat-stale">🔴 ${counts.stale} 過期</span>
+    <span style="flex:1;"></span>
+    <span style="font-size:11px;color:var(--tx3);">本季換班日：${getSeasonStart(new Date()).toLocaleDateString('zh-TW')}</span>
+  `
+
+  // Refresh dropdowns
+  fdbRefreshFilterOptions()
+
+  // Filter
+  let filtered = keys.filter(k => {
+    const e = db[k]
+    const s = getEntryStatus(e.savedAt)
+    const getCode = v => (v||'').split(/\s/)[0].toUpperCase()
+    if (fStatus && s.code !== fStatus) return false
+    if (fFrom   && getCode(e.from) !== getCode(fFrom)) return false
+    if (fTo     && getCode(e.to)   !== getCode(fTo))   return false
+    if (q) {
+      const hay = [k, e.airline||'', e.from||'', e.to||''].join(' ').toLowerCase()
+      if (!hay.includes(q)) return false
+    }
+    return true
+  })
+
+  // Sort
+  filtered = fdbSortEntries(filtered, db)
+
+  const tbody = document.getElementById('fdb-tbody')
+  if (!tbody) return
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="fdb-empty">${keys.length === 0 ? '資料庫是空的，請點「匯入 CSV」或「新增航班」' : '沒有符合條件的航班'}</td></tr>`
+    return
+  }
+
+  tbody.innerHTML = filtered.map(k => {
+    const e = db[k]
+    const s = getEntryStatus(e.savedAt)
+    const savedDate = e.savedAt ? new Date(e.savedAt).toLocaleDateString('zh-TW') : '—'
+    return `<tr>
+      <td><span class="fdb-num">${k}</span></td>
+      <td>${e.airline || '<span style="color:var(--tx3);">—</span>'}</td>
+      <td style="font-weight:500;">${e.from || '—'}</td>
+      <td style="font-weight:500;">${e.to   || '—'}</td>
+      <td class="fdb-time">${e.dep || '—'}</td>
+      <td class="fdb-time">${e.arr || '—'}</td>
+      <td>
+        <div class="fdb-status-cell">
+          <span class="fdb-dot ${s.dotClass}"></span>
+          <span style="color:var(--tx3);">${s.label}</span>
+        </div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:1px;">儲存：${savedDate}</div>
+      </td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-sm" onclick="openFdbEdit('${k}')">編輯</button>
+          <button class="btn btn-sm btn-danger" onclick="fdbDeleteEntry('${k}')">刪</button>
+        </div>
+      </td>
+    </tr>`
+  }).join('')
+}
+
+// ── Delete ──
+function fdbDeleteEntry(key) {
+  if (!confirm(`確定刪除 ${key}？`)) return
+  const db = getFdb()
+  delete db[key]
+  setFdb(db)
+  renderFlightTable()
+  showToast(`已刪除 ${key}`)
+}
+
+// ── Add / Edit modal ──
+function openFdbAdd() {
+  document.getElementById('fdb-edit-title').textContent = '新增航班'
+  document.getElementById('fdb-e-num').value     = ''
+  document.getElementById('fdb-e-airline').value = ''
+  document.getElementById('fdb-e-from').value    = ''
+  document.getElementById('fdb-e-to').value      = ''
+  document.getElementById('fdb-e-dep').value     = ''
+  document.getElementById('fdb-e-arr').value     = ''
+  document.getElementById('fdb-e-orig-key').value = ''
+  document.getElementById('fdb-e-num').removeAttribute('readonly')
+  document.getElementById('fdb-dup-warn').style.display = 'none'
+  fdbRefreshFilterOptions()
+  document.getElementById('fdb-edit-overlay').classList.add('open')
+}
+function openFdbEdit(key) {
+  const db = getFdb()
+  const e  = db[key]
+  if (!e) return
+  document.getElementById('fdb-edit-title').textContent = `編輯 ${key}`
+  document.getElementById('fdb-e-num').value     = key
+  document.getElementById('fdb-e-airline').value = e.airline || ''
+  document.getElementById('fdb-e-from').value    = e.from    || ''
+  document.getElementById('fdb-e-to').value      = e.to      || ''
+  document.getElementById('fdb-e-dep').value     = e.dep     || ''
+  document.getElementById('fdb-e-arr').value     = e.arr     || ''
+  document.getElementById('fdb-e-orig-key').value = key
+  document.getElementById('fdb-e-num').setAttribute('readonly','')
+  document.getElementById('fdb-dup-warn').style.display = 'none'
+  fdbRefreshFilterOptions()
+  document.getElementById('fdb-edit-overlay').classList.add('open')
+}
+function closeFdbEdit() { document.getElementById('fdb-edit-overlay').classList.remove('open') }
+
+function fdbSaveEntry() {
+  const num     = normalizeFlightNum(document.getElementById('fdb-e-num').value)
+  const airline = normalizeAirlineName(document.getElementById('fdb-e-airline').value.trim())
+  const from    = normalizeAirportCode(document.getElementById('fdb-e-from').value.trim())
+  const to      = normalizeAirportCode(document.getElementById('fdb-e-to').value.trim())
+  const dep     = document.getElementById('fdb-e-dep').value
+  const arr     = document.getElementById('fdb-e-arr').value
+  const origKey = document.getElementById('fdb-e-orig-key').value
+
+  if (!num) { showToast('航班號不能空白'); return }
+
+  const db = getFdb()
+  if (origKey && origKey !== num) delete db[origKey] // renamed key
+  db[num] = { airline, from, to, dep, arr, savedAt: new Date().toISOString() }
+  setFdb(db)
+  closeFdbEdit()
+  renderFlightTable()
+  showToast(`已儲存 ${num}`)
+}
+
+// ── CSV Import ──
+function openFdbImport() {
+  document.getElementById('fdb-csv-input').value = ''
+  document.getElementById('fdb-import-result').style.display = 'none'
+  document.getElementById('fdb-import-overlay').classList.add('open')
+}
+function closeFdbImport() { document.getElementById('fdb-import-overlay').classList.remove('open') }
+
+function fdbDoImport() {
+  const raw  = document.getElementById('fdb-csv-input').value.trim()
+  const mode = document.querySelector('input[name="fdb-dup"]:checked')?.value || 'overwrite'
+  if (!raw) { showToast('請先貼上 CSV 內容'); return }
+
+  const db = getFdb()
+  let added = 0, skipped = 0, errors = 0
+  const now = new Date().toISOString()
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
+  // auto-skip header row if first cell isn't a flight number pattern
+  const startIdx = /^[A-Z0-9]{2,3}\d/i.test(lines[0]?.split(',')[0]) ? 0 : 1
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim())
+    const num  = normalizeFlightNum(cols[0] || '')
+    if (!num || num.length < 3) { errors++; continue }
+    if (mode === 'keep' && db[num]) { skipped++; continue }
+    db[num] = {
+      airline: normalizeAirlineName(cols[1] || db[num]?.airline || ''),
+      from:    normalizeAirportCode(cols[2] || db[num]?.from || ''),
+      to:      normalizeAirportCode(cols[3] || db[num]?.to   || ''),
+      dep:     cols[4] || db[num]?.dep || '',
+      arr:     cols[5] || db[num]?.arr || '',
+      savedAt: now
+    }
+    added++
+  }
+
+  setFdb(db)
+  renderFlightTable()
+
+  const resultEl = document.getElementById('fdb-import-result')
+  resultEl.style.display = 'block'
+  resultEl.style.color = added > 0 ? 'var(--grd)' : 'var(--tx3)'
+  resultEl.innerHTML = `✓ 匯入 ${added} 筆${skipped ? `，略過 ${skipped} 筆（已存在）` : ''}${errors ? `，${errors} 行格式錯誤` : ''}`
+  if (added > 0) setTimeout(closeFdbImport, 1400)
+}
+
+// ── Export ──
+function fdbExportCSV() {
+  const db = getFdb()
+  const keys = Object.keys(db).sort()
+  if (!keys.length) { showToast('資料庫是空的'); return }
+  const header = 'flight_no,airline,from,to,dep,arr'
+  const rows = keys.map(k => {
+    const e = db[k]
+    return [k, e.airline||'', e.from||'', e.to||'', e.dep||'', e.arr||''].join(',')
+  })
+  const csv = [header, ...rows].join('\n')
+  fdbDownload('gomars_flight_db.csv', csv, 'text/csv')
+  showToast(`已匯出 ${keys.length} 筆`)
+}
+function fdbExportJSON() {
+  const db = getFdb()
+  if (!Object.keys(db).length) { showToast('資料庫是空的'); return }
+  fdbDownload('gomars_flight_db.json', JSON.stringify(db, null, 2), 'application/json')
+  showToast(`JSON 備份已下載`)
+}
+function fdbDownload(filename, content, mime) {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }))
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(a.href)
+}
+
+// Close modals on backdrop click
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fdb-import-overlay')?.addEventListener('click', e => { if(e.target===e.currentTarget) closeFdbImport() })
+  document.getElementById('fdb-edit-overlay')?.addEventListener('click',  e => { if(e.target===e.currentTarget) closeFdbEdit() })
+})
+
+// Re-render when switching to flightdb view
+const _origSwitchView = switchView
+switchView = function(id, btn) {
+  _origSwitchView(id, btn)
+  if (id === 'flightdb') renderFlightTable()
+}
 </script>
 </body>
 </html>

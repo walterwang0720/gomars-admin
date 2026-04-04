@@ -127,6 +127,20 @@ textarea.inp{resize:vertical;min-height:72px;}
 
 /* ── Flight ── */
 .flight-combo{border:.5px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:10px;}
+/* Flight number autocomplete suggest */
+.flt-num-wrap{position:relative;}
+.flt-suggest{position:absolute;top:calc(100% + 3px);left:0;min-width:280px;background:var(--bg-card,#fff);border:.5px solid var(--border);border-radius:9px;box-shadow:0 6px 20px rgba(0,0,0,.13);z-index:500;overflow:hidden;display:none;}
+.flt-suggest.open{display:block;}
+.flt-sug-item{display:flex;align-items:center;gap:8px;padding:8px 11px;cursor:pointer;border-bottom:.5px solid var(--border);}
+.flt-sug-item:last-child{border-bottom:none;}
+.flt-sug-item:hover{background:var(--bg-surface);}
+.flt-sug-num{font-family:var(--font-mono,"SF Mono",monospace);font-weight:700;font-size:13px;color:#C43A10;min-width:52px;}
+.flt-sug-airline{font-size:12px;color:var(--tx,#111);flex:1;}
+.flt-sug-route{font-size:11px;color:var(--tx3,#888);white-space:nowrap;}
+.flt-sug-empty{padding:10px 12px;font-size:12px;color:var(--tx3,#888);text-align:center;}
+/* DB hit badge */
+.flt-db-badge{display:none;font-size:10px;font-weight:600;color:#1D7A4E;background:#E6F4ED;border-radius:4px;padding:1px 6px;margin-left:4px;vertical-align:middle;}
+.flt-db-badge.show{display:inline;}
 .flight-dir-label{font-size:11px;font-weight:700;padding:2px 9px;border-radius:4px;flex-shrink:0;}
 .dir-out{background:var(--blb);color:var(--bld);}
 .dir-ret{background:#FAEEDA;color:#633806;}
@@ -946,22 +960,26 @@ function buildFlightBlock(dir, defaultFrom='', defaultTo=''){
   const isRet = dir==='ret';
   return `<div class="flight-block ${isRet?'ret-block':''}">
     <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
-      <div class="f"><span class="lbl">航班代號</span>
+      <div class="f flt-num-wrap"><span class="lbl">航班代號 <span class="flt-db-badge">✓ 資料庫</span></span>
         <input class="inp flt-num" placeholder="BR189"
           style="font-family:var(--font-mono);font-weight:700;text-transform:uppercase;"
-          oninput="this.value=this.value.toUpperCase();lookupFlight(this);markUnsaved();updatePreview()"/></div>
+          oninput="this.value=this.value.toUpperCase();lookupFlight(this);markUnsaved();updatePreview()"
+          onblur="setTimeout(()=>closeFltSuggest(this),180);autoSaveFlightToDB(this)"/>
+        <div class="flt-suggest"></div></div>
       <div class="f"><span class="lbl">航空公司</span>
-        <input class="inp flt-airline" placeholder="自動帶入" oninput="markUnsaved();updatePreview()"/></div>
+        <input class="inp flt-airline" placeholder="自動帶入"
+          oninput="markUnsaved();updatePreview()"
+          onblur="autoSaveFlightToDB(this)"/></div>
       <div class="f"><span class="lbl">起始</span>
         <input class="inp flt-from" value="${defaultFrom}" placeholder="TPE 桃園"
           style="text-transform:uppercase;"
           oninput="this.value=this.value.toUpperCase();markUnsaved();updatePreview()"
-          onblur="autoDetectTZ(this.closest('.flight-block'))"/></div>
+          onblur="autoDetectTZ(this.closest('.flight-block'));autoSaveFlightToDB(this)"/></div>
       <div class="f"><span class="lbl">目的</span>
         <input class="inp flt-to" value="${defaultTo}" placeholder="KIX 關西"
           style="text-transform:uppercase;"
           oninput="this.value=this.value.toUpperCase();markUnsaved();updatePreview()"
-          onblur="autoDetectTZ(this.closest('.flight-block'))"/></div>
+          onblur="autoDetectTZ(this.closest('.flight-block'));autoSaveFlightToDB(this)"/></div>
       <div class="f"><span class="lbl">飛行時間</span>
         <input class="inp flt-dur" placeholder="自動計算" style="font-weight:600;"/></div>
     </div>
@@ -970,12 +988,12 @@ function buildFlightBlock(dir, defaultFrom='', defaultTo=''){
         <input class="inp flt-dep" type="text" maxlength="5" placeholder="HH:MM"
           style="font-family:var(--font-mono);letter-spacing:.05em;"
           oninput="fmtTimeInput(this);calcFlightDur(this.closest('.flight-block'));markUnsaved();updatePreview()"
-          onblur="normalizeTime(this);calcFlightDur(this.closest('.flight-block'));updatePreview()"/></div>
+          onblur="normalizeTime(this);calcFlightDur(this.closest('.flight-block'));updatePreview();autoSaveFlightToDB(this)"/></div>
       <div class="f"><span class="lbl">落地（當地）</span>
         <input class="inp flt-arr" type="text" maxlength="5" placeholder="HH:MM"
           style="font-family:var(--font-mono);letter-spacing:.05em;"
           oninput="fmtTimeInput(this);calcFlightDur(this.closest('.flight-block'));markUnsaved();updatePreview()"
-          onblur="normalizeTime(this);calcFlightDur(this.closest('.flight-block'));updatePreview()"/></div>
+          onblur="normalizeTime(this);calcFlightDur(this.closest('.flight-block'));updatePreview();autoSaveFlightToDB(this)"/></div>
       <div class="f">
         <span class="lbl" title="輸入起始/目的後自動判斷；可手動調整">時差（目的−起始，自動判斷）</span>
         <select class="inp flt-tz" style="font-size:12px;" onchange="calcFlightDur(this.closest('.flight-block'));markUnsaved()">
@@ -1065,43 +1083,123 @@ function calcFlightDur(block){
   durEl.value = m>0?`${h}h ${m}m`:`${h}h`;
 }
 function lookupFlight(input){
-  const raw = input.value.trim().toUpperCase();
-  if(raw.length < 2) return;
-  const prefix = raw.replace(/[0-9]/g,'').substring(0,2);
-  const block = input.closest('.flight-block');
+  const raw    = input.value.trim().toUpperCase();
+  const block  = input.closest('.flight-block');
+  const sugDiv = block?.querySelector('.flt-suggest');
+  const badge  = block?.querySelector('.flt-db-badge');
   if(!block) return;
-  // 1. Check local flight DB first
+
   const flightDB = JSON.parse(localStorage.getItem('gomars_flight_db')||'{}');
+
+  // ── 完全匹配 → 帶入所有欄位，關閉建議 ──
   if(flightDB[raw]){
-    const f = flightDB[raw];
-    const fill = (cls, val) => { const el=block.querySelector(cls); if(el&&!el.dataset.manual) el.value=val; };
-    fill('.flt-airline', f.airline||'');
-    fill('.flt-from', f.from||'');
-    fill('.flt-to', f.to||'');
-    fill('.flt-dep', f.dep||'');
-    fill('.flt-arr', f.arr||'');
-    calcFlightDur(block);
+    _applyFlightData(block, raw, flightDB[raw]);
+    if(sugDiv){ sugDiv.innerHTML=''; sugDiv.classList.remove('open'); }
+    if(badge) badge.classList.add('show');
     return;
   }
-  // 2. Fallback: airline name lookup only
-  const airline = AIRLINE_DB[prefix];
-  if(airline){
-    const airlineInput = block.querySelector('.flt-airline');
-    if(airlineInput && !airlineInput.dataset.manual) airlineInput.value = airline;
+  if(badge) badge.classList.remove('show');
+
+  // ── 部分匹配 → 顯示建議下拉 ──
+  if(raw.length >= 2 && sugDiv){
+    const matches = Object.keys(flightDB)
+      .filter(k => k.startsWith(raw))
+      .sort()
+      .slice(0, 10);
+    // 也找包含但不以 raw 開頭的（排後面）
+    const extra = Object.keys(flightDB)
+      .filter(k => !k.startsWith(raw) && k.includes(raw))
+      .sort()
+      .slice(0, 4);
+    const all = [...matches, ...extra];
+
+    if(all.length){
+      sugDiv.innerHTML = all.map(k => {
+        const f = flightDB[k];
+        const route = (f.from||'') && (f.to||'') ? `${f.from} → ${f.to}` : (f.from||f.to||'');
+        return `<div class="flt-sug-item" onmousedown="applyFlightSug(this,'${k}')">
+          <span class="flt-sug-num">${k}</span>
+          <span class="flt-sug-airline">${f.airline||''}</span>
+          <span class="flt-sug-route">${route}</span>
+        </div>`;
+      }).join('');
+      sugDiv.classList.add('open');
+    } else {
+      sugDiv.innerHTML = `<div class="flt-sug-empty">資料庫中無符合航班</div>`;
+      sugDiv.classList.add('open');
+    }
+  } else if(sugDiv){
+    sugDiv.innerHTML=''; sugDiv.classList.remove('open');
   }
+
+  // ── Fallback：用 prefix 查航空公司代碼表 ──
+  if(raw.length >= 2){
+    const prefix  = raw.replace(/[0-9]/g,'').substring(0,2);
+    const airline = AIRLINE_DB[prefix];
+    if(airline){
+      const el = block.querySelector('.flt-airline');
+      if(el && !el.dataset.manual) el.value = airline;
+    }
+  }
+}
+
+function _applyFlightData(block, key, f){
+  const fill = (cls, val) => { const el=block.querySelector(cls); if(el&&!el.dataset.manual) el.value=val||''; };
+  const numEl = block.querySelector('.flt-num');
+  if(numEl) numEl.value = key;
+  fill('.flt-airline', f.airline);
+  fill('.flt-from',    f.from);
+  fill('.flt-to',      f.to);
+  fill('.flt-dep',     f.dep);
+  fill('.flt-arr',     f.arr);
+  calcFlightDur(block);
+}
+
+function applyFlightSug(item, key){
+  const block    = item.closest('.flight-block');
+  const flightDB = JSON.parse(localStorage.getItem('gomars_flight_db')||'{}');
+  if(block && flightDB[key]){
+    _applyFlightData(block, key, flightDB[key]);
+    const badge = block.querySelector('.flt-db-badge');
+    if(badge) badge.classList.add('show');
+    markUnsaved(); updatePreview();
+  }
+  const sugDiv = item.closest('.flt-suggest');
+  if(sugDiv){ sugDiv.innerHTML=''; sugDiv.classList.remove('open'); }
+}
+
+function closeFltSuggest(input){
+  const sugDiv = input.closest('.flight-block')?.querySelector('.flt-suggest');
+  if(sugDiv){ sugDiv.innerHTML=''; sugDiv.classList.remove('open'); }
 }
 function saveFlightToDB(block){
   const num = block.querySelector('.flt-num')?.value?.trim().toUpperCase();
   if(!num || num.length < 3) return;
   const airline = block.querySelector('.flt-airline')?.value?.trim();
-  const from = block.querySelector('.flt-from')?.value?.trim();
-  const to = block.querySelector('.flt-to')?.value?.trim();
-  const dep = block.querySelector('.flt-dep')?.value;
-  const arr = block.querySelector('.flt-arr')?.value;
+  const from    = block.querySelector('.flt-from')?.value?.trim();
+  const to      = block.querySelector('.flt-to')?.value?.trim();
+  const dep     = block.querySelector('.flt-dep')?.value;
+  const arr     = block.querySelector('.flt-arr')?.value;
   if(!airline && !from) return;
   const db = JSON.parse(localStorage.getItem('gomars_flight_db')||'{}');
   db[num] = {airline, from, to, dep, arr, savedAt: new Date().toISOString()};
   localStorage.setItem('gomars_flight_db', JSON.stringify(db));
+}
+
+// 任何欄位 blur 時自動檢查並存入 DB（需航班號有效 + 至少有航空公司或出發地）
+function autoSaveFlightToDB(input){
+  const block = input.closest('.flight-block');
+  if(!block) return;
+  const num = block.querySelector('.flt-num')?.value?.trim().toUpperCase();
+  // 航班號須含字母+數字（如 CI101），長度 ≥ 4
+  if(!num || !/^[A-Z][A-Z0-9]{1,2}\d+$/.test(num)) return;
+  const airline = block.querySelector('.flt-airline')?.value?.trim();
+  const from    = block.querySelector('.flt-from')?.value?.trim();
+  if(!airline && !from) return; // 資料太少，不存
+  saveFlightToDB(block);
+  // 顯示已存入 badge
+  const badge = block.querySelector('.flt-db-badge');
+  if(badge) badge.classList.add('show');
 }
 
 // ══════════════════════════════════════════
