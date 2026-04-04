@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GOMARS Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ─── FONTS ─── */
+:root{
+  --font:"PingFang TC","Microsoft JhengHei","SF Pro Text","Segoe UI",system-ui,sans-serif;
+  --font-cond:"Barlow Condensed","Arial Narrow",sans-serif;
+
+  /* ─── BRAND ─── */
+  --orbit:#EA5404;--mars:#C43A10;--dust:#B85C00;
+  --gr:#1D7A4E;--grb:#E6F4ED;--grd:#155C39;
+  --bl:#185FA5;--blb:#E6F1FB;--bld:#0E4279;
+  --br:#EA5404;--brd:#B83D00;--brl:#FDF0E9;--brm:#F7C9A8;
+  --pu:#6B4FBB;--pub:#F0EBFF;
+
+  /* ─── SIDEBAR (light) ─── */
+  --sb-bg:#FFFFFF;--sb-border:#E0DDD8;
+  --sb-logo-bg:#F7F3EF;
+  --sb-txt:#5C5955;--sb-txt-head:#9A9690;
+  --sb-hover:#F7F6F4;--sb-active-bg:#FDF0E9;--sb-active-txt:#C43A10;
+  --sb-logo-txt:#1A1A1A;--sb-logo-sub:#C43A10;
+  --sb-badge:#C43A10;--sb-user-name:#1A1A1A;--sb-user-role:#9A9690;
+
+  /* ─── SURFACES (light) ─── */
+  --bg-page:#F0EFE9;--bg-card:#ffffff;--bg-surface:#F7F6F4;--bg-hover:#EFEDE8;
+  --border:#E0DDD8;--border-soft:#EFEDE8;
+  --tx:#1A1A1A;--tx2:#5C5955;--tx3:#9A9690;
+  --g50:#F7F6F4;--g100:#EFEDE8;--g200:#E0DDD8;--g300:#C8C4BE;--g400:#9A9690;--g500:#6E6A65;--g600:#5C5955;--g700:#3D3B38;
+
+  --nav-w:220px;--nav-w-col:52px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --radius:10px;
+}
+
+[data-theme="dark"]{
+  --sb-bg:#1C1B1A;--sb-border:rgba(255,255,255,.07);
+  --sb-logo-bg:#252422;
+  --sb-txt:#C8C4BE;--sb-txt-head:rgba(200,196,190,.3);
+  --sb-hover:#2A2927;--sb-active-bg:rgba(196,58,16,.18);--sb-active-txt:#F08060;
+  --sb-logo-txt:#FFFFFF;--sb-logo-sub:#E8440A;
+  --sb-badge:#C43A10;--sb-user-name:#E8E4DF;--sb-user-role:#6E6A65;
+
+  --bg-page:#111110;--bg-card:#1C1B1A;--bg-surface:#252422;--bg-hover:#2A2927;
+  --border:#2E2C2A;--border-soft:#242220;
+  --tx:#E8E4DF;--tx2:#9A9690;--tx3:#5C5955;
+  --g50:#252422;--g100:#2A2927;--g200:#333130;--g300:#4A4845;--g400:#6E6A65;--g500:#9A9690;--g600:#C8C4BE;--g700:#E0DDD8;
+  --brl:#2A1506;--brm:#4A2510;
+  --grb:#0A2018;--blb:#0A1828;--pub:#1A1528;
+  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 12px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s;}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#login-screen{
+  display:flex;min-height:100vh;position:relative;overflow:hidden;
+  background:#08080A;
+}
+#login-screen::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 34% 72%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 58% 11%,rgba(255,255,255,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 78% 45%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 91% 83%,rgba(255,255,255,.7) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 67% 62%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 91%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 85% 25%,rgba(255,255,255,.5) 0%,transparent 100%);
+}
+#login-screen::after{
+  content:'';position:absolute;right:-120px;top:50%;transform:translateY(-50%);
+  width:560px;height:560px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 38% 42%,#C44820 0%,#8B2800 30%,#5A1500 55%,transparent 72%);
+  opacity:.5;animation:marsFloat 8s ease-in-out infinite;
+}
+@keyframes marsFloat{0%,100%{transform:translateY(-50%) translateX(0);}50%{transform:translateY(calc(-50% - 12px)) translateX(-6px);}}
+
+.login-left{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:60px 56px;position:relative;z-index:2;
+}
+.login-eyebrow{
+  font-family:var(--font-cond);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(232,68,10,.75);margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.login-eyebrow::before{content:'';display:block;width:28px;height:1px;background:rgba(232,68,10,.5);}
+.login-big{
+  font-family:var(--font-cond);font-size:clamp(48px,7vw,82px);font-weight:700;
+  line-height:.92;color:#fff;margin-bottom:10px;
+}
+.login-big em{
+  font-style:normal;
+  background:linear-gradient(135deg,#E8440A 0%,#FF7A42 50%,#FFB380 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.login-desc{font-size:15px;color:rgba(200,196,190,.5);line-height:1.65;max-width:300px;margin-top:16px;font-weight:300;}
+.login-feats{margin-top:36px;display:flex;flex-direction:column;gap:11px;}
+.login-feat{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(200,196,190,.55);}
+.login-feat::before{content:'';width:5px;height:5px;border-radius:50%;background:#E8440A;flex-shrink:0;opacity:.8;}
+
+.login-right{
+  width:400px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  padding:40px 44px;position:relative;z-index:2;
+  border-left:1px solid rgba(255,255,255,.04);
+  background:rgba(12,10,10,.72);backdrop-filter:blur(32px);
+}
+.login-panel{width:100%;}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;}
+.login-logo-mark{
+  width:40px;height:40px;border-radius:9px;
+  background:linear-gradient(135deg,#C43A10,#FF8A40);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-cond);font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;
+  flex-shrink:0;
+}
+.login-logo-text .name{
+  font-family:var(--font-cond);font-size:22px;font-weight:700;
+  letter-spacing:.07em;color:#fff;line-height:1;
+}
+.login-logo-text .name span{color:#E8440A;}
+.login-logo-text .sub{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,196,190,.35);margin-top:2px;}
+.login-title{font-size:16px;font-weight:600;color:#fff;margin-bottom:3px;}
+.login-sub{font-size:12px;color:rgba(200,196,190,.4);margin-bottom:24px;font-weight:300;}
+.login-field{margin-bottom:16px;}
+.login-lbl{
+  font-size:10px;color:rgba(200,196,190,.55);font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:block;
+}
+.login-inp{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:11px 13px;font-size:14px;color:#fff;
+  font-family:var(--font);outline:none;transition:all .2s;
+}
+.login-inp::placeholder{color:rgba(200,196,190,.22);}
+.login-inp:focus{border-color:rgba(232,68,10,.55);background:rgba(232,68,10,.05);}
+.login-err{font-size:11px;color:#FF7A7A;margin-top:-10px;margin-bottom:12px;display:none;}
+.login-err.show{display:block;}
+.login-btn{
+  width:100%;margin-top:4px;padding:12px;
+  background:linear-gradient(135deg,#E8440A 0%,#C43000 100%);
+  border:none;border-radius:8px;color:#fff;
+  font-family:var(--font-cond);font-size:14px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,68,10,.35);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.login-divider{
+  display:flex;align-items:center;gap:10px;margin:16px 0;
+  font-size:11px;color:rgba(200,196,190,.25);
+}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:.5px;background:rgba(255,255,255,.08);}
+.login-google{
+  width:100%;padding:11px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);border-radius:8px;
+  color:rgba(200,196,190,.8);font-family:var(--font);font-size:13px;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:9px;
+}
+.login-google:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.2);}
+.login-google svg{width:17px;height:17px;flex-shrink:0;}
+.login-footer{text-align:center;margin-top:20px;font-size:11px;color:rgba(200,196,190,.2);letter-spacing:.04em;}
+
+/* ══════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════ */
+#app{display:none;flex:1;flex-direction:row;min-height:100vh;}
+#app.active{display:flex;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--nav-w);background:var(--sb-bg);
+  border-right:.5px solid var(--sb-border);
+  display:flex;flex-direction:column;flex-shrink:0;
+  position:fixed;top:0;bottom:0;left:0;z-index:100;
+  transition:width .22s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;box-shadow:var(--shadow-md);
+}
+.sidebar.col{width:var(--nav-w-col);}
+
+.sb-logo-zone{
+  padding:13px 13px 11px;border-bottom:.5px solid var(--sb-border);
+  background:var(--sb-logo-bg);display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;min-height:54px;
+}
+.sb-logo-inner{display:flex;align-items:center;gap:9px;overflow:hidden;}
+.sb-logo-mark{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:linear-gradient(135deg,#C43A10,#FF8A40);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-cond);font-size:12px;font-weight:800;color:#fff;letter-spacing:.04em;
+}
+.sb-logo-text{overflow:hidden;white-space:nowrap;transition:opacity .15s;}
+.sidebar.col .sb-logo-text{opacity:0;pointer-events:none;}
+.sb-logo-name{font-family:var(--font-cond);font-size:15px;font-weight:700;letter-spacing:.07em;color:var(--sb-logo-txt);line-height:1;}
+.sb-logo-name span{color:var(--sb-logo-sub);}
+.sb-logo-sub{font-size:9px;letter-spacing:.12em;color:var(--sb-logo-sub);opacity:.55;text-transform:uppercase;margin-top:1px;}
+.sb-toggle{
+  width:22px;height:22px;border-radius:5px;border:.5px solid var(--sb-border);
+  background:var(--sb-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--sb-txt);flex-shrink:0;transition:all .15s;
+}
+.sb-toggle:hover{background:var(--sb-hover);}
+
+.sb-user{
+  padding:9px 10px;border-bottom:.5px solid var(--sb-border);
+  display:flex;align-items:center;gap:8px;overflow:hidden;flex-shrink:0;
+}
+.sb-avatar{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#C43A10,#FF8A40);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;
+}
+.sb-user-info{flex:1;min-width:0;overflow:hidden;transition:opacity .15s;}
+.sidebar.col .sb-user-info{opacity:0;pointer-events:none;}
+.sb-user-name{font-size:12px;font-weight:600;color:var(--sb-user-name);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-user-role{font-size:10px;color:var(--sb-user-role);margin-top:1px;white-space:nowrap;}
+
+.sb-nav{flex:1;padding:6px;overflow-y:auto;overflow-x:hidden;}
+.sb-section{margin-bottom:2px;}
+.sb-section-lbl{
+  font-size:9px;font-weight:700;color:var(--sb-txt-head);
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 10px 3px;white-space:nowrap;overflow:hidden;
+  transition:opacity .15s;
+}
+.sidebar.col .sb-section-lbl{opacity:0;}
+.nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px;border-radius:7px;cursor:pointer;
+  color:var(--sb-txt);font-size:12px;font-family:var(--font);
+  transition:all .15s;margin-bottom:1px;border:none;background:none;
+  width:100%;text-align:left;white-space:nowrap;overflow:hidden;
+}
+.nav-item:hover{background:var(--sb-hover);color:var(--tx);}
+.nav-item.active{background:var(--sb-active-bg);color:var(--sb-active-txt);font-weight:500;}
+.nav-item .ni{font-size:14px;flex-shrink:0;opacity:.8;width:16px;text-align:center;}
+.nav-item .nl{overflow:hidden;text-overflow:ellipsis;flex:1;transition:opacity .15s;}
+.sidebar.col .nav-item .nl{opacity:0;}
+.nav-item .nbadge{
+  background:var(--sb-badge);color:#fff;font-size:9px;font-weight:700;
+  padding:2px 5px;border-radius:999px;flex-shrink:0;
+  transition:opacity .15s;
+}
+.sidebar.col .nbadge{opacity:0;}
+
+.sb-bottom{padding:6px;border-top:.5px solid var(--sb-border);flex-shrink:0;}
+
+/* ── MAIN ── */
+.main{
+  margin-left:var(--nav-w);flex:1;display:flex;flex-direction:column;
+  min-height:100vh;transition:margin-left .22s cubic-bezier(.4,0,.2,1);
+}
+#app.sb-col .main{margin-left:var(--nav-w-col);}
+
+.topbar{
+  background:var(--bg-card);border-bottom:.5px solid var(--border);
+  padding:0 20px;height:50px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;
+}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.page-title{font-size:14px;font-weight:600;color:var(--tx);}
+.page-sub{font-size:11px;color:var(--tx3);}
+.topbar-right{display:flex;align-items:center;gap:7px;}
+.tb-btn{
+  padding:5px 11px;border-radius:6px;border:.5px solid var(--border);
+  background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);
+  font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:5px;
+}
+.tb-btn:hover{background:var(--bg-hover);}
+.tb-icon{
+  width:30px;height:30px;border-radius:7px;border:.5px solid var(--border);
+  background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:var(--tx3);transition:all .15s;
+}
+.tb-icon:hover{background:var(--bg-hover);color:var(--tx);}
+
+.content{flex:1;overflow-y:auto;}
+
+/* ── VIEWS ── */
+.view{display:none;}
+.view.active{display:flex;flex-direction:column;}
+
+/* Iframe view */
+.view.active{flex:1;}
+.iframe-view{display:flex;flex-direction:column;flex:1;}
+.iframe-view iframe{
+  flex:1;width:100%;min-height:calc(100vh - 50px);
+  border:none;background:var(--bg-page);
+}
+
+/* Dashboard view */
+.dash-content{padding:20px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{
+  background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;
+  padding:16px 18px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow .15s;
+}
+.stat-card:hover{box-shadow:var(--shadow-md);}
+.stat-num{font-size:26px;font-weight:700;color:var(--tx);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--tx3);margin-top:4px;}
+.stat-change{font-size:11px;margin-top:6px;color:var(--gr);}
+
+.card{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-hdr{padding:12px 16px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:600;color:var(--tx);}
+.card-body{padding:14px 16px;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;}
+.badge-orange{background:#FFF3E0;color:#B85C00;}
+.badge-green{background:var(--grb);color:var(--grd);}
+.badge-blue{background:var(--blb);color:var(--bld);}
+.badge-gray{background:var(--g100);color:var(--g600);}
+
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:.5px solid var(--border);}
+.data-table td{padding:9px 12px;font-size:12.5px;border-bottom:.5px solid var(--border-soft);color:var(--tx);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:var(--bg-surface);}
+
+/* Placeholder views */
+.coming-soon{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;color:var(--tx3);padding:40px;text-align:center;
+}
+.coming-soon .cs-icon{font-size:40px;opacity:.4;}
+.coming-soon .cs-title{font-size:15px;font-weight:600;color:var(--tx2);}
+.coming-soon .cs-sub{font-size:12px;}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{
+  padding:10px 16px;border-radius:8px;font-size:13px;font-family:var(--font);
+  box-shadow:var(--shadow-md);pointer-events:auto;
+  animation:toastIn .2s ease;
+  display:flex;align-items:center;gap:8px;max-width:300px;
+}
+.toast.info{background:var(--bg-card);border:.5px solid var(--border);color:var(--tx);}
+.toast.ok{background:#E6F4ED;border:.5px solid #B2DAC8;color:#155C39;}
+.toast.err{background:#FCEBEB;border:.5px solid #FABABA;color:#A32D2D;}
+@keyframes toastIn{from{opacity:0;transform:translateX(12px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-left">
+    <div class="login-eyebrow">GOMARS Admin Portal</div>
+    <div class="login-big">火星<br><em>後台系統</em></div>
+    <p class="login-desc">整合詢價、客戶管理、訂單追蹤的全方位旅遊業務後台。</p>
+    <div class="login-feats">
+      <div class="login-feat">供應商詢價單 — 一鍵產製、Word 匯出</div>
+      <div class="login-feat">客戶 CRM — 跟進紀錄、LINE 推播整合</div>
+      <div class="login-feat">訂單管理 — 狀態流轉、報價比較</div>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-panel">
+      <div class="login-logo">
+        <div class="login-logo-mark">GO</div>
+        <div class="login-logo-text">
+          <div class="name">GO<span>MARS</span></div>
+          <div class="sub">Travel Admin</div>
+        </div>
+      </div>
+      <div class="login-title">登入帳號</div>
+      <div class="login-sub">使用公司 Email 或 Google 帳號</div>
+
+      <div class="login-field">
+        <label class="login-lbl" for="login-email">Email</label>
+        <input class="login-inp" id="login-email" type="email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div class="login-field">
+        <label class="login-lbl" for="login-pw">密碼</label>
+        <input class="login-inp" id="login-pw" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <div class="login-err" id="login-err"></div>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">登入</button>
+
+      <div class="login-divider">或</div>
+
+      <button class="login-google" onclick="doGoogle()">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        使用 Google 帳號登入
+      </button>
+
+      <div class="login-footer">© 2025 GOMARS Travel · 僅限授權人員使用</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <!-- Logo -->
+    <div class="sb-logo-zone">
+      <div class="sb-logo-inner">
+        <div class="sb-logo-mark">GO</div>
+        <div class="sb-logo-text">
+          <div class="sb-logo-name">GO<span>MARS</span></div>
+          <div class="sb-logo-sub">Admin</div>
+        </div>
+      </div>
+      <button class="sb-toggle" onclick="toggleSidebar()" title="展開/收合">◀</button>
+    </div>
+
+    <!-- User -->
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">U</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sb-uname">載入中...</div>
+        <div class="sb-user-role" id="sb-urole">GOMARS 團隊</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="sb-nav">
+      <div class="sb-section">
+        <div class="sb-section-lbl">總覽</div>
+        <button class="nav-item active" data-view="dash" onclick="switchView('dash',this)">
+          <span class="ni">🏠</span><span class="nl">首頁</span>
+        </button>
+        <button class="nav-item" data-view="customers" onclick="switchView('customers',this)">
+          <span class="ni">👥</span><span class="nl">客戶管理</span>
+          <span class="nbadge" id="badge-customers">—</span>
+        </button>
+        <button class="nav-item" data-view="messages" onclick="switchView('messages',this)">
+          <span class="ni">💬</span><span class="nl">留言／協作</span>
+        </button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-lbl">報價</div>
+        <button class="nav-item" data-view="cases" onclick="switchView('cases',this)">
+          <span class="ni">🗂</span><span class="nl">案件管理</span>
+        </button>
+        <button class="nav-item" data-view="inquiry" onclick="switchView('inquiry',this)">
+          <span class="ni">📋</span><span class="nl">詢價單製作</span>
+        </button>
+        <button class="nav-item" data-view="cost-quote" onclick="switchView('cost-quote',this)">
+          <span class="ni">🧮</span><span class="nl">線控報價單（成本）</span>
+        </button>
+        <button class="nav-item" data-view="client-quote" onclick="switchView('client-quote',this)">
+          <span class="ni">📄</span><span class="nl">報價單製作（客報）</span>
+        </button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-lbl">工具</div>
+        <button class="nav-item" data-view="flightdb" onclick="switchView('flightdb',this)">
+          <span class="ni">✈️</span><span class="nl">航班資料庫</span>
+        </button>
+        <button class="nav-item" data-view="ticketdb" onclick="switchView('ticketdb',this)">
+          <span class="ni">🎫</span><span class="nl">門票資料庫</span>
+        </button>
+        <button class="nav-item" data-view="hoteldb" onclick="switchView('hoteldb',this)">
+          <span class="ni">🏨</span><span class="nl">飯店資料庫</span>
+        </button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-lbl">文件中心</div>
+        <button class="nav-item" data-view="travel-guide" onclick="switchView('travel-guide',this)">
+          <span class="ni">📖</span><span class="nl">旅遊手冊／說資</span>
+        </button>
+        <button class="nav-item" data-view="dm" onclick="switchView('dm',this)">
+          <span class="ni">🖼</span><span class="nl">DM 專區</span>
+        </button>
+        <button class="nav-item" data-view="contacts" onclick="switchView('contacts',this)">
+          <span class="ni">📇</span><span class="nl">同業通訊錄</span>
+        </button>
+        <button class="nav-item" data-view="simcard" onclick="switchView('simcard',this)">
+          <span class="ni">📡</span><span class="nl">網卡價目表</span>
+        </button>
+        <button class="nav-item" data-view="transfer" onclick="switchView('transfer',this)">
+          <span class="ni">🚌</span><span class="nl">機場接駁價目表</span>
+        </button>
+        <button class="nav-item" data-view="gifts" onclick="switchView('gifts',this)">
+          <span class="ni">🎁</span><span class="nl">贈品價目表</span>
+        </button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-section-lbl">系統</div>
+        <button class="nav-item" data-view="devlog" onclick="switchView('devlog',this)">
+          <span class="ni">🛠</span><span class="nl">開發者日誌</span>
+        </button>
+        <button class="nav-item" data-view="settings" onclick="switchView('settings',this)">
+          <span class="ni">⚙️</span><span class="nl">設定</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom: Logout -->
+    <div class="sb-bottom">
+      <button class="nav-item" style="color:#C0392B;" onclick="doLogout()">
+        <span class="ni">🚪</span><span class="nl">登出</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+
+    <!-- TopBar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="page-title" id="topbar-title">儀表板</span>
+        <span class="page-sub" id="topbar-sub"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="tb-icon" onclick="toggleTheme()" title="切換深色/淺色模式" id="theme-btn">🌙</button>
+        <div class="sb-avatar" style="width:28px;height:28px;font-size:11px;cursor:default;" id="topbar-avatar">U</div>
+      </div>
+    </div>
+
+    <!-- ── 儀表板 ── -->
+    <div class="view active" id="view-dash">
+      <div class="dash-content">
+        <div class="stat-grid">
+          <div class="stat-card" onclick="switchView('inquiry',document.querySelector('[data-view=inquiry]'))">
+            <div class="stat-num" id="stat-inquiries">—</div>
+            <div class="stat-lbl">本月詢價單</div>
+            <div class="stat-change">↑ 查看詳情</div>
+          </div>
+          <div class="stat-card" onclick="switchView('customers',document.querySelector('[data-view=customers]'))">
+            <div class="stat-num" id="stat-customers">—</div>
+            <div class="stat-lbl">客戶總數</div>
+            <div class="stat-change">↑ 管理客戶</div>
+          </div>
+          <div class="stat-card" onclick="switchView('orders',document.querySelector('[data-view=orders]'))">
+            <div class="stat-num" id="stat-orders">—</div>
+            <div class="stat-lbl">進行中訂單</div>
+            <div class="stat-change">↑ 查看訂單</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">✓</div>
+            <div class="stat-lbl">系統狀態</div>
+            <div class="stat-change">Supabase 連線正常</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-title">最新詢價單</span>
+            <button class="tb-btn" onclick="switchView('inquiry',document.querySelector('[data-view=inquiry]'))">＋ 新增詢價單</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>案號</th><th>客戶</th><th>目的地</th><th>出發日</th><th>狀態</th>
+                </tr>
+              </thead>
+              <tbody id="dash-inquiry-list">
+                <tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px;">從 Supabase 載入資料中…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">快捷功能</span></div>
+          <div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="tb-btn" onclick="switchView('inquiry',document.querySelector('[data-view=inquiry]'))">📋 開新詢價單</button>
+            <button class="tb-btn" onclick="switchView('flightdb',document.querySelector('[data-view=flightdb]'))">✈️ 航班資料庫</button>
+            <button class="tb-btn" onclick="switchView('compare',document.querySelector('[data-view=compare]'))">⚖️ 供應商比價</button>
+            <button class="tb-btn" onclick="switchView('customers',document.querySelector('[data-view=customers]'))">👥 客戶管理</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 詢價單（iframe） ── -->
+    <div class="view" id="view-inquiry">
+      <div class="iframe-view">
+        <iframe id="inquiry-iframe" src="gomars_inquiry.html" title="GOMARS 供應商詢價單"></iframe>
+      </div>
+    </div>
+
+    <!-- ── 客戶管理 ── -->
+    <div class="view" id="view-customers">
+      <div class="coming-soon">
+        <div class="cs-icon">👥</div>
+        <div class="cs-title">客戶管理</div>
+        <div class="cs-sub">搜尋、篩選、跟進紀錄 — 開發中<br>資料表：customers、follow_ups</div>
+      </div>
+    </div>
+
+    <!-- ── 訂單管理 ── -->
+    <div class="view" id="view-orders">
+      <div class="coming-soon">
+        <div class="cs-icon">🗂</div>
+        <div class="cs-title">訂單管理</div>
+        <div class="cs-sub">狀態流轉、報價追蹤 — 開發中<br>資料表：orders</div>
+      </div>
+    </div>
+
+    <!-- ── 供應商比價 ── -->
+    <!-- ── 留言/協作 ── -->
+    <div class="view" id="view-messages">
+      <div class="coming-soon"><div class="cs-icon">💬</div><div class="cs-title">留言／協作</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 案件管理 ── -->
+    <div class="view" id="view-cases">
+      <div class="coming-soon"><div class="cs-icon">🗂</div><div class="cs-title">案件管理</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 線控報價單（成本） ── -->
+    <div class="view" id="view-cost-quote">
+      <div class="coming-soon"><div class="cs-icon">🧮</div><div class="cs-title">線控報價單（成本）</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 報價單製作（客報） ── -->
+    <div class="view" id="view-client-quote">
+      <div class="coming-soon"><div class="cs-icon">📄</div><div class="cs-title">報價單製作（客報）</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 航班資料庫 ── -->
+    <div class="view" id="view-flightdb">
+      <div class="coming-soon">
+        <div class="cs-icon">✈️</div>
+        <div class="cs-title">航班資料庫管理</div>
+        <div class="cs-sub">查看 / 編輯 / 刪除 gomars_flight_db — 開發中</div>
+      </div>
+    </div>
+
+    <!-- ── 門票資料庫 ── -->
+    <div class="view" id="view-ticketdb">
+      <div class="coming-soon"><div class="cs-icon">🎫</div><div class="cs-title">門票資料庫</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 飯店資料庫 ── -->
+    <div class="view" id="view-hoteldb">
+      <div class="coming-soon"><div class="cs-icon">🏨</div><div class="cs-title">飯店資料庫</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 旅遊手冊/說資 ── -->
+    <div class="view" id="view-travel-guide">
+      <div class="coming-soon"><div class="cs-icon">📖</div><div class="cs-title">旅遊手冊／說資</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── DM專區 ── -->
+    <div class="view" id="view-dm">
+      <div class="coming-soon"><div class="cs-icon">🖼</div><div class="cs-title">DM 專區</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 同業通訊錄 ── -->
+    <div class="view" id="view-contacts">
+      <div class="coming-soon"><div class="cs-icon">📇</div><div class="cs-title">同業通訊錄</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 網卡價目表 ── -->
+    <div class="view" id="view-simcard">
+      <div class="coming-soon"><div class="cs-icon">📡</div><div class="cs-title">網卡價目表</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 機場接駁價目表 ── -->
+    <div class="view" id="view-transfer">
+      <div class="coming-soon"><div class="cs-icon">🚌</div><div class="cs-title">機場接駁價目表</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 贈品價目表 ── -->
+    <div class="view" id="view-gifts">
+      <div class="coming-soon"><div class="cs-icon">🎁</div><div class="cs-title">贈品價目表</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 開發者日誌 ── -->
+    <div class="view" id="view-devlog">
+      <div class="coming-soon"><div class="cs-icon">🛠</div><div class="cs-title">開發者日誌</div><div class="cs-sub">開發中</div></div>
+    </div>
+
+    <!-- ── 設定 ── -->
+    <div class="view" id="view-settings">
+      <div class="dash-content">
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">帳號資訊</span></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:8px 16px;font-size:13px;">
+              <span style="color:var(--tx3);">Email</span><span id="setting-email" style="color:var(--tx);">—</span>
+              <span style="color:var(--tx3);">登入方式</span><span id="setting-provider" style="color:var(--tx);">—</span>
+              <span style="color:var(--tx3);">上次登入</span><span id="setting-last" style="color:var(--tx);">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">外觀</span></div>
+          <div class="card-body" style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:13px;color:var(--tx2);">主題</span>
+            <button class="tb-btn" onclick="toggleTheme()" id="theme-setting-btn">🌙 切換深色模式</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Supabase 連線</span></div>
+          <div class="card-body">
+            <div style="font-size:12px;color:var(--tx2);font-family:'SF Mono',monospace;word-break:break-all;">
+              Project URL: <span style="color:var(--bl);">https://wghvduyyuvbnggddvdal.supabase.co</span>
+            </div>
+            <div style="margin-top:8px;">
+              <button class="tb-btn" onclick="testSupabase()">🔌 測試連線</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="border-color:#F7C1C1;">
+          <div class="card-hdr"><span class="card-title" style="color:#A32D2D;">登出</span></div>
+          <div class="card-body">
+            <button class="tb-btn" style="color:#A32D2D;border-color:#F7C1C1;" onclick="doLogout()">🚪 登出帳號</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ══════════════════════════════════════
+//  Supabase init
+//  TODO: 填入你的 anon key
+// ══════════════════════════════════════
+const SUPABASE_URL = 'https://wghvduyyuvbnggddvdal.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnaHZkdXl5dXZibmdnZGR2ZGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDc1MzIsImV4cCI6MjA5MDgyMzUzMn0.OavKg-TckxW0pJLhmvP92z4HB3eTVkJ6AFuh5jBJntA'
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ══════════════════════════════════════
+//  Auth
+// ══════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim()
+  const pw    = document.getElementById('login-pw').value
+  const errEl = document.getElementById('login-err')
+  const btn   = document.getElementById('login-btn')
+
+  errEl.classList.remove('show')
+  if (!email || !pw) { showErr('請填寫 Email 和密碼'); return }
+
+  btn.disabled = true
+  btn.textContent = '登入中…'
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw })
+  btn.disabled = false
+  btn.textContent = '登入'
+
+  if (error) { showErr(error.message); return }
+  enterApp(data.user)
+}
+
+async function doGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  })
+  if (error) showErr(error.message)
+}
+
+async function doLogout() {
+  await sb.auth.signOut()
+  document.getElementById('app').classList.remove('active')
+  document.getElementById('login-screen').style.display = 'flex'
+  toast('已登出', 'info')
+}
+
+function showErr(msg) {
+  const el = document.getElementById('login-err')
+  el.textContent = msg
+  el.classList.add('show')
+}
+
+// ══════════════════════════════════════
+//  Enter app after auth
+// ══════════════════════════════════════
+function enterApp(user) {
+  document.getElementById('login-screen').style.display = 'none'
+  document.getElementById('app').classList.add('active')
+
+  const email   = user.email || ''
+  const name    = user.user_metadata?.full_name || user.user_metadata?.name || email.split('@')[0] || 'User'
+  const initial = name.charAt(0).toUpperCase()
+  const provider = user.app_metadata?.provider || 'email'
+  const lastLogin = user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString('zh-TW') : '—'
+
+  document.getElementById('sb-uname').textContent     = name
+  document.getElementById('sb-urole').textContent     = email
+  document.getElementById('sb-avatar').textContent    = initial
+  document.getElementById('topbar-avatar').textContent = initial
+
+  document.getElementById('setting-email').textContent    = email
+  document.getElementById('setting-provider').textContent = provider
+  document.getElementById('setting-last').textContent     = lastLogin
+
+  loadDashboard()
+  toast(`歡迎回來，${name}！`, 'ok')
+}
+
+// ══════════════════════════════════════
+//  Load dashboard data
+// ══════════════════════════════════════
+async function loadDashboard() {
+  // Try to load from Supabase — gracefully degrade if tables don't exist yet
+  try {
+    const { data: customers } = await sb.from('customers').select('id', { count: 'exact', head: true })
+    const { count: cCount }   = await sb.from('customers').select('*', { count: 'exact', head: true })
+    if (cCount !== null) {
+      document.getElementById('stat-customers').textContent = cCount
+      document.getElementById('badge-customers').textContent = cCount
+    }
+  } catch(_) {}
+
+  try {
+    const { count: oCount } = await sb.from('orders').select('*', { count: 'exact', head: true })
+    if (oCount !== null) document.getElementById('stat-orders').textContent = oCount
+  } catch(_) {}
+
+  // Inquiry list placeholder
+  document.getElementById('stat-inquiries').textContent = '—'
+  document.getElementById('dash-inquiry-list').innerHTML =
+    `<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px;">
+      尚未建立 inquiries 資料表，點擊「新增詢價單」使用本機詢價單工具
+    </td></tr>`
+}
+
+async function testSupabase() {
+  const { data, error } = await sb.from('profiles').select('id').limit(1)
+  if (error && error.code !== 'PGRST116') {
+    toast('連線錯誤：' + error.message, 'err')
+  } else {
+    toast('Supabase 連線正常 ✓', 'ok')
+  }
+}
+
+// ══════════════════════════════════════
+//  Navigation
+// ══════════════════════════════════════
+const viewMeta = {
+  dash:         { title: '首頁',              sub: '' },
+  customers:    { title: '客戶管理',          sub: '' },
+  messages:     { title: '留言／協作',        sub: '' },
+  cases:        { title: '案件管理',          sub: '' },
+  inquiry:      { title: '詢價單製作',        sub: '供應商詢價工具' },
+  'cost-quote': { title: '線控報價單（成本）',sub: '' },
+  'client-quote':{ title: '報價單製作（客報）',sub: '' },
+  flightdb:     { title: '航班資料庫',        sub: '' },
+  ticketdb:     { title: '門票資料庫',        sub: '' },
+  hoteldb:      { title: '飯店資料庫',        sub: '' },
+  'travel-guide':{ title: '旅遊手冊／說資',  sub: '' },
+  dm:           { title: 'DM 專區',           sub: '' },
+  contacts:     { title: '同業通訊錄',        sub: '' },
+  simcard:      { title: '網卡價目表',        sub: '' },
+  transfer:     { title: '機場接駁價目表',    sub: '' },
+  gifts:        { title: '贈品價目表',        sub: '' },
+  devlog:       { title: '開發者日誌',        sub: '' },
+  settings:     { title: '設定',              sub: '' },
+}
+
+function switchView(id, btn) {
+  // Deactivate all views
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+
+  const view = document.getElementById('view-' + id)
+  if (view) view.classList.add('active')
+  if (btn)  btn.classList.add('active')
+
+  const meta = viewMeta[id] || {}
+  document.getElementById('topbar-title').textContent = meta.title || id
+  document.getElementById('topbar-sub').textContent   = meta.sub   || ''
+}
+
+// ══════════════════════════════════════
+//  Sidebar collapse
+// ══════════════════════════════════════
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar')
+  const app = document.getElementById('app')
+  const tog = sb.querySelector('.sb-toggle')
+  sb.classList.toggle('col')
+  app.classList.toggle('sb-col')
+  tog.textContent = sb.classList.contains('col') ? '▶' : '◀'
+}
+
+// ══════════════════════════════════════
+//  Theme
+// ══════════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement
+  const dark = html.getAttribute('data-theme') === 'dark'
+  html.setAttribute('data-theme', dark ? 'light' : 'dark')
+  const icon = dark ? '🌙' : '☀️'
+  document.getElementById('theme-btn').textContent = icon
+  if (document.getElementById('theme-setting-btn'))
+    document.getElementById('theme-setting-btn').textContent = dark ? '🌙 切換深色模式' : '☀️ 切換淺色模式'
+  localStorage.setItem('gomars_theme', dark ? 'light' : 'dark')
+}
+
+// ══════════════════════════════════════
+//  Toast
+// ══════════════════════════════════════
+function toast(msg, type='info') {
+  const wrap = document.getElementById('toast-wrap')
+  const el   = document.createElement('div')
+  el.className = `toast ${type}`
+  el.textContent = msg
+  wrap.appendChild(el)
+  setTimeout(() => el.remove(), 3500)
+}
+
+// ══════════════════════════════════════
+//  Init
+// ══════════════════════════════════════
+;(async () => {
+  // Restore theme
+  const savedTheme = localStorage.getItem('gomars_theme')
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme)
+    document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀️' : '🌙'
+  }
+
+  // Check anon key placeholder
+  if (SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+    console.warn('[GOMARS] 請在 gomars_admin.html 第 230 行填入 Supabase anon key。')
+  }
+
+  // Check existing session
+  const { data: { session } } = await sb.auth.getSession()
+  if (session?.user) {
+    enterApp(session.user)
+  }
+
+  // Listen for auth changes (e.g. OAuth redirect)
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      enterApp(session.user)
+    }
+    if (event === 'SIGNED_OUT') {
+      document.getElementById('app').classList.remove('active')
+      document.getElementById('login-screen').style.display = 'flex'
+    }
+  })
+
+  // Enter key on password field
+  document.getElementById('login-pw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin()
+  })
+  document.getElementById('login-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('login-pw').focus()
+  })
+})()
+</script>
+</body>
+</html>

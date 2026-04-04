@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>GOMARS 報價單</title>
+<style>
+:root{
+  --mars:#C43A10;--orbit:#EA5404;--dust:#B85C00;--space:#0D0A08;
+  --star:#F7F3EF;--gr:#1D7A4E;--bl:#185FA5;--br:#EA5404;
+  --grb:#E8F5EE;--grd:#145C39;
+  --blb:#EBF3FC;--bld:#0C447C;
+  --brl:#FFF3E0;--brm:#F5C97A;--bro:#FFF3E0;
+  --g100:#F4F4F4;--g400:#AAAAAA;--g600:#666;
+  --bg:#F4F1ED;--bg-card:#FFFFFF;--bg-surface:#F7F5F2;
+  --tx:#1A1714;--tx2:#5A524A;--tx3:#9C9189;
+  --border:#DDD8D2;--border-strong:#C5BDB5;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","SF Pro Text","Segoe UI",sans-serif;
+  --font-mono:"SF Mono","Fira Code","Consolas",monospace;
+  --radius:10px;--shadow:0 2px 12px rgba(0,0,0,.08);
+}
+[data-theme="dark"]{
+  --bg:#1A1714;--bg-card:#241F1B;--bg-surface:#2C2621;
+  --tx:#F0EBE5;--tx2:#A89880;--tx3:#6A5F55;
+  --border:#3A3028;--border-strong:#4A4038;
+  --grb:#1A2E22;--grd:#7ECDA0;
+  --blb:#1A2535;--bld:#7BBCF5;
+  --brl:#2A1E0A;--brm:#7A5020;--bro:#2A1E0A;
+  --g100:#2A2A2A;--g400:#555;--g600:#888;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;}
+
+/* ── Top Bar ── */
+#topbar{position:sticky;top:0;z-index:100;background:var(--bg-card);color:var(--tx);
+  display:flex;align-items:center;gap:10px;padding:0 16px;height:46px;
+  border-bottom:1px solid var(--border);flex-wrap:nowrap;}
+.logo{font-size:15px;font-weight:800;letter-spacing:.08em;color:var(--orbit);white-space:nowrap;}
+.doc-title{font-size:12px;color:var(--tx3);white-space:nowrap;}
+.spacer{flex:1;}
+.tb-btn{background:var(--bg-surface);border:.5px solid var(--border);color:var(--tx);
+  padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--font);white-space:nowrap;}
+.tb-btn:hover{background:var(--bg);border-color:var(--border-strong);}
+.tb-btn.primary{background:var(--orbit);color:#fff;border-color:var(--orbit);}
+.tb-btn.primary:hover{background:var(--mars);}
+
+/* ── Layout ── */
+#app{display:flex;height:calc(100vh - 46px);overflow:hidden;}
+#form-col{flex:1;overflow-y:auto;padding:16px 18px;min-width:0;}
+#preview-col{width:320px;flex-shrink:0;border-left:1px solid var(--border);
+  background:var(--bg-card);overflow-y:auto;transition:width .2s ease;}
+#preview-col.hidden{width:0;overflow:hidden;border:none;}
+
+/* ── Status Bar ── */
+#status-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  padding:8px 12px;background:var(--bg-card);border-radius:8px;
+  border:.5px solid var(--border);font-size:12px;flex-wrap:wrap;}
+.save-dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);flex-shrink:0;transition:background .2s;}
+.save-dot.unsaved{background:#E55;}
+.save-dot.saved{background:var(--gr);}
+.ver-chip{background:var(--blb);color:var(--bld);font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;letter-spacing:.03em;}
+.ml-auto{margin-left:auto;}
+.gap6{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* ── Card ── */
+.card{background:var(--bg-card);border:.5px solid var(--border);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.card-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;
+  font-size:13px;font-weight:700;color:var(--tx);}
+.sec-num{width:22px;height:22px;background:var(--orbit);color:#fff;border-radius:6px;
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.card-subtitle{font-size:11px;color:var(--tx3);font-weight:400;margin-left:4px;}
+.internal-badge{font-size:9px;background:var(--brl);color:var(--br);padding:2px 7px;
+  border-radius:4px;font-weight:700;letter-spacing:.03em;margin-left:auto;}
+
+/* ── Form ── */
+.f{display:flex;flex-direction:column;gap:4px;}
+.lbl{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;}
+.inp{background:var(--bg-surface);border:.5px solid var(--border);border-radius:7px;
+  padding:7px 10px;font-size:13px;color:var(--tx);font-family:var(--font);
+  transition:border-color .15s;outline:none;width:100%;}
+.inp:focus{border-color:var(--bl);}
+.inp[readonly]{color:var(--br);font-weight:600;cursor:default;}
+.inp.cost-inp{text-align:right;font-family:var(--font-mono);font-size:12px;padding:6px 8px;}
+.inp.cost-inp:focus{background:var(--blb);}
+textarea.inp{resize:vertical;min-height:72px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.full{grid-column:1/-1;}
+
+/* ── Segment ── */
+.seg{display:flex;background:var(--bg-surface);border:.5px solid var(--border);
+  border-radius:7px;padding:2px;gap:2px;flex-wrap:wrap;}
+.seg-btn{border:none;background:transparent;padding:5px 11px;border-radius:5px;
+  font-size:12px;cursor:pointer;color:var(--tx2);font-family:var(--font);transition:all .15s;}
+.seg-btn.on{background:var(--bg-card);color:var(--tx);font-weight:600;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);}
+
+/* ── Buttons ── */
+.btn{border:.5px solid var(--border);background:var(--bg-surface);
+  padding:6px 13px;border-radius:7px;font-size:12px;cursor:pointer;
+  color:var(--tx);font-family:var(--font);transition:all .15s;}
+.btn:hover{background:var(--bg-card);border-color:var(--border-strong);}
+.btn.primary{background:var(--orbit);color:#fff;border-color:var(--orbit);}
+.btn.primary:hover{background:var(--mars);}
+.btn.ghost{background:transparent;}
+.btn.danger{color:#E55;border-color:#E55;background:transparent;}
+.btn.sm{padding:4px 9px;font-size:11px;}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+  padding:8px;border:.5px dashed var(--border);border-radius:8px;
+  background:transparent;color:var(--tx3);font-size:12px;cursor:pointer;
+  font-family:var(--font);transition:all .15s;}
+.add-btn:hover{border-color:var(--bl);color:var(--bl);background:var(--blb);}
+
+/* ── Info boxes ── */
+.info-box{padding:8px 12px;border-radius:7px;background:var(--bg-surface);
+  border:.5px solid var(--border);font-size:11px;color:var(--tx2);}
+.info-box.green{background:var(--grb);border-color:#B2DAC8;color:var(--grd);}
+.info-box.red{background:#FDE8E8;border-color:#FABABA;color:#A00;}
+.info-box.blue{background:var(--blb);border-color:#B5D4F4;color:var(--bld);}
+[data-theme="dark"] .info-box.red{background:#2A1010;border-color:#6A2020;color:#F88;}
+
+/* ── Cost Table ── */
+.cost-table-wrap{overflow-x:auto;margin:0 -4px;padding:0 4px;}
+.cost-header{display:grid;grid-template-columns:minmax(130px,1.5fr) repeat(5,minmax(80px,1fr)) 36px;
+  gap:6px;padding:6px 8px;font-size:10px;font-weight:700;color:var(--tx3);
+  text-transform:uppercase;letter-spacing:.05em;min-width:680px;}
+.cost-row{display:grid;grid-template-columns:minmax(130px,1.5fr) repeat(5,minmax(80px,1fr)) 36px;
+  gap:6px;padding:6px 8px;margin-bottom:4px;border-radius:8px;
+  background:var(--bg-surface);border:.5px solid var(--border);min-width:680px;
+  align-items:center;transition:background .15s;}
+.cost-row:hover{border-color:var(--border-strong);}
+.cost-row.is-airfare{border-left:3px solid var(--bl);}
+.cost-item-label{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.cost-item-label .airfare-tag{font-size:9px;background:var(--blb);color:var(--bld);
+  padding:1px 6px;border-radius:3px;font-weight:700;}
+.cost-total-row{display:grid;grid-template-columns:minmax(130px,1.5fr) repeat(5,minmax(80px,1fr)) 36px;
+  gap:6px;padding:8px;font-size:12px;font-weight:700;min-width:680px;align-items:center;}
+.cost-total-row .total-val{text-align:right;font-family:var(--font-mono);font-size:12px;padding:4px 8px;}
+.cost-total-row.subtotal{color:var(--tx2);border-top:.5px solid var(--border);margin-top:4px;padding-top:10px;}
+.cost-total-row.margin-row{color:var(--bld);}
+.cost-total-row.selling{color:var(--orbit);font-size:13px;font-weight:800;
+  border-top:2px solid var(--orbit);padding-top:10px;margin-top:4px;}
+
+/* ── Margin Control ── */
+.margin-control{display:flex;align-items:center;gap:12px;padding:12px;margin-top:8px;
+  background:var(--bg-surface);border-radius:8px;border:.5px solid var(--border);flex-wrap:wrap;}
+.margin-control .lbl{margin-bottom:0;}
+
+/* ── Quote Table ── */
+.quote-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:8px;overflow:hidden;
+  border:.5px solid var(--border);}
+.quote-table th{background:var(--bg-surface);font-size:11px;font-weight:700;color:var(--tx2);
+  padding:8px 12px;text-align:center;border-bottom:.5px solid var(--border);
+  text-transform:uppercase;letter-spacing:.05em;}
+.quote-table th:first-child{text-align:left;}
+.quote-table td{padding:8px 12px;text-align:center;border-bottom:.5px solid var(--border);
+  font-size:13px;}
+.quote-table td:first-child{text-align:left;font-weight:600;color:var(--tx);}
+.quote-table tr:last-child td{border-bottom:none;}
+.quote-table .price-cell{font-family:var(--font-mono);font-weight:700;color:var(--orbit);font-size:14px;}
+.quote-table .join-cell{font-family:var(--font-mono);font-weight:600;color:var(--bld);font-size:13px;}
+.quote-table .pax-count{font-size:11px;color:var(--tx3);font-weight:400;}
+
+/* ── Include/Exclude ── */
+.incl-row{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;
+  border-radius:7px;border:.5px solid var(--border);background:var(--bg-surface);transition:all .15s;}
+.incl-row.active{background:var(--grb);border-color:#B2DAC8;}
+.excl-row{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:4px;
+  border-radius:7px;border:.5px solid var(--border);background:var(--bg-surface);}
+.excl-row.active{background:#FDE8E8;border-color:#FABABA;}
+[data-theme="dark"] .excl-row.active{background:#2A1010;border-color:#6A2020;}
+.incl-icon{font-size:14px;flex-shrink:0;}
+.incl-text{flex:1;font-size:12px;}
+.incl-text input{background:transparent;border:none;font-size:12px;color:var(--tx);
+  font-family:var(--font);outline:none;width:100%;}
+
+/* ── Preview ── */
+#preview-col .pv-inner{padding:12px;}
+.pv-title{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;
+  letter-spacing:.1em;padding-bottom:6px;border-bottom:.5px solid var(--border);margin-bottom:10px;}
+.pv-block{margin-bottom:12px;}
+.pv-label{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;
+  letter-spacing:.1em;margin-bottom:5px;}
+.pv-row{display:flex;gap:6px;font-size:11px;margin-bottom:3px;}
+.pv-key{color:var(--tx3);min-width:56px;flex-shrink:0;}
+.pv-val{color:var(--tx);font-weight:500;}
+.pv-price-table{width:100%;font-size:11px;border-collapse:collapse;margin-top:4px;}
+.pv-price-table th{text-align:left;font-size:9px;color:var(--tx3);font-weight:700;
+  padding:3px 4px;border-bottom:.5px solid var(--border);}
+.pv-price-table td{padding:3px 4px;font-size:11px;}
+.pv-price-table .pv-price{text-align:right;font-family:var(--font-mono);font-weight:600;color:var(--orbit);}
+.pv-price-table .pv-join{text-align:right;font-family:var(--font-mono);color:var(--bld);}
+.pv-incl{color:var(--grd);font-size:10px;margin-bottom:2px;}
+.pv-excl{color:#A00;font-size:10px;margin-bottom:2px;}
+[data-theme="dark"] .pv-excl{color:#F88;}
+
+/* ── Action Bar ── */
+#action-bar{position:sticky;bottom:0;background:var(--bg-card);
+  border-top:.5px solid var(--border);padding:10px 18px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--bg-card);border-radius:12px;padding:20px;width:100%;max-width:420px;
+  box-shadow:0 8px 40px rgba(0,0,0,.25);}
+.modal h3{font-size:15px;margin-bottom:12px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+/* ── Print Modal ── */
+#print-modal .modal{max-width:560px;}
+#print-preview{max-height:55vh;overflow-y:auto;border:.5px solid var(--border);
+  border-radius:8px;padding:16px;background:var(--bg-surface);font-size:12px;line-height:1.7;}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--space);color:var(--star);padding:8px 18px;border-radius:20px;
+  font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  #preview-col{display:none;}
+  .g4{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  #topbar .doc-title{display:none;}
+}
+@media print{
+  #topbar,#status-bar,#action-bar,#preview-col,.add-btn,.btn,button{display:none!important;}
+  #app{height:auto;overflow:visible;}
+  #form-col{overflow:visible;padding:0;}
+  .card{break-inside:avoid;box-shadow:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="logo">GOMARS</span>
+  <span class="doc-title">報價單</span>
+  <div class="spacer"></div>
+  <button class="tb-btn" onclick="togglePreview()">👁 預覽欄</button>
+  <button class="tb-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+  <input type="file" id="file-input" accept=".gomars,.json" style="display:none" onchange="onFileLoad(event)"/>
+  <input type="file" id="import-input" accept=".gomars,.json" style="display:none" onchange="onImportInquiry(event)"/>
+</div>
+
+<div id="app">
+<div id="form-col">
+
+  <!-- Status Bar -->
+  <div id="status-bar">
+    <div class="save-dot unsaved" id="save-dot"></div>
+    <span id="status-label" style="color:var(--tx2);">未儲存</span>
+    <span class="ver-chip" id="ver-chip">報 v1</span>
+    <span id="last-save" style="font-size:11px;color:var(--tx3);"></span>
+    <span id="draft-msg" style="display:none;font-size:11px;color:var(--bld);background:var(--blb);padding:2px 8px;border-radius:4px;border:.5px solid var(--bld);"></span>
+    <div class="ml-auto gap6">
+      <button class="btn sm ghost" onclick="clearForm()">清除重填</button>
+    </div>
+  </div>
+
+  <!-- ① 基本資訊 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="sec-num">01</span>基本資訊
+      <button class="btn sm" style="margin-left:auto;" onclick="document.getElementById('import-input').click()">📥 從詢價單匯入</button>
+    </div>
+
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="f">
+        <span class="lbl">客人姓名 / 公司</span>
+        <input class="inp" id="client" placeholder="例：王先生 / 旭晶科技" oninput="markUnsaved();renderPreview()"/>
+      </div>
+      <div class="f">
+        <span class="lbl">團屬性</span>
+        <input class="inp" id="group-attr" placeholder="例：公司員工旅遊" oninput="markUnsaved();renderPreview()"/>
+      </div>
+    </div>
+
+    <div class="g3" style="margin-bottom:12px;align-items:end;">
+      <div class="f">
+        <span class="lbl">出發日期</span>
+        <input class="inp" type="date" id="dep-date" oninput="calcDates();markUnsaved();renderPreview()"/>
+      </div>
+      <div class="f">
+        <span class="lbl">夜數</span>
+        <input class="inp" type="number" id="nights" value="7" min="0" max="60"
+          oninput="calcDates();markUnsaved();renderPreview()"/>
+      </div>
+      <div class="f">
+        <span class="lbl">回程日（自動）</span>
+        <input class="inp" type="date" id="ret-auto" readonly/>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="f">
+        <span class="lbl">出發機場</span>
+        <select class="inp" id="dep-airport" onchange="markUnsaved();renderPreview()">
+          <option>桃園國際機場（TPE）</option>
+          <option>台北松山機場（TSA）</option>
+          <option>高雄小港機場（KHH）</option>
+          <option>台中清泉崗機場（RMQ）</option>
+        </select>
+      </div>
+      <div class="f">
+        <span class="lbl">目的地</span>
+        <select class="inp" id="dest" onchange="markUnsaved();renderPreview()">
+          <optgroup label="🇯🇵 日本">
+            <option>日本 — 東京 / 關東</option>
+            <option>日本 — 大阪 / 京都 / 奈良</option>
+            <option>日本 — 北海道</option>
+            <option>日本 — 九州（福岡/熊本）</option>
+            <option>日本 — 沖繩</option>
+            <option>日本 — 名古屋 / 中部</option>
+          </optgroup>
+          <optgroup label="🇰🇷 韓國">
+            <option>韓國 — 首爾 / 京畿</option>
+            <option>韓國 — 釜山</option>
+            <option>韓國 — 濟州島</option>
+          </optgroup>
+          <optgroup label="🇹🇭 泰國">
+            <option>泰國 — 曼谷</option>
+            <option>泰國 — 清邁</option>
+            <option>泰國 — 普吉島</option>
+            <option>泰國 — 芭達雅</option>
+          </optgroup>
+          <optgroup label="🇻🇳 越南">
+            <option>越南 — 河內</option>
+            <option>越南 — 峴港 / 會安</option>
+            <option>越南 — 胡志明</option>
+            <option>越南 — 富國島</option>
+          </optgroup>
+          <optgroup label="🌏 東南亞其他">
+            <option>峇里島（印尼）</option>
+            <option>新加坡</option>
+            <option>馬來西亞 — 吉隆坡</option>
+            <option>菲律賓 — 宿霧 / 薄荷島</option>
+          </optgroup>
+          <optgroup label="🇪🇺 歐洲">
+            <option>義大利 — 羅馬 / 佛羅倫斯 / 威尼斯</option>
+            <option>法國 — 巴黎 / 普羅旺斯</option>
+            <option>西班牙 — 馬德里 / 巴塞隆納</option>
+            <option>瑞士 — 蘇黎世 / 琉森</option>
+            <option>奧地利 — 維也納 / 薩爾斯堡</option>
+            <option>德國 — 慕尼黑 / 柏林</option>
+            <option>英國 — 倫敦</option>
+          </optgroup>
+          <optgroup label="🌍 中東 / 非洲 / 美洲">
+            <option>杜拜（阿聯酋）</option>
+            <option>埃及 — 開羅 / 盧克索</option>
+            <option>美國 — 紐約</option>
+            <option>美國 — 洛杉磯 / 拉斯維加斯</option>
+            <option>澳洲 — 雪梨 / 墨爾本</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中港澳">
+            <option>香港</option><option>澳門</option>
+            <option>中國 — 北京</option><option>中國 — 上海</option>
+          </optgroup>
+          <optgroup label="其他"><option>其他（備註說明）</option></optgroup>
+        </select>
+      </div>
+    </div>
+
+    <!-- 人數 -->
+    <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">出行人數</div>
+    <div class="g4" style="margin-bottom:4px;">
+      <div class="f"><span class="lbl">大人</span>
+        <input class="inp" type="number" id="pax-adult" value="2" min="0" oninput="recalcAll()"/></div>
+      <div class="f"><span class="lbl">小孩（佔床）</span>
+        <input class="inp" type="number" id="pax-child-bed" value="0" min="0" oninput="recalcAll()"/></div>
+      <div class="f"><span class="lbl">小孩（不佔床）</span>
+        <input class="inp" type="number" id="pax-child-nobed" value="0" min="0" oninput="recalcAll()"/></div>
+      <div class="f"><span class="lbl">嬰兒（0–2歲）</span>
+        <input class="inp" type="number" id="pax-infant" value="0" min="0" oninput="recalcAll()"/></div>
+    </div>
+  </div>
+
+  <!-- ② 成本計算 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="sec-num">02</span>成本計算
+      <span class="internal-badge">內部使用，不匯出</span>
+    </div>
+
+    <div class="cost-table-wrap">
+      <div class="cost-header">
+        <div>項目</div>
+        <div style="text-align:right;">大人</div>
+        <div style="text-align:right;">佔床</div>
+        <div style="text-align:right;">加床</div>
+        <div style="text-align:right;">不佔床</div>
+        <div style="text-align:right;">嬰兒</div>
+        <div></div>
+      </div>
+      <div id="cost-rows"></div>
+
+      <!-- Totals -->
+      <div id="cost-totals"></div>
+    </div>
+
+    <button class="add-btn" onclick="addCostItem()" style="margin-top:8px;">＋ 新增項目</button>
+
+    <!-- Margin -->
+    <div class="margin-control">
+      <span class="lbl" style="font-size:11px;">全域毛利率</span>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <input class="inp cost-inp" type="number" id="margin-pct" value="15" min="0" max="100"
+          style="width:70px;" oninput="recalcCosts()"/>
+        <span style="color:var(--tx3);">%</span>
+      </div>
+      <div id="margin-summary" style="font-size:12px;color:var(--bld);font-weight:600;margin-left:12px;"></div>
+    </div>
+  </div>
+
+  <!-- ③ 報價設定 -->
+  <div class="card">
+    <div class="card-title"><span class="sec-num">03</span>報價設定</div>
+
+    <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;">
+      <!-- JOIN Toggle -->
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+          background:var(--bg-surface);border-radius:9px;border:.5px solid var(--border);flex:1;min-width:220px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="join-toggle" onchange="recalcQuote();renderPreview()" style="width:16px;height:16px;accent-color:var(--bl);"/>
+          <span style="font-size:13px;font-weight:600;">提供 JOIN 價格</span>
+        </label>
+        <span style="font-size:11px;color:var(--tx3);">（不含機票）</span>
+      </div>
+      <!-- Tips Toggle -->
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+          background:var(--bg-surface);border-radius:9px;border:.5px solid var(--border);flex:1;min-width:220px;">
+        <span style="font-size:13px;font-weight:500;">小費</span>
+        <div class="seg" id="tips-seg">
+          <button class="seg-btn on" onclick="setTips(this,true)">包含在報價內</button>
+          <button class="seg-btn" onclick="setTips(this,false)">不包含（另計）</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quote Price Table -->
+    <div id="quote-table-wrap"></div>
+
+    <!-- Price Adjustments -->
+    <div id="price-override-note" class="info-box blue" style="margin-top:10px;">
+      報價金額由成本 + 毛利自動計算。如需微調個別價格，可直接在下方表格點擊數字修改。
+    </div>
+  </div>
+
+  <!-- ④ 費用包含 / 不包含 -->
+  <div class="card">
+    <div class="card-title"><span class="sec-num">04</span>費用包含 / 不包含</div>
+
+    <div class="g2" style="gap:16px;">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:700;color:var(--grd);">✓ 費用包含</span>
+          <button class="btn sm" onclick="addInclItem()">＋</button>
+        </div>
+        <div id="incl-list"></div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:700;color:#A00;">✗ 費用不包含</span>
+          <button class="btn sm" onclick="addExclItem()">＋</button>
+        </div>
+        <div id="excl-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 備註說明 -->
+  <div class="card">
+    <div class="card-title"><span class="sec-num">05</span>備註說明</div>
+    <textarea class="inp" id="notes" placeholder="報價有效期限、付款方式、取消規定、其他注意事項…"
+      oninput="markUnsaved();renderPreview()"></textarea>
+  </div>
+
+</div><!-- /form-col -->
+
+<!-- Preview Column -->
+<div id="preview-col">
+  <div class="pv-inner">
+    <div class="pv-title">報價預覽（客戶版）</div>
+    <div id="preview-content"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- Action Bar -->
+<div id="action-bar">
+  <button class="btn" onclick="loadFile()" style="color:var(--tx2);">📂 載入報價單</button>
+  <button class="btn" style="color:var(--bl);border-color:var(--bl);" onclick="saveFile()">💾 下載到本機</button>
+  <button class="btn primary" onclick="openPrint()">📄 列印 / 匯出</button>
+  <div class="spacer"></div>
+  <span style="font-size:10px;color:var(--tx3);">報價單 v1.0</span>
+</div>
+
+<!-- Save Modal -->
+<div id="save-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('save-modal')">
+  <div class="modal">
+    <h3>下載報價單</h3>
+    <div class="f" style="margin-bottom:8px;">
+      <span class="lbl">檔案名稱</span>
+      <div style="display:flex;gap:6px;">
+        <input class="inp" id="save-filename" style="flex:1;"/>
+        <span style="align-self:center;color:var(--tx3);font-size:12px;white-space:nowrap;">.gomars</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('save-modal')">取消</button>
+      <button class="btn primary" onclick="doSaveFile()">確認下載</button>
+    </div>
+  </div>
+</div>
+
+<!-- Print Modal -->
+<div id="print-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('print-modal')">
+  <div class="modal">
+    <h3>列印 / 匯出</h3>
+    <div id="print-preview"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('print-modal')">關閉</button>
+      <button class="btn" style="color:var(--bl);border-color:var(--bl);" onclick="exportWord()">📝 匯出 Word</button>
+      <button class="btn primary" onclick="window.print()">🖨 列印</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const state = {
+  version: 1,
+  tipsIncluded: true,
+  joinEnabled: false,
+  marginPct: 15,
+  // override prices (null = auto-calc)
+  priceOverrides: { adult:null, childBed:null, extraBed:null, childNobed:null, infant:null },
+  joinOverrides:  { adult:null, childBed:null, extraBed:null, childNobed:null, infant:null },
+};
+let unsaved = false;
+
+const PAX_KEYS = ['adult','childBed','extraBed','childNobed','infant'];
+const PAX_LABELS = { adult:'大人', childBed:'佔床', extraBed:'加床', childNobed:'不佔床', infant:'嬰兒' };
+
+const DEFAULT_COST_ITEMS = [
+  { label:'機票（來回）', isAirfare:true },
+  { label:'飯店住宿', isAirfare:false },
+  { label:'車資（含過路費/停車費）', isAirfare:false },
+  { label:'景點門票', isAirfare:false },
+  { label:'餐食費用', isAirfare:false },
+  { label:'領隊 / 導遊費', isAirfare:false },
+  { label:'司機費', isAirfare:false },
+  { label:'小費', isAirfare:false, isTips:true },
+  { label:'旅行社責任險', isAirfare:false },
+];
+
+const DEFAULT_INCL = [
+  '團體來回經濟艙機票（含稅金、燃油附加費）',
+  '全程住宿（兩人一室）',
+  '行程表列餐食',
+  '每日車資（含過路費、停車費）',
+  '景點門票（依行程表列）',
+  '領隊 / 導遊服務費',
+  '旅行社責任保險',
+];
+const DEFAULT_EXCL = [
+  '護照辦理費用',
+  '個人旅遊平安保險',
+  '行李超重費',
+  '個人消費（電話、洗衣、minibar 等）',
+  '房間升等差額',
+  '未列入行程之餐食費用',
+  '簽證費（如需要）',
+];
+
+function updateVerChip(){
+  document.getElementById('ver-chip').textContent = `報 v${state.version}`;
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.onload = function(){
+  initCostItems();
+  initInclExcl();
+  // Check draft
+  const saved = localStorage.getItem('gomars_quote_draft');
+  if(saved){
+    try{
+      const d = JSON.parse(saved);
+      loadState(d);
+      const ts = d._ts ? new Date(d._ts).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}) : '';
+      showDraftBanner(`已自動還原上次草稿${ts?' ('+ts+')':''}　　<button onclick="clearForm();hideDraftBanner()" style="font-size:11px;text-decoration:underline;background:none;border:none;cursor:pointer;color:inherit;">清除重填</button>`);
+      setInterval(autoSaveLS, 90000);
+      return;
+    } catch(e){}
+  }
+  calcDates();
+  recalcCosts();
+  renderPreview();
+  setInterval(autoSaveLS, 90000);
+};
+
+// ══════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════
+function toggleTheme(){
+  const d = document.documentElement;
+  const dark = d.getAttribute('data-theme') === 'dark';
+  d.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = dark ? '🌙' : '☀️';
+}
+function togglePreview(){
+  document.getElementById('preview-col').classList.toggle('hidden');
+}
+
+// ══════════════════════════════════════════
+// UNSAVED STATE
+// ══════════════════════════════════════════
+function markUnsaved(){
+  unsaved = true;
+  document.getElementById('save-dot').className = 'save-dot unsaved';
+  document.getElementById('status-label').textContent = '未儲存';
+}
+function markSaved(){
+  unsaved = false;
+  document.getElementById('save-dot').className = 'save-dot saved';
+  document.getElementById('status-label').textContent = '已儲存';
+  const now = new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-save').textContent = `上次儲存：${now}`;
+}
+
+// ══════════════════════════════════════════
+// DATES
+// ══════════════════════════════════════════
+function calcDates(){
+  const dep = document.getElementById('dep-date').value;
+  const nights = parseInt(document.getElementById('nights').value)||0;
+  const retEl = document.getElementById('ret-auto');
+  if(dep){
+    const d = new Date(dep); d.setDate(d.getDate()+nights);
+    retEl.value = d.toISOString().split('T')[0];
+  } else { retEl.value=''; }
+}
+
+// ══════════════════════════════════════════
+// COST ITEMS
+// ══════════════════════════════════════════
+function initCostItems(){
+  const container = document.getElementById('cost-rows');
+  container.innerHTML = '';
+  DEFAULT_COST_ITEMS.forEach(item => {
+    container.appendChild(buildCostRow(item.label, item.isAirfare, item.isTips||false));
+  });
+}
+
+function buildCostRow(label, isAirfare=false, isTips=false){
+  const div = document.createElement('div');
+  div.className = `cost-row${isAirfare?' is-airfare':''}`;
+  if(isAirfare) div.dataset.airfare = '1';
+  if(isTips) div.dataset.tips = '1';
+  const tag = isAirfare ? '<span class="airfare-tag">機票</span>' : '';
+  div.innerHTML = `
+    <div class="cost-item-label">
+      <span class="cost-label-text">${label}</span>${tag}
+    </div>
+    ${PAX_KEYS.map(k=>`<input class="inp cost-inp cost-${k}" type="number" min="0" placeholder="0" oninput="recalcCosts()"/>`).join('')}
+    <button class="btn sm danger" style="padding:2px 6px;" onclick="this.parentElement.remove();recalcCosts()">✕</button>`;
+  return div;
+}
+
+function addCostItem(){
+  const label = prompt('自訂項目名稱：');
+  if(!label) return;
+  const isAirfare = confirm('此項目是否為機票相關費用？\n（用於計算 JOIN 價格時扣除）');
+  document.getElementById('cost-rows').appendChild(buildCostRow(label, isAirfare));
+  markUnsaved();
+  recalcCosts();
+}
+
+function recalcAll(){
+  markUnsaved();
+  recalcCosts();
+  renderPreview();
+}
+
+function recalcCosts(){
+  const marginPct = parseFloat(document.getElementById('margin-pct').value)||0;
+  state.marginPct = marginPct;
+
+  // Sum costs per pax type
+  const totals = {};
+  const airfareTotals = {};
+  const tipsTotals = {};
+  PAX_KEYS.forEach(k => { totals[k]=0; airfareTotals[k]=0; tipsTotals[k]=0; });
+
+  document.querySelectorAll('#cost-rows .cost-row').forEach(row => {
+    const isAirfare = row.dataset.airfare === '1';
+    const isTips = row.dataset.tips === '1';
+    PAX_KEYS.forEach(k => {
+      const v = parseFloat(row.querySelector(`.cost-${k}`)?.value)||0;
+      totals[k] += v;
+      if(isAirfare) airfareTotals[k] += v;
+      if(isTips) tipsTotals[k] += v;
+    });
+  });
+
+  // Calculate margin & selling price
+  const margin = {};
+  const selling = {};
+  const airfareSelling = {};
+  PAX_KEYS.forEach(k => {
+    margin[k] = Math.round(totals[k] * marginPct / 100);
+    selling[k] = totals[k] + margin[k];
+    airfareSelling[k] = airfareTotals[k] + Math.round(airfareTotals[k] * marginPct / 100);
+  });
+
+  // Render totals
+  const wrap = document.getElementById('cost-totals');
+  wrap.innerHTML = `
+    <div class="cost-total-row subtotal">
+      <div>成本小計</div>
+      ${PAX_KEYS.map(k=>`<div class="total-val">${fmtN(totals[k])}</div>`).join('')}
+      <div></div>
+    </div>
+    <div class="cost-total-row margin-row">
+      <div>毛利 ${marginPct}%</div>
+      ${PAX_KEYS.map(k=>`<div class="total-val">+${fmtN(margin[k])}</div>`).join('')}
+      <div></div>
+    </div>
+    <div class="cost-total-row selling">
+      <div>售價合計</div>
+      ${PAX_KEYS.map(k=>`<div class="total-val">${fmtN(selling[k])}</div>`).join('')}
+      <div></div>
+    </div>`;
+
+  // Update margin summary
+  document.getElementById('margin-summary').textContent = `大人售價 ${fmtN(selling.adult)}（成本 ${fmtN(totals.adult)} + 毛利 ${fmtN(margin.adult)}）`;
+
+  // Store for quote
+  state._costTotals = totals;
+  state._airfareTotals = airfareTotals;
+  state._tipsTotals = tipsTotals;
+  state._selling = selling;
+  state._airfareSelling = airfareSelling;
+
+  recalcQuote();
+  markUnsaved();
+}
+
+function recalcQuote(){
+  const selling = state._selling || {};
+  const airfareSelling = state._airfareSelling || {};
+  const joinEnabled = document.getElementById('join-toggle').checked;
+  state.joinEnabled = joinEnabled;
+
+  // Build quote prices (use overrides if set, else auto-calc)
+  const quotePrices = {};
+  const joinPrices = {};
+  PAX_KEYS.forEach(k => {
+    quotePrices[k] = state.priceOverrides[k] !== null ? state.priceOverrides[k] : (selling[k]||0);
+    joinPrices[k] = state.joinOverrides[k] !== null ? state.joinOverrides[k] : ((selling[k]||0) - (airfareSelling[k]||0));
+  });
+
+  // Get pax counts
+  const adult = parseInt(document.getElementById('pax-adult').value)||0;
+  const childBed = parseInt(document.getElementById('pax-child-bed').value)||0;
+  const childNobed = parseInt(document.getElementById('pax-child-nobed').value)||0;
+  const infant = parseInt(document.getElementById('pax-infant').value)||0;
+  const paxCounts = { adult, childBed, extraBed:0, childNobed, infant };
+
+  // Render quote table
+  const wrap = document.getElementById('quote-table-wrap');
+  let html = `<table class="quote-table"><thead><tr>
+    <th>類別</th><th>人數</th><th>行程價格</th>`;
+  if(joinEnabled) html += `<th>JOIN 價格</th>`;
+  html += `</tr></thead><tbody>`;
+
+  const rows = [
+    { key:'adult', label:'大人' },
+    { key:'childBed', label:'小孩佔床' },
+    { key:'extraBed', label:'加床' },
+    { key:'childNobed', label:'小孩不佔床' },
+    { key:'infant', label:'嬰兒' },
+  ];
+
+  let grandTotal = 0;
+  let joinGrandTotal = 0;
+
+  rows.forEach(r => {
+    const cnt = paxCounts[r.key]||0;
+    const price = quotePrices[r.key]||0;
+    const joinPrice = joinPrices[r.key]||0;
+    const lineTotal = price * cnt;
+    const joinLineTotal = joinPrice * cnt;
+    grandTotal += lineTotal;
+    joinGrandTotal += joinLineTotal;
+
+    html += `<tr>
+      <td>${r.label}</td>
+      <td><span class="pax-count">${cnt} 人</span></td>
+      <td class="price-cell">
+        <input type="number" class="inp cost-inp" value="${price}" min="0"
+          style="width:100px;text-align:center;font-size:14px;font-weight:700;color:var(--orbit);display:inline-block;"
+          onchange="onPriceOverride('${r.key}',this.value,'price')"/>
+      </td>`;
+    if(joinEnabled){
+      html += `<td class="join-cell">
+        <input type="number" class="inp cost-inp" value="${joinPrice}" min="0"
+          style="width:100px;text-align:center;font-size:13px;font-weight:600;color:var(--bld);display:inline-block;"
+          onchange="onPriceOverride('${r.key}',this.value,'join')"/>
+      </td>`;
+    }
+    html += `</tr>`;
+  });
+
+  // Grand total row
+  html += `<tr style="background:var(--bg-surface);font-weight:700;">
+    <td>團體總價</td>
+    <td></td>
+    <td class="price-cell" style="font-size:15px;">${fmtN(grandTotal)}</td>`;
+  if(joinEnabled) html += `<td class="join-cell" style="font-size:14px;">${fmtN(joinGrandTotal)}</td>`;
+  html += `</tr>`;
+
+  html += `</tbody></table>`;
+  wrap.innerHTML = html;
+
+  state._quotePrices = quotePrices;
+  state._joinPrices = joinPrices;
+  state._grandTotal = grandTotal;
+  state._joinGrandTotal = joinGrandTotal;
+
+  renderPreview();
+}
+
+function onPriceOverride(key, val, type){
+  const v = parseInt(val)||0;
+  if(type==='price'){
+    state.priceOverrides[key] = v;
+  } else {
+    state.joinOverrides[key] = v;
+  }
+  recalcQuote();
+  markUnsaved();
+}
+
+function setTips(btn, included){
+  document.querySelectorAll('#tips-seg .seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  state.tipsIncluded = included;
+  markUnsaved();
+  renderPreview();
+}
+
+// ══════════════════════════════════════════
+// INCLUDE / EXCLUDE
+// ══════════════════════════════════════════
+function initInclExcl(){
+  const inclList = document.getElementById('incl-list');
+  const exclList = document.getElementById('excl-list');
+  inclList.innerHTML = '';
+  exclList.innerHTML = '';
+  DEFAULT_INCL.forEach(t => inclList.appendChild(buildInclRow(t)));
+  DEFAULT_EXCL.forEach(t => exclList.appendChild(buildExclRow(t)));
+}
+
+function buildInclRow(text){
+  const div = document.createElement('div');
+  div.className = 'incl-row active';
+  div.innerHTML = `
+    <span class="incl-icon">✓</span>
+    <div class="incl-text"><input value="${text}" oninput="markUnsaved();renderPreview()"/></div>
+    <button class="btn sm danger" style="padding:2px 6px;" onclick="this.parentElement.remove();markUnsaved();renderPreview()">✕</button>`;
+  return div;
+}
+function buildExclRow(text){
+  const div = document.createElement('div');
+  div.className = 'excl-row active';
+  div.innerHTML = `
+    <span class="incl-icon">✗</span>
+    <div class="incl-text"><input value="${text}" oninput="markUnsaved();renderPreview()"/></div>
+    <button class="btn sm danger" style="padding:2px 6px;" onclick="this.parentElement.remove();markUnsaved();renderPreview()">✕</button>`;
+  return div;
+}
+function addInclItem(){
+  const t = prompt('新增包含項目：');
+  if(!t) return;
+  document.getElementById('incl-list').appendChild(buildInclRow(t));
+  markUnsaved(); renderPreview();
+}
+function addExclItem(){
+  const t = prompt('新增不包含項目：');
+  if(!t) return;
+  document.getElementById('excl-list').appendChild(buildExclRow(t));
+  markUnsaved(); renderPreview();
+}
+
+// ══════════════════════════════════════════
+// PREVIEW
+// ══════════════════════════════════════════
+function renderPreview(){
+  const d = collectDisplayData();
+  const wrap = document.getElementById('preview-content');
+  let h = '';
+
+  // Basic info
+  h += `<div class="pv-block">
+    <div class="pv-label">行程資訊</div>
+    <div class="pv-row"><span class="pv-key">客人</span><span class="pv-val">${d.client||'—'}</span></div>
+    <div class="pv-row"><span class="pv-key">目的地</span><span class="pv-val">${d.dest||'—'}</span></div>
+    <div class="pv-row"><span class="pv-key">出發</span><span class="pv-val">${d.depDate||'—'}</span></div>
+    <div class="pv-row"><span class="pv-key">天數</span><span class="pv-val">${d.nights+1}天${d.nights}夜</span></div>
+    <div class="pv-row"><span class="pv-key">人數</span><span class="pv-val">大人${d.adult} 佔床${d.childBed} 不佔床${d.childNobed} 嬰兒${d.infant}</span></div>
+  </div>`;
+
+  // Quote prices
+  h += `<div class="pv-block">
+    <div class="pv-label">報價費用</div>
+    <table class="pv-price-table"><thead><tr>
+      <th>類別</th><th style="text-align:right;">行程價格</th>`;
+  if(d.joinEnabled) h += `<th style="text-align:right;">JOIN</th>`;
+  h += `</tr></thead><tbody>`;
+
+  const paxRows = [
+    {key:'adult',label:'大人',count:d.adult},
+    {key:'childBed',label:'佔床',count:d.childBed},
+    {key:'extraBed',label:'加床',count:0},
+    {key:'childNobed',label:'不佔床',count:d.childNobed},
+    {key:'infant',label:'嬰兒',count:d.infant},
+  ];
+  paxRows.forEach(r=>{
+    if(r.count > 0 || r.key==='adult' || (d.quotePrices[r.key]||0)>0){
+      h += `<tr>
+        <td>${r.label} ×${r.count}</td>
+        <td class="pv-price">${fmtN(d.quotePrices[r.key]||0)}</td>`;
+      if(d.joinEnabled) h += `<td class="pv-join">${fmtN(d.joinPrices[r.key]||0)}</td>`;
+      h += `</tr>`;
+    }
+  });
+  h += `<tr style="font-weight:700;border-top:1px solid var(--border);">
+    <td>團體總價</td>
+    <td class="pv-price">${fmtN(d.grandTotal)}</td>`;
+  if(d.joinEnabled) h += `<td class="pv-join">${fmtN(d.joinGrandTotal)}</td>`;
+  h += `</tr></tbody></table>`;
+
+  if(!d.tipsIncluded) h += `<div style="font-size:10px;color:var(--br);margin-top:4px;">※ 小費另計，不包含在報價內</div>`;
+  h += `</div>`;
+
+  // Inclusions
+  const inclItems = getInclItems();
+  const exclItems = getExclItems();
+  if(inclItems.length){
+    h += `<div class="pv-block"><div class="pv-label">費用包含</div>`;
+    inclItems.forEach(t => { h += `<div class="pv-incl">✓ ${t}</div>`; });
+    h += `</div>`;
+  }
+  if(exclItems.length){
+    h += `<div class="pv-block"><div class="pv-label">費用不包含</div>`;
+    exclItems.forEach(t => { h += `<div class="pv-excl">✗ ${t}</div>`; });
+    h += `</div>`;
+  }
+
+  // Notes
+  const notes = document.getElementById('notes').value;
+  if(notes){
+    h += `<div class="pv-block"><div class="pv-label">備註</div>
+      <div style="font-size:11px;color:var(--tx2);white-space:pre-wrap;">${notes}</div></div>`;
+  }
+
+  wrap.innerHTML = h;
+}
+
+function getInclItems(){
+  const items = [];
+  document.querySelectorAll('#incl-list .incl-row').forEach(r => {
+    const v = r.querySelector('input')?.value?.trim();
+    if(v) items.push(v);
+  });
+  return items;
+}
+function getExclItems(){
+  const items = [];
+  document.querySelectorAll('#excl-list .excl-row').forEach(r => {
+    const v = r.querySelector('input')?.value?.trim();
+    if(v) items.push(v);
+  });
+  return items;
+}
+
+// ══════════════════════════════════════════
+// COLLECT DATA
+// ══════════════════════════════════════════
+function collectDisplayData(){
+  return {
+    client: document.getElementById('client').value||'',
+    groupAttr: document.getElementById('group-attr').value||'',
+    dest: document.getElementById('dest').value||'',
+    depDate: document.getElementById('dep-date').value||'',
+    nights: parseInt(document.getElementById('nights').value)||0,
+    retDate: document.getElementById('ret-auto').value||'',
+    depAirport: document.getElementById('dep-airport').value||'',
+    adult: parseInt(document.getElementById('pax-adult').value)||0,
+    childBed: parseInt(document.getElementById('pax-child-bed').value)||0,
+    childNobed: parseInt(document.getElementById('pax-child-nobed').value)||0,
+    infant: parseInt(document.getElementById('pax-infant').value)||0,
+    tipsIncluded: state.tipsIncluded,
+    joinEnabled: state.joinEnabled,
+    quotePrices: state._quotePrices||{},
+    joinPrices: state._joinPrices||{},
+    grandTotal: state._grandTotal||0,
+    joinGrandTotal: state._joinGrandTotal||0,
+    inclItems: getInclItems(),
+    exclItems: getExclItems(),
+    notes: document.getElementById('notes').value||'',
+  };
+}
+
+function collectSaveData(){
+  const d = collectDisplayData();
+  // Also collect cost rows
+  const costItems = [];
+  document.querySelectorAll('#cost-rows .cost-row').forEach(row => {
+    const item = {
+      label: row.querySelector('.cost-label-text')?.textContent||'',
+      isAirfare: row.dataset.airfare==='1',
+      isTips: row.dataset.tips==='1',
+      costs: {},
+    };
+    PAX_KEYS.forEach(k => {
+      item.costs[k] = parseFloat(row.querySelector(`.cost-${k}`)?.value)||0;
+    });
+    costItems.push(item);
+  });
+
+  return {
+    ...d,
+    costItems,
+    marginPct: state.marginPct,
+    priceOverrides: {...state.priceOverrides},
+    joinOverrides: {...state.joinOverrides},
+    _meta: { version:state.version, savedAt:new Date().toISOString(), app:'GOMARS Quote v1' },
+  };
+}
+
+// ══════════════════════════════════════════
+// SAVE / LOAD
+// ══════════════════════════════════════════
+function autoSaveLS(){
+  const d = collectSaveData();
+  localStorage.setItem('gomars_quote_draft', JSON.stringify({...d, _ts:Date.now()}));
+  markSaved();
+  toast('已暫存至瀏覽器');
+}
+
+function saveFile(){
+  const d = collectSaveData();
+  const client = (d.client||'報價').replace(/\s/g,'').replace(/\//g,'-').split('/')[0];
+  const dest = (d.dest||'').replace(/.*—\s*/,'').replace(/\s/g,'').replace(/\//g,'-').substring(0,6);
+  const today = new Date().toISOString().split('T')[0].replace(/-/g,'');
+  const suggested = `${client}_${dest}_報價_${today}_v${state.version}`;
+  document.getElementById('save-filename').value = suggested;
+  document.getElementById('save-modal').classList.remove('hidden');
+}
+
+function doSaveFile(){
+  const filename = document.getElementById('save-filename').value||'gomars_quote';
+  const data = collectSaveData();
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename.endsWith('.gomars') ? filename : filename+'.gomars';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  closeModal('save-modal');
+  markSaved();
+  state.version++;
+  updateVerChip();
+  toast('已下載到本機 ✓');
+}
+
+function loadFile(){
+  document.getElementById('file-input').click();
+}
+
+function onFileLoad(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      loadState(data);
+      toast(`已載入：${file.name}`);
+    } catch(err){ alert('檔案格式錯誤，請確認是有效的 .gomars 檔案。'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function loadState(data){
+  // Basic info
+  if(data.client) document.getElementById('client').value = data.client;
+  if(data.groupAttr) document.getElementById('group-attr').value = data.groupAttr;
+  if(data.dest) document.getElementById('dest').value = data.dest;
+  if(data.depDate) document.getElementById('dep-date').value = data.depDate;
+  if(typeof data.nights==='number') document.getElementById('nights').value = data.nights;
+  if(data.depAirport){
+    const el = document.getElementById('dep-airport');
+    if(el) el.value = data.depAirport;
+  }
+
+  // Pax
+  if(typeof data.adult==='number') document.getElementById('pax-adult').value = data.adult;
+  if(typeof data.childBed==='number') document.getElementById('pax-child-bed').value = data.childBed;
+  if(typeof data.childNobed==='number') document.getElementById('pax-child-nobed').value = data.childNobed;
+  if(typeof data.infant==='number') document.getElementById('pax-infant').value = data.infant;
+
+  // Cost items
+  if(data.costItems && data.costItems.length){
+    const container = document.getElementById('cost-rows');
+    container.innerHTML = '';
+    data.costItems.forEach(item => {
+      const row = buildCostRow(item.label, item.isAirfare, item.isTips||false);
+      PAX_KEYS.forEach(k => {
+        const inp = row.querySelector(`.cost-${k}`);
+        if(inp && item.costs && item.costs[k]) inp.value = item.costs[k];
+      });
+      container.appendChild(row);
+    });
+  }
+
+  // Margin
+  if(typeof data.marginPct==='number'){
+    document.getElementById('margin-pct').value = data.marginPct;
+    state.marginPct = data.marginPct;
+  }
+
+  // Overrides
+  if(data.priceOverrides) state.priceOverrides = {...state.priceOverrides, ...data.priceOverrides};
+  if(data.joinOverrides) state.joinOverrides = {...state.joinOverrides, ...data.joinOverrides};
+
+  // Tips
+  if(typeof data.tipsIncluded==='boolean'){
+    state.tipsIncluded = data.tipsIncluded;
+    document.querySelectorAll('#tips-seg .seg-btn').forEach((b,i) => {
+      b.classList.toggle('on', data.tipsIncluded ? i===0 : i===1);
+    });
+  }
+
+  // JOIN
+  if(typeof data.joinEnabled==='boolean'){
+    state.joinEnabled = data.joinEnabled;
+    document.getElementById('join-toggle').checked = data.joinEnabled;
+  }
+
+  // Incl / Excl
+  if(data.inclItems){
+    const list = document.getElementById('incl-list');
+    list.innerHTML = '';
+    data.inclItems.forEach(t => list.appendChild(buildInclRow(t)));
+  }
+  if(data.exclItems){
+    const list = document.getElementById('excl-list');
+    list.innerHTML = '';
+    data.exclItems.forEach(t => list.appendChild(buildExclRow(t)));
+  }
+
+  // Notes
+  if(data.notes) document.getElementById('notes').value = data.notes;
+
+  // Version
+  if(data._meta?.version) state.version = data._meta.version;
+  updateVerChip();
+
+  calcDates();
+  recalcCosts();
+  renderPreview();
+}
+
+// ══════════════════════════════════════════
+// IMPORT FROM INQUIRY
+// ══════════════════════════════════════════
+function onImportInquiry(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      importFromInquiry(data);
+      toast(`已從詢價單匯入：${file.name}`);
+    } catch(err){ alert('檔案格式錯誤，請確認是有效的 .gomars 詢價單檔案。'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function importFromInquiry(data){
+  // Basic info
+  if(data.client) document.getElementById('client').value = data.client;
+  if(data.dest) document.getElementById('dest').value = data.dest;
+  if(data.depDate) document.getElementById('dep-date').value = data.depDate;
+  if(typeof data.nights==='number') document.getElementById('nights').value = data.nights;
+
+  // Group attr - from _save or display value
+  const s = data._save || {};
+  if(s.groupAttrVal){
+    const gaMap = {
+      corp:'公司員工旅遊', friend:'情侶 / 朋友包團', retire:'退休朋友群',
+      family:'親子家族包團', school:'學生畢旅', incentive:'獎勵旅遊',
+      senior:'銀髮族', custom: s.groupAttrCustom||''
+    };
+    document.getElementById('group-attr').value = gaMap[s.groupAttrVal]||data.groupAttr||'';
+  } else if(data.groupAttr){
+    document.getElementById('group-attr').value = data.groupAttr;
+  }
+
+  // dep airport
+  if(s.depAirport || data.depAirport){
+    const el = document.getElementById('dep-airport');
+    if(el) el.value = s.depAirport || data.depAirport;
+  }
+
+  // Pax
+  if(typeof data.adult==='number') document.getElementById('pax-adult').value = data.adult;
+  if(typeof data.childBed==='number') document.getElementById('pax-child-bed').value = data.childBed;
+  if(typeof data.childNobed==='number') document.getElementById('pax-child-nobed').value = data.childNobed;
+  if(typeof data.infant==='number') document.getElementById('pax-infant').value = data.infant;
+
+  // Map inquiry items to cost items
+  if(s.allItems && s.allItems.length){
+    const container = document.getElementById('cost-rows');
+    container.innerHTML = '';
+    s.allItems.forEach(item => {
+      if(!item.checked) return; // only import checked items
+      const isAirfare = /機票/.test(item.label);
+      const isTips = /小費/.test(item.label);
+      container.appendChild(buildCostRow(item.label, isAirfare, isTips));
+    });
+  }
+
+  calcDates();
+  recalcCosts();
+  markUnsaved();
+  renderPreview();
+}
+
+// ══════════════════════════════════════════
+// PRINT / EXPORT
+// ══════════════════════════════════════════
+function openPrint(){
+  const d = collectDisplayData();
+  const depDate = d.depDate ? new Date(d.depDate) : null;
+  const retDate = d.retDate ? new Date(d.retDate) : null;
+  const fmtDate = dt => dt ? `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}` : '—';
+
+  let h = `<div style="margin-bottom:10px;">
+    <div style="font-size:14px;font-weight:800;color:var(--orbit);margin-bottom:4px;">GOMARS 報價單</div>
+    <div style="font-size:11px;color:var(--tx3);">製表日期：${new Date().toLocaleDateString('zh-TW')}</div>
+  </div>`;
+
+  h += `<div style="margin-bottom:10px;">
+    <b>客人：</b>${d.client||'—'}　<b>目的地：</b>${d.dest||'—'}<br>
+    <b>出發：</b>${fmtDate(depDate)}　<b>回程：</b>${fmtDate(retDate)}　<b>天數：</b>${d.nights+1}天${d.nights}夜<br>
+    <b>人數：</b>大人 ${d.adult}　佔床 ${d.childBed}　不佔床 ${d.childNobed}　嬰兒 ${d.infant}
+  </div>`;
+
+  // Price table
+  h += `<table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+    <tr style="background:var(--bg-surface);"><th style="text-align:left;padding:4px 8px;border:.5px solid var(--border);">類別</th>
+    <th style="padding:4px 8px;border:.5px solid var(--border);">行程價格</th>`;
+  if(d.joinEnabled) h += `<th style="padding:4px 8px;border:.5px solid var(--border);">JOIN 價格</th>`;
+  h += `</tr>`;
+
+  [['大人','adult'],['佔床','childBed'],['加床','extraBed'],['不佔床','childNobed'],['嬰兒','infant']].forEach(([lbl,key])=>{
+    const price = d.quotePrices[key]||0;
+    if(price > 0){
+      h += `<tr><td style="padding:4px 8px;border:.5px solid var(--border);">${lbl}</td>
+        <td style="text-align:center;padding:4px 8px;border:.5px solid var(--border);font-weight:700;color:var(--orbit);">NT$ ${fmtN(price)}</td>`;
+      if(d.joinEnabled) h += `<td style="text-align:center;padding:4px 8px;border:.5px solid var(--border);color:var(--bld);">NT$ ${fmtN(d.joinPrices[key]||0)}</td>`;
+      h += `</tr>`;
+    }
+  });
+  h += `</table>`;
+
+  if(!d.tipsIncluded) h += `<div style="font-size:11px;color:var(--br);margin-bottom:8px;">※ 小費另計，不包含在報價內</div>`;
+
+  // Incl / Excl
+  if(d.inclItems.length){
+    h += `<div style="margin-bottom:6px;"><b style="color:var(--grd);">費用包含：</b></div>`;
+    d.inclItems.forEach(t => { h += `<div style="font-size:11px;margin-left:8px;">✓ ${t}</div>`; });
+    h += `<div style="margin-bottom:8px;"></div>`;
+  }
+  if(d.exclItems.length){
+    h += `<div style="margin-bottom:6px;"><b style="color:#A00;">費用不包含：</b></div>`;
+    d.exclItems.forEach(t => { h += `<div style="font-size:11px;margin-left:8px;">✗ ${t}</div>`; });
+    h += `<div style="margin-bottom:8px;"></div>`;
+  }
+
+  if(d.notes){
+    h += `<div style="margin-bottom:4px;"><b>備註：</b></div>
+      <div style="font-size:11px;white-space:pre-wrap;">${d.notes}</div>`;
+  }
+
+  document.getElementById('print-preview').innerHTML = h;
+  document.getElementById('print-modal').classList.remove('hidden');
+}
+
+function exportWord(){
+  const d = collectDisplayData();
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+  const depDate = d.depDate ? new Date(d.depDate) : null;
+  const retDate = d.retDate ? new Date(d.retDate) : null;
+  const fmtDate = dt => dt ? `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}` : '—';
+  const depFull = depDate ? `${fmtDate(depDate)}（${'日一二三四五六'[depDate.getDay()]}）` : '—';
+  const retFull = retDate ? `${fmtDate(retDate)}（${'日一二三四五六'[retDate.getDay()]}）` : '—';
+
+  const css = `
+    @page Section1 {size:A4;margin:10mm 10mm 10mm 10mm;}
+    div.Section1 {page:Section1;font-family:"PingFang TC","Microsoft JhengHei",sans-serif;font-size:9.5pt;line-height:1.4;color:#1A1714;}
+    table{width:100%;border-collapse:collapse;margin-bottom:6pt;}
+    td,th{border:.5pt solid #CCC;padding:2.5pt 5pt;font-size:9pt;vertical-align:top;}
+    .sec{background:#0F3D6E;color:#FFF;font-weight:700;font-size:9.5pt;padding:3pt 6pt;border:none;}
+    .k{background:#EEF2F7;font-size:8.5pt;color:#444;font-weight:700;white-space:nowrap;}
+    .price{color:#C43A10;font-weight:700;text-align:center;font-size:10pt;}
+    .join{color:#185FA5;font-weight:600;text-align:center;}
+    .inc{color:#1D7A4E;font-weight:600;}
+    .exc{color:#A00;}
+  `;
+
+  // Header
+  let h = `
+  <table style="border-collapse:collapse;width:100%;margin-bottom:4pt;background:#0F3D6E;">
+    <tr>
+      <td style="border:none;padding:3pt 8pt;color:#FFF;">
+        <span style="font-size:12pt;font-weight:900;letter-spacing:.1em;">GOMARS</span>
+        <span style="font-size:9.5pt;font-weight:700;margin-left:6pt;">火星旅遊管理</span>
+        <span style="font-size:9pt;margin-left:4pt;opacity:.8;">· 報價單</span>
+      </td>
+      <td style="border:none;padding:3pt 8pt;color:#FFF;text-align:right;white-space:nowrap;font-size:8.5pt;width:1%;">
+        製表日期：${todayStr}
+      </td>
+    </tr>
+  </table>`;
+
+  // 一、基本資訊
+  h += `<table>
+    <tr><td colspan="8" class="sec">一、行程基本資訊</td></tr>
+    <tr>
+      <td class="k" style="width:50pt;">客人</td><td colspan="3"><b>${d.client||'—'}</b></td>
+      <td class="k" style="width:50pt;">團屬性</td><td colspan="3">${d.groupAttr||'—'}</td>
+    </tr>
+    <tr>
+      <td class="k">出發機場</td><td colspan="3">${d.depAirport||'—'}</td>
+      <td class="k">目的地</td><td colspan="3"><b>${d.dest||'—'}</b></td>
+    </tr>
+    <tr>
+      <td class="k">出發日期</td><td colspan="3">${depFull}</td>
+      <td class="k">回程日期</td><td colspan="3">${retFull}</td>
+    </tr>
+    <tr>
+      <td class="k">天數</td><td colspan="3"><b>${d.nights+1}天${d.nights}夜</b></td>
+      <td class="k">人數</td><td colspan="3">大人 ${d.adult} / 佔床 ${d.childBed} / 不佔床 ${d.childNobed} / 嬰兒 ${d.infant}</td>
+    </tr>
+  </table>`;
+
+  // 二、報價費用
+  const colCount = d.joinEnabled ? 3 : 2;
+  h += `<table>
+    <tr><td colspan="${colCount}" class="sec">二、報價費用</td></tr>
+    <tr style="background:#EEF2F7;font-weight:700;font-size:8.5pt;text-align:center;">
+      <th style="text-align:left;">類別</th>
+      <th>行程價格（每人）</th>`;
+  if(d.joinEnabled) h += `<th>JOIN 價格（每人）</th>`;
+  h += `</tr>`;
+
+  [['大人','adult'],['小孩佔床','childBed'],['加床','extraBed'],['小孩不佔床','childNobed'],['嬰兒','infant']].forEach(([lbl,key])=>{
+    const price = d.quotePrices[key]||0;
+    if(price > 0){
+      h += `<tr>
+        <td>${lbl}</td>
+        <td class="price">NT$ ${fmtN(price)}</td>`;
+      if(d.joinEnabled) h += `<td class="join">NT$ ${fmtN(d.joinPrices[key]||0)}</td>`;
+      h += `</tr>`;
+    }
+  });
+
+  h += `<tr style="background:#FFF8F0;font-weight:700;">
+    <td>團體總價</td>
+    <td class="price" style="font-size:11pt;">NT$ ${fmtN(d.grandTotal)}</td>`;
+  if(d.joinEnabled) h += `<td class="join" style="font-size:10pt;">NT$ ${fmtN(d.joinGrandTotal)}</td>`;
+  h += `</tr></table>`;
+
+  if(!d.tipsIncluded){
+    h += `<p style="color:#C43A10;font-size:8.5pt;margin:2pt 0 6pt;">※ 小費另計，不包含在報價內</p>`;
+  }
+
+  // 三、費用包含
+  const inclItems = d.inclItems;
+  const exclItems = d.exclItems;
+  if(inclItems.length || exclItems.length){
+    h += `<table>
+      <tr><td colspan="2" class="sec">三、費用包含 / 不包含</td></tr>`;
+    if(inclItems.length){
+      h += `<tr>
+        <td class="k" style="width:50pt;vertical-align:top;">包含</td>
+        <td>${inclItems.map(t=>`<span class="inc">✓</span> ${t}`).join('<br>')}</td>
+      </tr>`;
+    }
+    if(exclItems.length){
+      h += `<tr>
+        <td class="k" style="width:50pt;vertical-align:top;">不包含</td>
+        <td class="exc">${exclItems.map(t=>`✗ ${t}`).join('<br>')}</td>
+      </tr>`;
+    }
+    h += `</table>`;
+  }
+
+  // 四、備註
+  if(d.notes){
+    const secNum = (inclItems.length || exclItems.length) ? '四' : '三';
+    h += `<table>
+      <tr><td class="sec">${secNum}、備註</td></tr>
+      <tr><td style="line-height:1.6;">${d.notes.replace(/\n/g,'<br>')}</td></tr>
+    </table>`;
+  }
+
+  // Assemble & download
+  const wordClient = (d.client||'客人').replace(/\s/g,'').replace(/\//g,'-');
+  const wordDest = (d.dest||'').replace(/.*—\s*/,'').replace(/\s/g,'').replace(/\//g,'-').substring(0,6);
+  const wordDate = today.toISOString().split('T')[0].replace(/-/g,'');
+  const filename = `${wordClient}_${wordDest}_報價_${wordDate}_v${state.version}.doc`;
+
+  const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>
+<style>${css}</style>
+</head>
+<body><div class="Section1">${h}</div></body></html>`;
+
+  const blob = new Blob(['\ufeff'+wordHtml],{type:'application/msword;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  closeModal('print-modal');
+  toast('Word 已下載 ✓');
+}
+
+// ══════════════════════════════════════════
+// CLEAR
+// ══════════════════════════════════════════
+function clearForm(){
+  if(!confirm('確定要清除所有欄位嗎？')) return;
+  document.getElementById('client').value = '';
+  document.getElementById('group-attr').value = '';
+  document.getElementById('dep-date').value = '';
+  document.getElementById('nights').value = 7;
+  document.getElementById('ret-auto').value = '';
+  document.getElementById('pax-adult').value = 2;
+  document.getElementById('pax-child-bed').value = 0;
+  document.getElementById('pax-child-nobed').value = 0;
+  document.getElementById('pax-infant').value = 0;
+  document.getElementById('margin-pct').value = 15;
+  document.getElementById('notes').value = '';
+  document.getElementById('join-toggle').checked = false;
+  state.tipsIncluded = true;
+  state.joinEnabled = false;
+  state.priceOverrides = { adult:null, childBed:null, extraBed:null, childNobed:null, infant:null };
+  state.joinOverrides = { adult:null, childBed:null, extraBed:null, childNobed:null, infant:null };
+  document.querySelectorAll('#tips-seg .seg-btn').forEach((b,i) => b.classList.toggle('on', i===0));
+  localStorage.removeItem('gomars_quote_draft');
+  initCostItems();
+  initInclExcl();
+  calcDates();
+  recalcCosts();
+  markUnsaved();
+  renderPreview();
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function fmtN(n){
+  return (n||0).toLocaleString('zh-TW');
+}
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+function showDraftBanner(html){
+  const el = document.getElementById('draft-msg');
+  if(el){el.innerHTML=html;el.style.display='';}
+}
+function hideDraftBanner(){
+  const el = document.getElementById('draft-msg');
+  if(el){el.style.display='none';el.innerHTML='';}
+}
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

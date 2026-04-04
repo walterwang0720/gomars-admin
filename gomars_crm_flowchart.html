@@ -1,0 +1,101 @@
+<style>
+*{box-sizing:border-box}
+.wrap{padding:1rem 0;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif}
+:root{
+  --orbit:#EA5404;--mars:#C43A10;
+  --bg:#F4F1ED;--bg-card:#fff;--bg-surface:#F7F5F2;
+  --tx:#1A1714;--tx2:#5A524A;--tx3:#9C9189;
+  --border:#DDD8D2;--border-strong:#C5BDB5;
+  --gr:#1D7A4E;--grb:#E8F5EE;--grd:#145C39;
+  --bl:#185FA5;--blb:#EBF3FC;--bld:#0C447C;
+  --br:#EA5404;--brl:#FFF3E0;--brm:#F5C97A;
+}
+.phase-row{display:flex;gap:0;margin-bottom:0;overflow-x:auto}
+.phase{flex:1;min-width:110px}
+.phase-head{
+  padding:8px 10px;text-align:center;font-size:11px;font-weight:700;
+  letter-spacing:.05em;color:#fff;position:relative;
+}
+.phase-head.p1{background:var(--tx2)}
+.phase-head.p2{background:#7B5EA7}
+.phase-head.p3{background:var(--bl)}
+.phase-head.p4{background:var(--gr)}
+.phase-head.p5{background:var(--orbit)}
+.phase-body{padding:8px 6px;background:var(--bg-surface);border:1px solid var(--border);border-top:none;min-height:320px}
+.step-card{
+  background:var(--bg-card);border:.5px solid var(--border);
+  border-radius:8px;padding:8px 9px;margin-bottom:7px;
+  font-size:12px;color:var(--tx);line-height:1.4;
+}
+.step-card .num{
+  display:inline-block;width:18px;height:18px;background:var(--orbit);
+  border-radius:4px;color:#fff;font-size:10px;font-weight:800;
+  text-align:center;line-height:18px;margin-right:5px;flex-shrink:0;
+}
+.step-card .row{display:flex;align-items:flex-start;gap:0}
+.step-card .title{font-weight:600;color:var(--tx)}
+.step-card .sub{font-size:11px;color:var(--tx3);margin-top:2px;padding-left:23px}
+.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;margin-left:4px;vertical-align:middle}
+.tag-db{background:#F3EEF9;color:#7B5EA7}
+.tag-ui{background:var(--blb);color:var(--bld)}
+.tag-api{background:var(--brl);color:#633806}
+.tag-line{background:var(--grb);color:var(--grd)}
+.tag-deploy{background:#F4F4F4;color:#555}
+.arrow-row{display:flex;align-items:center;justify-content:center;margin:6px 0}
+.arr-down{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border-strong);margin:0 auto}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding:10px 12px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+</style>
+<div class="wrap">
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-head p1">準備</div>
+    <div class="phase-body">
+      <div class="step-card"><div class="row"><span class="num">1</span><span class="title">Supabase 建帳<span class="tag tag-db">DB</span></span></div><div class="sub">取得 URL / anon key</div></div>
+      <div class="step-card"><div class="row"><span class="num">2</span><span class="title">LINE Dev 建頻道<span class="tag tag-line">LINE</span></span></div><div class="sub">取得 Secret / Token</div></div>
+      <div class="step-card"><div class="row"><span class="num">3</span><span class="title">Node.js + GitHub<span class="tag tag-deploy">環境</span></span></div><div class="sub">建立 crm-app repo</div></div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="phase-head p2">資料庫</div>
+    <div class="phase-body">
+      <div class="step-card"><div class="row"><span class="num">4</span><span class="title">建 4 張資料表<span class="tag tag-db">DB</span></span></div><div class="sub">profiles / customers<br>follow_ups / orders</div></div>
+      <div class="step-card"><div class="row"><span class="num">5</span><span class="title">RLS 權限規則<span class="tag tag-db">DB</span></span></div><div class="sub">業務看自己<br>admin 看全部</div></div>
+      <div class="step-card"><div class="row"><span class="num">6</span><span class="title">匯入 Excel 資料<span class="tag tag-db">DB</span></span></div><div class="sub">百瑞精鼎<br>和興製衣 → CSV</div></div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="phase-head p3">UI 頁面 ← 現在</div>
+    <div class="phase-body">
+      <div class="step-card" style="border-color:var(--orbit);box-shadow:0 0 0 1.5px var(--orbit)22"><div class="row"><span class="num">7</span><span class="title">登入頁<span class="tag tag-ui">UI</span></span></div><div class="sub">email + 密碼<br>JWT session</div></div>
+      <div class="step-card" style="border-color:var(--orbit);box-shadow:0 0 0 1.5px var(--orbit)22"><div class="row"><span class="num">8</span><span class="title">客戶列表頁<span class="tag tag-ui">UI</span></span></div><div class="sub">搜尋、篩選、分頁</div></div>
+      <div class="step-card" style="border-color:var(--orbit);box-shadow:0 0 0 1.5px var(--orbit)22"><div class="row"><span class="num">9</span><span class="title">客戶詳情頁<span class="tag tag-ui">UI</span></span></div><div class="sub">資料編輯<br>跟進紀錄</div></div>
+      <div class="step-card" style="border-color:var(--orbit);box-shadow:0 0 0 1.5px var(--orbit)22"><div class="row"><span class="num">10</span><span class="title">報價/訂單頁<span class="tag tag-ui">UI</span></span></div><div class="sub">狀態流轉</div></div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="phase-head p4">LINE Bot</div>
+    <div class="phase-body">
+      <div class="step-card"><div class="row"><span class="num">11</span><span class="title">Webhook 端點<span class="tag tag-api">API</span></span></div><div class="sub">/api/line-webhook<br>簽名驗證</div></div>
+      <div class="step-card"><div class="row"><span class="num">12</span><span class="title">四種推播通知<span class="tag tag-line">LINE</span></span></div><div class="sub">新客戶/提醒<br>更新/摘要</div></div>
+      <div class="step-card"><div class="row"><span class="num">13</span><span class="title">帳號綁定機制<span class="tag tag-line">LINE</span></span></div><div class="sub">LINE userId<br>綁定 CRM 帳號</div></div>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="phase-head p5">部署</div>
+    <div class="phase-body">
+      <div class="step-card"><div class="row"><span class="num">14</span><span class="title">Vercel 部署<span class="tag tag-deploy">部署</span></span></div><div class="sub">push → auto deploy<br>填入環境變數</div></div>
+      <div class="step-card"><div class="row"><span class="num">15</span><span class="title">Cron Job 設定<span class="tag tag-deploy">部署</span></span></div><div class="sub">vercel.json<br>每日 08:00</div></div>
+      <div class="step-card"><div class="row"><span class="num">16</span><span class="title">LINE Webhook URL<span class="tag tag-line">LINE</span></span></div><div class="sub">填入正式網址<br>測試四種通知</div></div>
+    </div>
+  </div>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="tag tag-db">DB</span> 資料庫</div>
+  <div class="legend-item"><span class="tag tag-ui">UI</span> 頁面</div>
+  <div class="legend-item"><span class="tag tag-api">API</span> 後端</div>
+  <div class="legend-item"><span class="tag tag-line">LINE</span> LINE Bot</div>
+  <div class="legend-item"><span class="tag tag-deploy">部署</span> Vercel</div>
+  <div class="legend-item" style="margin-left:auto;font-size:11px;color:var(--orbit);font-weight:600">橘框 = 現在要做的步驟</div>
+</div>
+</div>
