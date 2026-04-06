@@ -10,7 +10,7 @@
 |------|------|------|
 | `gomars_inquiry.html` | 供應商詢價單（~2340 行） | 純雲端化完成 ✅ |
 | `gomars_quote.html` | 成本報價單（~2200 行） | 開發中 |
-| `gomars_admin.html` | 後台管理系統（~2500 行） | 開發中 |
+| `gomars_admin.html` | 後台管理系統（~2500 行） | 開發中（雲端-本地同步已修復 ✅） |
 | `GOMARS_開發日誌.md` | 完整功能清單、技術參考、未來規格 | 必讀 |
 | `GOMARS_品牌規範.md` | 設計 token、元件規格 | 設計參考 |
 
@@ -61,3 +61,6 @@ cp gomars_quote.html /tmp/index.html   # 或其他頁面
 5. **客報頁面 `gomars_client.html`**（大）— 行程排版 HTML，含飯店/景點資料庫圖文
 
 詳細規格見 `GOMARS_開發日誌.md`。
+
+## 已修復問題紀錄
+- **案件「起死回生」Bug（2026-04-06）**：所有 CRUD 操作（softDelete/batchDelete/restore/permanentDelete/clearTrash）已改為 `async/await`，Supabase 確認成功後才更新 `_casesData` 本地陣列，失敗時顯示 toast 錯誤訊息。刪除/還原 query 加入 `.eq('status', 'active'/'deleted')` 確保 DB 端條件一致。`loadCases()` 改為先 `_casesData = []` 再填入雲端資料，防止舊殘留干擾。

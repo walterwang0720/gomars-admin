@@ -1756,8 +1756,9 @@ let _casesData     = []
 async function loadCases() {
   const tbody = document.getElementById('cases-tbody')
   if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#888">載入中…</td></tr>'
+  // 清空本地快取，確保舊殘留資料不污染新結果
+  _casesData = []
   // 案件隔離：只載入屬於目前登入帳號的案件（owner = email）
-  // 未來升級為 team_id 篩選時可在此替換條件
   const ownerEmail = _currentUser?.email
   let query = sb.from('gomars_cases')
     .select('id,case_number,client_name,destination,depart_date,days,pax,owner,inquiry_status,quote_status,selling_price,created_at,status,deleted_at')
@@ -1808,7 +1809,8 @@ function renderCasesList() {
   const isTrash = _casesViewMode === 'trash'
 
   let data = _casesData.filter(c => {
-    if (isTrash ? c.status !== 'deleted' : c.status === 'deleted') return false
+    const isDeleted = c.status === 'deleted'
+    if (isTrash ? !isDeleted : isDeleted) return false
     if (q && !`${c.case_number} ${c.client_name} ${c.destination}`.toLowerCase().includes(q)) return false
     if (!isTrash) {
       if (_casesFilter === 'active'    && c.quote_status === 'finalized') return false
@@ -1926,29 +1928,35 @@ function newCase() {
 
 // 軟刪除：更新 status='deleted' + deleted_at，不從 DB 移除
 // Edge Function 定期清理：超過 30 天的 deleted 案件執行永久刪除
-function softDeleteCase(id, e) {
+async function softDeleteCase(id, e) {
   e?.stopPropagation()
   if (!confirm('將此案件移至垃圾桶？30 天後將自動永久刪除。')) return
   const deletedAt = new Date().toISOString()
+  const { error } = await sb.from('gomars_cases')
+    .update({ status:'deleted', deleted_at:deletedAt })
+    .eq('id', id)
+  if (error) { showToast('移至垃圾桶失敗：' + error.message); return }
   const idx = _casesData.findIndex(c => c.id === id)
   if (idx !== -1) { _casesData[idx].status = 'deleted'; _casesData[idx].deleted_at = deletedAt }
   renderCasesList()
   showToast('已移至垃圾桶')
-  sb.from('gomars_cases').update({ status:'deleted', deleted_at:deletedAt }).eq('id', id).catch(()=>{})
 }
 
-function batchDeleteCases() {
+async function batchDeleteCases() {
   const ids = [...document.querySelectorAll('.case-cb:checked')].map(cb => cb.dataset.id)
   if (!ids.length) { showToast('請先勾選要刪除的案件'); return }
   if (!confirm(`將 ${ids.length} 個案件移至垃圾桶？30 天後將自動永久刪除。`)) return
   const deletedAt = new Date().toISOString()
+  const { error } = await sb.from('gomars_cases')
+    .update({ status:'deleted', deleted_at:deletedAt })
+    .in('id', ids)
+  if (error) { showToast('批量刪除失敗：' + error.message); return }
   ids.forEach(id => {
     const idx = _casesData.findIndex(c => c.id === id)
     if (idx !== -1) { _casesData[idx].status = 'deleted'; _casesData[idx].deleted_at = deletedAt }
   })
   renderCasesList()
   showToast(`已將 ${ids.length} 個案件移至垃圾桶`)
-  sb.from('gomars_cases').update({ status:'deleted', deleted_at:deletedAt }).in('id', ids).catch(()=>{})
 }
 
 function toggleAllCaseCb(cbAll) {
@@ -1956,44 +1964,56 @@ function toggleAllCaseCb(cbAll) {
 }
 
 // ── 回收站操作 ──
-function restoreCase(id, e) {
+async function restoreCase(id, e) {
   e?.stopPropagation()
+  const { error } = await sb.from('gomars_cases')
+    .update({ status:'active', deleted_at:null })
+    .eq('id', id)
+  if (error) { showToast('還原失敗：' + error.message); return }
   const idx = _casesData.findIndex(c => c.id === id)
   if (idx !== -1) { _casesData[idx].status = 'active'; _casesData[idx].deleted_at = null }
   renderCasesList()
   showToast('案件已還原')
-  sb.from('gomars_cases').update({ status:'active', deleted_at:null }).eq('id', id).catch(()=>{})
 }
 
-function permanentDeleteCase(id, e) {
+async function permanentDeleteCase(id, e) {
   e?.stopPropagation()
   if (!confirm('永久刪除此案件？此動作無法復原。')) return
+  const { error } = await sb.from('gomars_cases')
+    .delete()
+    .eq('id', id)
+  if (error) { showToast('永久刪除失敗：' + error.message); return }
   _casesData = _casesData.filter(c => c.id !== id)
   renderCasesList()
   showToast('已永久刪除')
-  sb.from('gomars_cases').delete().eq('id', id).catch(()=>{})
 }
 
-function batchRestoreCases() {
+async function batchRestoreCases() {
   const ids = [...document.querySelectorAll('.case-cb:checked')].map(cb => cb.dataset.id)
   if (!ids.length) { showToast('請先勾選要還原的案件'); return }
+  const { error } = await sb.from('gomars_cases')
+    .update({ status:'active', deleted_at:null })
+    .in('id', ids)
+  if (error) { showToast('批量還原失敗：' + error.message); return }
   ids.forEach(id => {
     const idx = _casesData.findIndex(c => c.id === id)
     if (idx !== -1) { _casesData[idx].status = 'active'; _casesData[idx].deleted_at = null }
   })
   renderCasesList()
   showToast(`已還原 ${ids.length} 個案件`)
-  sb.from('gomars_cases').update({ status:'active', deleted_at:null }).in('id', ids).catch(()=>{})
 }
 
-function clearTrash() {
+async function clearTrash() {
   const trashIds = _casesData.filter(c => c.status === 'deleted').map(c => c.id)
   if (!trashIds.length) { showToast('回收站已是空的'); return }
   if (!confirm(`永久刪除回收站內全部 ${trashIds.length} 個案件？此動作無法復原。`)) return
+  const { error } = await sb.from('gomars_cases')
+    .delete()
+    .in('id', trashIds)
+  if (error) { showToast('清空回收站失敗：' + error.message); return }
   _casesData = _casesData.filter(c => c.status !== 'deleted')
   renderCasesList()
   showToast('已清空回收站')
-  sb.from('gomars_cases').delete().in('id', trashIds).catch(()=>{})
 }
 
 // ══════════════════════════════════════
