@@ -19,15 +19,6 @@
   --font-mono:"SF Mono","Fira Code","Consolas",monospace;
   --radius:10px;--shadow:0 2px 12px rgba(0,0,0,.08);
 }
-[data-theme="dark"]{
-  --bg:#1A1714;--bg-card:#241F1B;--bg-surface:#2C2621;
-  --tx:#F0EBE5;--tx2:#A89880;--tx3:#6A5F55;
-  --border:#3A3028;--border-strong:#4A4038;
-  --grb:#1A2E22;--grd:#7ECDA0;
-  --blb:#1A2535;--bld:#7BBCF5;
-  --brl:#2A1E0A;--brm:#7A5020;--bro:#2A1E0A;
-  --g100:#2A2A2A;--g400:#555;--g600:#888;
-}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font);background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;}
 
@@ -123,7 +114,6 @@ textarea.inp{resize:vertical;min-height:72px;}
 .info-box.green{background:var(--grb);border-color:#B2DAC8;color:var(--grd);}
 .info-box.red{background:#FDE8E8;border-color:#FABABA;color:#A00;}
 .info-box.blue{background:var(--blb);border-color:#B5D4F4;color:var(--bld);}
-[data-theme="dark"] .info-box.red{background:#2A1010;border-color:#6A2020;color:#F88;}
 
 /* ── Flight ── */
 .flight-combo{border:.5px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:10px;}
@@ -144,7 +134,6 @@ textarea.inp{resize:vertical;min-height:72px;}
 .flight-dir-label{font-size:11px;font-weight:700;padding:2px 9px;border-radius:4px;flex-shrink:0;}
 .dir-out{background:var(--blb);color:var(--bld);}
 .dir-ret{background:#FAEEDA;color:#633806;}
-[data-theme="dark"] .dir-ret{background:#2A1E0A;color:#F5C97A;}
 .flight-block{background:var(--bg-surface);border:.5px solid var(--border);
   border-radius:8px;padding:10px;margin-bottom:6px;}
 .flight-block.ret-block{background:var(--brl);border-color:var(--brm);}
@@ -197,7 +186,6 @@ textarea.inp{resize:vertical;min-height:72px;}
 /* ── Badge ── */
 .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em;}
 .badge-orange{background:#FFF0E6;color:var(--orbit);}
-[data-theme="dark"] .badge-orange{background:#2A1800;color:#F5A060;}
 
 /* ── Action Bar ── */
 #action-bar{position:sticky;bottom:0;background:var(--bg-card);
@@ -245,32 +233,29 @@ textarea.inp{resize:vertical;min-height:72px;}
   .card{break-inside:avoid;box-shadow:none;}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://wghvduyyuvbnggddvdal.supabase.co'
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnaHZkdXl5dXZibmdnZGR2ZGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDc1MzIsImV4cCI6MjA5MDgyMzUzMn0.OavKg-TckxW0pJLhmvP92z4HB3eTVkJ6AFuh5jBJntA'
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
+</script>
 </head>
 <body>
 
 <div id="topbar">
-  <span class="logo">GOMARS</span>
-  <span class="doc-title">供應商詢價單</span>
+  <span class="doc-title" style="font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;">供應商詢價單</span>
+  <div class="save-dot unsaved" id="save-dot" style="margin-left:6px;flex-shrink:0;"></div>
+  <span id="status-label" style="color:var(--tx2);font-size:12px;white-space:nowrap;">未儲存</span>
+  <span class="ver-chip" id="ver-chip">詢 v1</span>
+  <span id="last-save" style="font-size:11px;color:var(--tx3);white-space:nowrap;"></span>
   <div class="spacer"></div>
+  <button class="tb-btn" onclick="clearForm()">🗑 清除重填</button>
   <button class="tb-btn" onclick="togglePreview()">👁 預覽欄</button>
-  <button class="tb-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-  <input type="file" id="file-input" accept=".gomars,.json" style="display:none" onchange="onFileLoad(event)"/>
 </div>
 
 <div id="app">
 <div id="form-col">
 
-  <!-- Status Bar -->
-  <div id="status-bar">
-    <div class="save-dot unsaved" id="save-dot"></div>
-    <span id="status-label" style="color:var(--tx2);">未儲存</span>
-    <span class="ver-chip" id="ver-chip">詢 v1</span>
-    <span id="last-save" style="font-size:11px;color:var(--tx3);"></span>
-    <span id="draft-msg" style="display:none;font-size:11px;color:var(--bld);background:var(--blb);padding:2px 8px;border-radius:4px;border:.5px solid var(--bld);"></span>
-    <div class="ml-auto gap6">
-      <button class="btn sm ghost" onclick="clearForm()">清除重填</button>
-    </div>
-  </div>
 
   <!-- ① 基本資訊 -->
   <div class="card">
@@ -569,28 +554,12 @@ textarea.inp{resize:vertical;min-height:72px;}
   <span class="badge badge-orange" id="doc-id">NEW</span>
   <span style="font-size:12px;color:var(--tx2);" id="doc-subtitle">新增詢價單</span>
   <div class="ml-auto gap6">
-    <button class="btn" onclick="loadFile()">📂 載入檔案</button>
-    <button class="btn" style="background:var(--bl);color:#fff;border-color:var(--bl);" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="saveFile()">💾 下載到本機</button>
+    <button class="btn" style="background:var(--bl);color:#fff;border-color:var(--bl);" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="saveToCloud()">☁️ 儲存案件</button>
     <button class="btn" style="background:var(--gr);color:#fff;border-color:var(--gr);" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="openPrint()">📄 列印 / 匯出</button>
+    <button class="btn primary" id="btn-to-quote" onclick="toQuote()" style="display:none">轉報價 →</button>
   </div>
 </div>
 
-<!-- Save Modal -->
-<div class="modal-overlay hidden" id="save-modal">
-  <div class="modal">
-    <h3>下載詢價單到本機</h3>
-    <p style="font-size:12px;color:var(--tx2);margin-bottom:12px;">請確認檔案名稱：</p>
-    <input class="inp" id="save-filename" placeholder="客人_目的地_日期_v1"/>
-    <div class="info-box" style="margin-top:10px;font-size:11px;line-height:1.6;">
-      📁 檔案格式為 <strong>.gomars</strong>，儲存在你的下載資料夾。<br>
-      下次點「載入檔案」即可重新開啟繼續編輯或升版。
-    </div>
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeModal('save-modal')">取消</button>
-      <button class="btn primary" onclick="doSaveFile()">確認下載</button>
-    </div>
-  </div>
-</div>
 
 <!-- Print Modal -->
 <div class="modal-overlay hidden" id="print-modal">
@@ -709,6 +678,8 @@ let state = {
   inquiryType: 'package',
   budgetType: 'net',
   flightMode: 'specified',
+  caseId: null,
+  caseNumber: null,
 };
 let unsaved = true;
 let flightComboCount = 0;
@@ -722,6 +693,10 @@ function updateVerChip(){
 // INIT
 // ══════════════════════════════════════════
 window.onload = function(){
+  // 在 iframe 內才顯示「轉報價」按鈕
+  if(window.self !== window.top){
+    document.getElementById('btn-to-quote').style.display = '';
+  }
   addRoomRow();
   initItems();
   addFlightCombo();
@@ -732,7 +707,7 @@ window.onload = function(){
       const d = JSON.parse(saved);
       loadState(d);
       const ts = d._ts ? new Date(d._ts).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}) : '';
-      showDraftBanner(`已自動還原上次草稿${ts?' ('+ts+')':''}　　<button onclick="clearForm();hideDraftBanner()" style="font-size:11px;text-decoration:underline;background:none;border:none;cursor:pointer;color:inherit;">清除重填</button>`);
+      toast(`已自動還原上次草稿${ts?' ('+ts+')':''}`);
       setInterval(autoSaveLS, 90000);
       return;
     } catch(e){}
@@ -744,14 +719,13 @@ window.onload = function(){
   setInterval(autoSaveLS, 90000);
 };
 
+
 // ══════════════════════════════════════════
-// THEME
+// 轉報價（iframe → admin 切 tab）
 // ══════════════════════════════════════════
-function toggleTheme(){
-  const d = document.documentElement;
-  const dark = d.getAttribute('data-theme') === 'dark';
-  d.setAttribute('data-theme', dark ? 'light' : 'dark');
-  document.getElementById('theme-btn').textContent = dark ? '🌙' : '☀️';
+function toQuote(){
+  autoSaveLS();
+  window.parent.postMessage({type:'gomars:to-cost-quote'}, '*');
 }
 
 // ══════════════════════════════════════════
@@ -1706,50 +1680,74 @@ function autoSaveLS(){
   markSaved();
   toast('已暫存至瀏覽器（關閉頁面不會遺失）');
 }
-function saveFile(){
-  const d=collectData();
-  const client=(d.client||'客人').replace(/\s/g,'').replace(/\//g,'-').split('/')[0];
-  const dest=(d.dest||'').replace(/.*—\s*/,'').replace(/\s/g,'').replace(/\//g,'-').substring(0,6);
-  const today=new Date().toISOString().split('T')[0].replace(/-/g,'');
-  const suggested=`${client}_${dest}_${today}_v${state.version}`;
-  document.getElementById('save-filename').value=suggested;
-  document.getElementById('save-modal').classList.remove('hidden');
-}
-function doSaveFile(){
-  const filename=document.getElementById('save-filename').value||'gomars_inquiry';
+async function saveToCloud(){
   const data=collectData();
-  // Save all flight blocks to DB
-  document.querySelectorAll('.flight-block').forEach(b=>saveFlightToDB(b));
-  const blob=new Blob([JSON.stringify({
-    ...data,
-    _meta:{version:state.version,savedAt:new Date().toISOString(),app:'GOMARS Inquiry v2'}
-  },null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=filename.endsWith('.gomars')?filename:filename+'.gomars';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  closeModal('save-modal');
-  markSaved();
-  state.version++;
-  updateVerChip();
-  toast('已下載到本機 ✓');
-}
-function loadFile(){
-  document.getElementById('file-input').click();
-}
-function onFileLoad(e){
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const data=JSON.parse(ev.target.result);
-      loadState(data);
-      toast(`已載入：${file.name}`);
-    } catch(err){ alert('檔案格式錯誤，請確認是有效的 .gomars 檔案。'); }
+  const now=new Date();
+
+  // Sync flight blocks to Supabase (change detection)
+  const db=JSON.parse(localStorage.getItem('gomars_flight_db')||'{}');
+  let syncCount=0;
+  const upsertRows=[];
+  document.querySelectorAll('.flight-block').forEach(block=>{
+    const num=block.querySelector('.flt-num')?.value?.trim().toUpperCase();
+    if(!num||num.length<3) return;
+    const airline=block.querySelector('.flt-airline')?.value?.trim();
+    const from=block.querySelector('.flt-from')?.value?.trim();
+    const to=block.querySelector('.flt-to')?.value?.trim();
+    const dep=block.querySelector('.flt-dep')?.value;
+    const arr=block.querySelector('.flt-arr')?.value;
+    if(!airline&&!from) return;
+    const ex=db[num];
+    if(!ex||ex.airline!==airline||ex.from!==from||ex.to!==to||ex.dep!==dep||ex.arr!==arr){
+      const savedAt=now.toISOString();
+      db[num]={airline,from,to,dep,arr,savedAt};
+      upsertRows.push({flight_no:num,airline,from,to,dep,arr,updated_at:savedAt});
+      syncCount++;
+    }
+  });
+  localStorage.setItem('gomars_flight_db',JSON.stringify(db));
+  if(upsertRows.length) sb.from('flight_db').upsert(upsertRows,{onConflict:'flight_no'}).catch(()=>{});
+
+  // Generate case_number if new case
+  if(!state.caseId){
+    const ymd=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    const {count}=await sb.from('gomars_cases').select('id',{count:'exact',head:true}).like('case_number',`GM${ymd}%`);
+    state.caseNumber=`GM${ymd}${String((count||0)+1).padStart(3,'0')}`;
+    state.version=1;
+  } else {
+    // 從 Supabase 拉最新版本號，防止多 tab 版本衝突
+    const {data:existing}=await sb.from('gomars_cases').select('inquiry_data').eq('id',state.caseId).single();
+    const remoteVer=existing?.inquiry_data?._version||0;
+    state.version=remoteVer+1;
+  }
+
+  const payload={
+    case_number:state.caseNumber,
+    client_name:data.client||null,
+    destination:data.dest||null,
+    depart_date:data.depDate||null,
+    days:typeof data.nights==='number'?data.nights:null,
+    pax:(data.adult||0)+(data.childBed||0)+(data.childNobed||0)||null,
+    inquiry_data:{...(data._save||{}),_version:state.version},
+    inquiry_status:'draft',
+    updated_at:now.toISOString(),
   };
-  reader.readAsText(file);
-  e.target.value='';
+
+  let res;
+  if(state.caseId){
+    res=await sb.from('gomars_cases').update(payload).eq('id',state.caseId);
+  } else {
+    res=await sb.from('gomars_cases').insert(payload).select('id,case_number').single();
+    if(!res.error&&res.data){ state.caseId=res.data.id; state.caseNumber=res.data.case_number; }
+  }
+
+  if(res.error){ toast('儲存失敗：'+res.error.message); return; }
+
+  document.getElementById('doc-id').textContent=state.caseNumber||'NEW';
+  markSaved();
+  updateVerChip();
+  const syncMsg=syncCount>0?`，同步 ${syncCount} 筆航班`:'';
+  toast(`已儲存至雲端${syncMsg} ✓`);
 }
 function loadState(data){
   const s = data._save || {};

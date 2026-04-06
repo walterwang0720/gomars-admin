@@ -1,0 +1,38 @@
+/* ══════════════════════════════════════════
+   GOMARS Base — 品牌 Token + 重置
+   供 gomars_quote.html / gomars_admin.html 共用
+   修改顏色/字型請編輯此檔，無需觸碰各頁面
+══════════════════════════════════════════ */
+
+:root{
+  /* ── 字型 ── */
+  --font:"PingFang TC","Microsoft JhengHei","SF Pro Text","Segoe UI",system-ui,sans-serif;
+  --font-cond:"Barlow Condensed","Arial Narrow",sans-serif;
+  --font-mono:"SF Mono","Fira Code",monospace;
+
+  /* ── 品牌色 ── */
+  --orbit:#EA5404;--mars:#C43A10;--dust:#B85C00;
+  --gr:#1D7A4E;--grb:#E6F4ED;--grd:#155C39;
+  --bl:#185FA5;--blb:#E6F1FB;--bld:#0E4279;
+  --br:#EA5404;--brd:#B83D00;--brl:#FDF0E9;--brm:#F7C9A8;
+  --pu:#6B4FBB;--pub:#F0EBFF;
+  --amber:#B45309;--amberb:#FEF3C7;
+
+  /* ── 灰階 ── */
+  --g50:#F7F6F4;--g100:#EFEDE8;--g200:#E0DDD8;--g300:#C8C4BE;
+  --g400:#9A9690;--g500:#6E6A65;--g600:#5C5955;--g700:#3D3B38;
+
+  /* ── 背景 / 邊框 / 文字 ── */
+  --bg-page:#F0EFE9;--bg-card:#ffffff;--bg-surface:#F7F6F4;--bg-hover:#EFEDE8;
+  --border:#E0DDD8;--border-soft:#EFEDE8;
+  --tx:#1A1A1A;--tx2:#5C5955;--tx3:#9A9690;
+
+  /* ── 工具 ── */
+  --radius:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+
+/* ── Reset ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-height:100vh;}

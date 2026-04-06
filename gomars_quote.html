@@ -6,39 +6,10 @@
 <title>GOMARS 成本報價單</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<link rel="stylesheet" href="gomars_base.css">
 <style>
-:root{
-  --font:"PingFang TC","Microsoft JhengHei","SF Pro Text","Segoe UI",system-ui,sans-serif;
-  --font-cond:"Barlow Condensed","Arial Narrow",sans-serif;
-  --font-mono:"SF Mono","Fira Code",monospace;
-
-  --orbit:#EA5404;--mars:#C43A10;
-  --gr:#1D7A4E;--grb:#E6F4ED;--grd:#155C39;
-  --bl:#185FA5;--blb:#E6F1FB;--bld:#0E4279;
-  --brl:#FDF0E9;
-  --pu:#6B4FBB;--pub:#F0EBFF;
-  --amber:#B45309;--amberb:#FEF3C7;
-
-  --bg-page:#F0EFE9;--bg-card:#ffffff;--bg-surface:#F7F6F4;
-  --border:#E0DDD8;--border-soft:#EFEDE8;
-  --tx:#1A1A1A;--tx2:#5C5955;--tx3:#9A9690;
-  --g50:#F7F6F4;--g100:#EFEDE8;--g200:#E0DDD8;--g300:#C8C4BE;--g400:#9A9690;
-
-  --topnav-h:44px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 12px rgba(0,0,0,.08);
-  --radius:10px;
-}
-[data-theme="dark"]{
-  --bg-page:#111110;--bg-card:#1C1B1A;--bg-surface:#252422;
-  --border:#2E2C2A;--border-soft:#242220;
-  --tx:#E8E4DF;--tx2:#9A9690;--tx3:#5C5955;
-  --g50:#252422;--g100:#2A2927;--g200:#333130;--g300:#4A4845;
-  --brl:#2A1506;--grb:#0A2018;--blb:#0A1828;--amberb:#292010;
-  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 12px rgba(0,0,0,.4);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-height:100vh;}
+/* ── 頁面專屬 token（共用 token 見 gomars_base.css）── */
+:root{--topnav-h:44px;}
 
 /* ══ TOP NAV ══ */
 .top-nav{
@@ -343,6 +314,245 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
 
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-thumb{background:var(--g200);border-radius:3px;}
+
+/* ══ TOP NAV CASE INFO ══ */
+.tn-case-info{
+  display:none;align-items:center;gap:6px;
+  padding:0 12px;border-left:1px solid var(--border);border-right:1px solid var(--border);
+  flex-shrink:0;font-size:12px;color:var(--tx2);max-width:360px;
+}
+.tn-client{font-weight:700;color:var(--tx);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tn-sep-dot{color:var(--g300);font-size:9px;flex-shrink:0;}
+.tn-dest{white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis;}
+.tn-nights{font-size:10.5px;background:var(--brl);color:var(--mars);padding:1px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+.tn-dates{font-size:11px;color:var(--tx3);white-space:nowrap;}
+
+/* ══ MODE SELECT BAR ══ */
+.mode-select-bar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg-card);border-radius:var(--radius);
+  padding:10px 14px;box-shadow:var(--shadow);
+}
+.mode-select-lbl{font-size:11.5px;color:var(--tx3);margin-right:4px;flex-shrink:0;}
+.mode-sel-btn{
+  padding:6px 14px;border-radius:6px;border:1.5px solid var(--border);
+  background:transparent;cursor:pointer;font-size:12.5px;font-weight:500;
+  color:var(--tx2);transition:all .12s;display:flex;align-items:center;gap:5px;
+}
+.mode-sel-btn.active{background:var(--bl);border-color:var(--bl);color:#fff;}
+.mode-sel-btn:not(.active):hover{background:var(--g50);border-color:var(--g300);}
+
+/* ══ NET MODE ══ */
+/* 預設：隱藏 net-row，顯示逐項內容 */
+.cc-net-row{display:none;}
+.net-pricing{display:none;}
+
+/* 淨報模式開啟時 */
+body.quote-mode-net .cc-net-row{display:flex !important;align-items:center;gap:10px;padding:6px 0;}
+body.quote-mode-net .cc-body > *:not(.cc-net-row){display:none !important;}
+body.quote-mode-net .sum-table{display:none;}
+body.quote-mode-net .margin-row{display:none;}
+body.quote-mode-net .pax-price-table{display:none;}
+body.quote-mode-net .pricing-section > .ps-title{display:none;}
+body.quote-mode-net .net-pricing{display:block;}
+
+/* Net row 元件 */
+.net-chk-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.net-chk-wrap input[type=checkbox]{accent-color:var(--gr);width:14px;height:14px;cursor:pointer;}
+.net-chk-lbl{font-size:12.5px;color:var(--tx2);cursor:pointer;white-space:nowrap;}
+.inp-net-note{
+  flex:1;padding:5px 10px;border:1px solid var(--border);border-radius:6px;
+  background:var(--bg-surface);color:var(--tx);font-size:12.5px;font-family:var(--font);
+  outline:none;transition:border .15s;min-width:0;
+}
+.inp-net-note:focus{border-color:var(--bl);}
+.inp-net-note::placeholder{color:var(--tx3);}
+
+/* 淨報定價區 */
+.net-cost-block{background:var(--bg-surface);border-radius:8px;padding:14px;margin-bottom:12px;}
+.net-block-title{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:10px;}
+.net-pax-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid var(--border-soft);}
+.net-pax-row:last-child{border-bottom:none;}
+.net-pax-name{min-width:80px;font-size:12.5px;font-weight:600;color:var(--tx);}
+.net-pax-cnt{font-size:11.5px;color:var(--tx3);min-width:36px;}
+.net-cur-lbl{font-size:12px;color:var(--tx3);flex-shrink:0;}
+.inp-net-price{
+  width:105px;padding:5px 9px;border:1px solid var(--border);border-radius:6px;
+  background:var(--bg-card);color:var(--tx);font-family:var(--font-mono);
+  font-size:13px;text-align:right;transition:border .15s;
+}
+.inp-net-price:focus{outline:none;border-color:var(--bl);box-shadow:0 0 0 2px rgba(24,95,165,.12);}
+.net-row-sub{font-family:var(--font-mono);font-size:12px;color:var(--tx3);min-width:95px;text-align:right;white-space:nowrap;}
+.net-row-sub.v{color:var(--tx);font-weight:600;}
+
+/* 利潤列 */
+.net-profit-row{
+  display:flex;align-items:center;gap:0;
+  background:var(--grb);border-radius:8px;overflow:hidden;margin-top:4px;
+}
+.net-profit-item{
+  flex:1;padding:11px 14px;border-right:.5px solid rgba(29,122,78,.15);
+}
+.net-profit-item:last-child{border-right:none;}
+.npi-lbl{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--grd);opacity:.7;margin-bottom:3px;}
+.npi-val{font-size:15px;font-weight:800;color:var(--grd);font-family:var(--font-mono);}
+.npi-val.loss{color:var(--mars);}
+
+/* ══ NET ZONE DRAG ══ */
+.net-zone-wrap{display:flex;gap:12px;margin-bottom:16px;}
+.net-zone-col{flex:1;min-width:0;}
+.net-zone-title{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px;padding:0 2px;}
+.net-zone{
+  min-height:68px;border-radius:10px;padding:10px;
+  display:flex;flex-wrap:wrap;gap:7px;align-content:flex-start;
+  border:1.5px dashed var(--border);background:var(--bg-surface);
+  transition:border-color .15s,background .15s;
+}
+.net-zone.drag-over{border-color:var(--bl);background:var(--blb);}
+#net-zone-own{border-color:rgba(234,84,4,.35);background:var(--brl);}
+#net-zone-own.drag-over{border-color:var(--mars);background:#fde8df;}
+#net-zone-unused{border-color:rgba(160,160,160,.35);background:var(--bg-surface);opacity:.85;}
+#net-zone-unused.drag-over{border-color:#888;background:#f0f0f0;}
+.net-chip-unused{opacity:.4;filter:grayscale(1);cursor:grab;}
+.net-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:20px;
+  background:var(--bg-card);border:1px solid var(--border);
+  font-size:12px;font-weight:500;color:var(--tx);
+  cursor:grab;user-select:none;
+  transition:box-shadow .12s,transform .12s;
+}
+.net-chip:active{cursor:grabbing;}
+.net-chip.sortable-chosen{box-shadow:var(--shadow-md);transform:scale(1.04);}
+.net-chip.sortable-ghost{opacity:.25;}
+.net-chip-fixed{
+  cursor:default;background:var(--brl);
+  border-color:rgba(196,58,16,.3);color:var(--mars);
+}
+.net-chip-fixed:active{cursor:default;}
+.net-includes-note{
+  font-size:11.5px;color:var(--tx3);
+  background:var(--bg-surface);border-radius:7px;
+  padding:6px 12px;margin-bottom:12px;
+  border:.5px solid var(--border-soft);line-height:1.5;
+}
+.net-includes-note strong{color:var(--tx2);}
+/* 成本合計條 */
+.net-cost-strip{
+  display:flex;align-items:stretch;
+  background:var(--g50);border-radius:8px;
+  overflow:hidden;margin:14px 0;
+  border:.5px solid var(--border);
+}
+.net-strip-item{flex:1;padding:10px 14px;}
+.net-strip-item.total{background:var(--g100);}
+.nsi-lbl{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:4px;}
+.nsi-val{font-size:14px;font-weight:700;color:var(--tx);font-family:var(--font-mono);}
+.nsi-op{
+  display:flex;align-items:center;justify-content:center;
+  padding:0 10px;font-size:18px;color:var(--tx3);
+  border-left:.5px solid var(--border);border-right:.5px solid var(--border);
+}
+/* 可編輯利潤欄 */
+.npi-editable{display:flex;align-items:center;gap:5px;}
+.inp-npi{
+  width:108px;padding:4px 8px;
+  border:1px solid rgba(29,122,78,.3);border-radius:6px;
+  background:rgba(29,122,78,.06);color:var(--grd);
+  font-family:var(--font-mono);font-size:14px;font-weight:700;
+  text-align:right;transition:border .15s;
+}
+.inp-npi:focus{outline:none;border-color:var(--gr);box-shadow:0 0 0 2px rgba(29,122,78,.12);}
+.inp-npi.loss{color:var(--mars);border-color:rgba(196,58,16,.3);background:rgba(196,58,16,.06);}
+.inp-npi-unit{font-size:12px;color:var(--grd);font-weight:600;}
+/* 刷卡手續費列 */
+.cc-fee-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 0 4px;margin-top:8px;
+  border-top:.5px solid var(--border-soft);
+}
+.cc-fee-lbl{font-size:12.5px;color:var(--tx2);flex-shrink:0;}
+.inp-cc-fee{
+  width:68px;padding:5px 9px;border:1px solid var(--border);border-radius:6px;
+  background:var(--bg-surface);color:var(--tx);font-family:var(--font-mono);
+  font-size:13px;text-align:right;transition:border .15s;
+}
+.inp-cc-fee:focus{outline:none;border-color:var(--bl);}
+.cc-fee-note{font-size:11px;color:var(--tx3);}
+
+/* ══ PAGE LAYOUT ══ */
+.page-body{display:flex;align-items:flex-start;}
+.content{flex:1;min-width:0;}
+
+/* ══ PREVIEW PANEL ══ */
+#preview-panel{
+  width:228px;flex-shrink:0;
+  position:sticky;top:var(--topnav-h);
+  height:calc(100vh - var(--topnav-h));
+  overflow-y:auto;
+  border-left:1.5px solid var(--border);
+  background:var(--bg-card);
+  display:flex;flex-direction:column;
+  scrollbar-width:thin;scrollbar-color:var(--g200) transparent;
+  transition:width .2s,opacity .2s;
+}
+#preview-panel.pv-hidden{width:0;overflow:hidden;border:none;}
+.pv-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px 8px;
+  border-bottom:1px solid var(--border-soft);
+  flex-shrink:0;position:sticky;top:0;background:var(--bg-card);z-index:2;
+}
+.pv-title{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);}
+.pv-toggle{
+  width:20px;height:20px;border:none;background:transparent;cursor:pointer;
+  color:var(--tx3);font-size:11px;border-radius:4px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.pv-toggle:hover{background:var(--g100);color:var(--tx);}
+.pv-body{flex:1;padding:11px 12px 20px;display:flex;flex-direction:column;gap:8px;}
+.pv-sec-lbl{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin-bottom:2px;}
+.pv-row{
+  display:flex;align-items:baseline;justify-content:space-between;
+  font-size:11.5px;color:var(--tx2);gap:6px;min-height:20px;
+}
+.pv-row span:first-child{white-space:nowrap;}
+.pv-row span:last-child{
+  font-family:var(--font-mono);font-weight:600;color:var(--tx);
+  text-align:right;white-space:nowrap;font-size:11.5px;flex-shrink:0;
+}
+.pv-row.pv-zero span{opacity:.35;}
+.pv-divider{height:.5px;background:var(--border-soft);margin:4px 0;}
+.pv-row.pv-total{margin-top:2px;border-top:2px solid var(--border);padding-top:7px;}
+.pv-row.pv-total span{font-size:13px;font-weight:700;}
+.pv-row.pv-total span:last-child{color:var(--mars);}
+.pv-row.pv-sell span{font-size:12.5px;font-weight:700;}
+.pv-row.pv-sell span:last-child{color:var(--bl);}
+.pv-row.pv-profit span:last-child{color:var(--gr);}
+.pv-row.pv-loss span:last-child{color:var(--mars);}
+
+/* mode visibility */
+.pv-net-block{display:none;}
+body.quote-mode-net .pv-itemized-block{display:none;}
+body.quote-mode-net .pv-net-block{display:contents;}
+
+/* open/close toggle outside panel (tab on right edge) */
+#pv-open-btn{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);
+  writing-mode:vertical-rl;
+  background:var(--bg-card);border:1.5px solid var(--border);border-right:none;
+  border-radius:6px 0 0 6px;padding:10px 5px;
+  font-size:10.5px;color:var(--tx3);cursor:pointer;
+  display:none;z-index:100;letter-spacing:.1em;
+  box-shadow:-2px 0 6px rgba(0,0,0,.06);
+}
+#preview-panel.pv-hidden ~ #pv-open-btn,
+#pv-open-btn.pv-show{display:block;}
+
+@media(max-width:900px){
+  #preview-panel{display:none;}
+  #pv-open-btn{display:none !important;}
+}
 </style>
 </head>
 <body>
@@ -363,6 +573,14 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
     <div class="tn-sep"></div>
     <button class="tn-btn" onclick="jumpTo('sec-summary')" style="color:var(--mars);font-weight:600;">🧮 定價</button>
   </div>
+  <div class="tn-case-info" id="tn-case-info">
+    <span class="tn-client" id="tn-client">—</span>
+    <span class="tn-sep-dot">·</span>
+    <span class="tn-dest" id="tn-dest">—</span>
+    <span class="tn-nights" id="tn-nights"></span>
+    <span class="tn-sep-dot">·</span>
+    <span class="tn-dates" id="tn-dates">—</span>
+  </div>
   <div class="top-nav-actions">
     <button class="btn-act btn-act-save" onclick="saveDraft()">💾 儲存</button>
     <button class="btn-act btn-act-print" onclick="exportPrint()">🖨 列印</button>
@@ -370,147 +588,42 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
   </div>
 </div>
 
-<!-- ══ CASE BAR ══ -->
-<div class="case-bar" id="sec-info">
-  <div class="case-no">案號 GM-2026-0404-001</div>
-  <div class="case-title">日本東京 <em>5天4夜</em> · 春季賞花行</div>
-  <div class="case-badges">
-    <span class="badge badge-gray">草稿</span>
-    <span class="badge badge-or">詢價單已完成</span>
-  </div>
-  <br>
-  <div class="case-meta">
-    <div class="cm-item"><div class="cm-lbl">目的地</div><div class="cm-val">日本・東京</div></div>
-    <div class="cm-item"><div class="cm-lbl">出發</div><div class="cm-val">2026-04-10</div></div>
-    <div class="cm-item"><div class="cm-lbl">回程</div><div class="cm-val">2026-04-14</div></div>
-    <div class="cm-item"><div class="cm-lbl">天數</div><div class="cm-val">5天4夜</div></div>
-    <div class="cm-item"><div class="cm-lbl">客戶</div><div class="cm-val">王大明</div></div>
-  </div>
-  <div class="pax-bar">
-    <div class="pax-grp"><div class="pd pd-ad"></div><span class="pax-n">12</span><span class="pax-l">成人</span></div>
-    <div class="pax-grp"><div class="pd pd-bed"></div><span class="pax-n">2</span><span class="pax-l">佔床兒童</span></div>
-    <div class="pax-grp"><div class="pd pd-nobed"></div><span class="pax-n">1</span><span class="pax-l">不佔床</span></div>
-    <div class="pax-grp"><div class="pd pd-inf"></div><span class="pax-n">1</span><span class="pax-l">嬰兒</span></div>
-    <div class="pax-calc">計算基準（排除嬰兒）：<strong>15 人</strong>　｜　佔床人數：<strong>14 人</strong></div>
+<!-- ══ CASE BAR（僅人數列）══ -->
+<div class="case-bar" id="sec-info" style="padding:10px 20px;">
+  <div class="pax-bar" id="q-pax-bar">
+    <span style="font-size:12px;color:var(--tx3);">載入詢價單後顯示人數</span>
   </div>
 </div>
 
-<!-- ══ CONTENT ══ -->
+<!-- ══ CONTENT + PREVIEW ══ -->
+<div class="page-body">
 <div class="content">
+
+  <!-- ── 模式切換 ── -->
+  <div class="mode-select-bar">
+    <span class="mode-select-lbl">計算模式</span>
+    <button class="mode-sel-btn active" onclick="setQuoteMode('itemized',this)">📊 逐項計算</button>
+    <button class="mode-sel-btn" onclick="setQuoteMode('net',this)">📦 淨報模式</button>
+  </div>
 
   <!-- ── 機票 ── -->
   <div class="cost-card" id="sec-flight">
     <div class="cc-header" onclick="toggleCard(this)">
       <span class="cc-icon">✈️</span>
       <span class="cc-title">機票成本</span>
-      <span class="cc-total" id="total-flight">方案A NT$ — ／ 方案B NT$ —</span>
+      <span class="cc-total" id="total-flight">NT$ —</span>
       <button class="cc-toggle">▾</button>
     </div>
-    <div class="cc-body">
-
-      <!-- 方案A -->
-      <div class="plan-card">
-        <div class="plan-header">
-          <span class="plan-badge" style="background:var(--bl);">方案 A</span>
-          <span class="plan-route">TPE → NRT（長榮 BR198）/ NRT → TPE（長榮 BR197）</span>
-          <span class="plan-total">NT$ —</span>
-        </div>
-        <div class="plan-body">
-          <div class="cost-row">
-            <div class="cr-label">去程票面<small>TPE→NRT  BR198</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)">
-                <option value="TWD">TWD</option><option value="JPY" selected>JPY</option><option value="USD">USD</option>
-              </select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="0">
-              <span class="qty-lbl">×</span>
-              <input type="number" class="inp-qty" value="15" title="人數">
-              <span class="qty-lbl">人</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-          <div class="cost-row">
-            <div class="cr-label">去程稅金<small>TPE→NRT  BR198</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option>TWD</option><option selected>JPY</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="0">
-              <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-          <div class="cost-divider"></div>
-          <div class="cost-row">
-            <div class="cr-label">回程票面<small>NRT→TPE  BR197</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option>TWD</option><option selected>JPY</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="0">
-              <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-          <div class="cost-row">
-            <div class="cr-label">回程稅金<small>NRT→TPE  BR197</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option>TWD</option><option selected>JPY</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="0">
-              <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-        </div>
+    <div class="cc-body" id="flight-cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-flight" checked><label class="net-chk-lbl" for="ni-flight">包含機票</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含 1 件 20kg 托運行李、不含選位…）">
       </div>
-
-      <!-- 方案B -->
-      <div class="plan-card">
-        <div class="plan-header">
-          <span class="plan-badge" style="background:var(--orbit);">方案 B</span>
-          <span class="plan-route">TPE → NRT（星宇 JX820）/ NRT → TPE（星宇 JX819）</span>
-          <span class="plan-total">NT$ —</span>
-        </div>
-        <div class="plan-body">
-          <div class="cost-row">
-            <div class="cr-label">去程票面 + 稅</div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option>TWD</option><option selected>JPY</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="0">
-              <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-          <div class="cost-row">
-            <div class="cr-label">回程票面 + 稅</div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option>TWD</option><option selected>JPY</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="0">
-              <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 方案選擇 -->
-      <div class="plan-selector">
+      <div id="flight-plans"></div>
+      <div class="plan-selector" id="flight-plan-selector" style="display:none;">
         <span class="plan-sel-lbl">報價使用方案：</span>
-        <div class="plan-radios">
-          <label class="plan-radio selected">
-            <input type="radio" name="flight-plan" value="A" checked> 方案 A（長榮）NT$ —
-          </label>
-          <label class="plan-radio">
-            <input type="radio" name="flight-plan" value="B"> 方案 B（星宇）NT$ —
-          </label>
-          <label class="plan-radio">
-            <input type="radio" name="flight-plan" value="both"> 兩方案都列出
-          </label>
-        </div>
+        <div class="plan-radios" id="flight-plan-radios"></div>
       </div>
-
     </div>
   </div>
 
@@ -523,69 +636,11 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
-
-      <!-- 飯店1 -->
-      <div class="hotel-block">
-        <div class="hotel-hd">
-          <div class="hotel-name">Richmond Hotel Asakusa</div>
-          <div class="hotel-nights">D1–D4（4晚）</div>
-          <div class="meal-checks">
-            <label class="meal-check"><input type="radio" name="hotel1-meal" value="none" checked> 不含餐</label>
-            <label class="meal-check"><input type="radio" name="hotel1-meal" value="breakfast"> 含早餐</label>
-            <label class="meal-check"><input type="radio" name="hotel1-meal" value="halfboard"> 一泊二食（含晚餐）</label>
-            <label class="meal-check"><input type="radio" name="hotel1-meal" value="fullboard"> 含全餐</label>
-          </div>
-        </div>
-        <div class="hotel-bd">
-          <div class="cost-row">
-            <div class="cr-label">單人房（SGL）<small>2間 × 4夜</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="每晚">
-              <span class="qty-lbl">× 2間 × 4夜</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-          <div class="cost-row">
-            <div class="cr-label">雙床房（TWN）<small>5間 × 4夜</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option><option>USD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="每晚">
-              <span class="qty-lbl">× 5間 × 4夜</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-        </div>
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-hotel" checked><label class="net-chk-lbl" for="ni-hotel">包含住宿</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含早餐、雙人標準房…）">
       </div>
-
-      <!-- 飯店2（示例多飯店） -->
-      <div class="hotel-block">
-        <div class="hotel-hd">
-          <div class="hotel-name">Hotel Metropolitan Tokyo Ikebukuro</div>
-          <div class="hotel-nights">D4 轉至（1晚）</div>
-          <div class="meal-checks">
-            <label class="meal-check"><input type="radio" name="hotel2-meal" value="none" checked> 不含餐</label>
-            <label class="meal-check"><input type="radio" name="hotel2-meal" value="breakfast"> 含早餐</label>
-            <label class="meal-check"><input type="radio" name="hotel2-meal" value="halfboard"> 一泊二食（含晚餐）</label>
-            <label class="meal-check"><input type="radio" name="hotel2-meal" value="fullboard"> 含全餐</label>
-          </div>
-        </div>
-        <div class="hotel-bd">
-          <div class="cost-row">
-            <div class="cr-label">雙床房（TWN）<small>5間 × 1夜</small></div>
-            <div class="cr-inputs">
-              <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option></select>
-              <span class="fx-tag">JPY × 0.217</span>
-              <input type="number" class="inp-amt" placeholder="每晚">
-              <span class="qty-lbl">× 5間 × 1夜</span>
-            </div>
-            <div class="cr-result">NT$ —</div>
-          </div>
-        </div>
-      </div>
-
+      <div id="hotel-blocks"></div>
     </div>
   </div>
 
@@ -598,53 +653,12 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-meal" checked><label class="net-chk-lbl" for="ni-meal">包含餐食</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含 D1 歡迎晚宴、D3 烤肉…）">
+      </div>
       <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">僅顯示非自理、非飛機餐的場次</div>
-
-      <div class="meal-row">
-        <div class="meal-meta">
-          <div class="meal-timing">D1 · 晚餐</div>
-          <div class="meal-desc">指定餐廳・築地市場</div>
-          <div class="meal-type">協助安排</div>
-        </div>
-        <div class="cr-inputs">
-          <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option></select>
-          <span class="fx-tag">JPY × 0.217</span>
-          <input type="number" class="inp-amt" placeholder="每人">
-          <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-        </div>
-        <div class="cr-result">NT$ —</div>
-      </div>
-
-      <div class="meal-row">
-        <div class="meal-meta">
-          <div class="meal-timing">D2 · 午餐</div>
-          <div class="meal-desc">和幸豬排 新宿店</div>
-          <div class="meal-type">協助安排</div>
-        </div>
-        <div class="cr-inputs">
-          <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option></select>
-          <span class="fx-tag">JPY × 0.217</span>
-          <input type="number" class="inp-amt" placeholder="每人">
-          <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-        </div>
-        <div class="cr-result">NT$ —</div>
-      </div>
-
-      <div class="meal-row">
-        <div class="meal-meta">
-          <div class="meal-timing">D3 · 晚餐</div>
-          <div class="meal-desc">河口湖 和食料理</div>
-          <div class="meal-type">指定餐廳</div>
-        </div>
-        <div class="cr-inputs">
-          <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option></select>
-          <span class="fx-tag">JPY × 0.217</span>
-          <input type="number" class="inp-amt" placeholder="每人">
-          <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="15"><span class="qty-lbl">人</span>
-        </div>
-        <div class="cr-result">NT$ —</div>
-      </div>
-
+      <div id="meal-rows-container"></div>
     </div>
   </div>
 
@@ -657,187 +671,11 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
-
-      <!-- D1 -->
-      <div class="day-block">
-        <div class="day-hd" onclick="toggleDay(this)">
-          <span class="day-badge">D1</span>
-          <span class="day-route">抵達・淺草寺・東京晴空塔</span>
-          <span class="day-total">NT$ —</span>
-          <span style="color:var(--tx3);font-size:12px;">▾</span>
-        </div>
-        <div class="day-bd">
-          <table class="ticket-table">
-            <thead>
-              <tr>
-                <th style="width:26px;"></th>
-                <th>景點 / 項目</th>
-                <th style="width:82px;">票種</th>
-                <th class="num" style="width:54px;">數量</th>
-                <th class="num" style="width:75px;">單價</th>
-                <th style="width:95px;">幣別</th>
-                <th class="num" style="width:95px;">NT$ 小計</th>
-                <th style="width:26px;"></th>
-              </tr>
-            </thead>
-            <tbody class="day-tbody" data-day="1">
-              <tr data-id="t1">
-                <td><span class="drag-handle">⠿</span></td>
-                <td><input class="inp-name" type="text" value="東京晴空塔" placeholder="景點名稱"></td>
-                <td><select class="sel-ticket-type"><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" value="14"></td>
-                <td><input class="inp-tprice" type="number" value="3100"></td>
-                <td>
-                  <select class="sel-cur" onchange="updateFxTag(this)" style="font-size:11.5px;padding:4px 5px;"><option selected>JPY</option><option>TWD</option></select>
-                  <span class="fx-tag" style="font-size:9.5px;padding:1px 4px;">JPY × 0.217</span>
-                </td>
-                <td><div class="cell-sub v">NT$ 9,389</div></td>
-                <td><button class="btn-del" onclick="delRow(this)">×</button></td>
-              </tr>
-              <tr data-id="t2">
-                <td><span class="drag-handle">⠿</span></td>
-                <td><input class="inp-name" type="text" value="東京晴空塔" placeholder="景點名稱"></td>
-                <td><select class="sel-ticket-type"><option>大人票</option><option selected>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" value="2"></td>
-                <td><input class="inp-tprice" type="number" value="1550"></td>
-                <td>
-                  <select class="sel-cur" onchange="updateFxTag(this)" style="font-size:11.5px;padding:4px 5px;"><option selected>JPY</option><option>TWD</option></select>
-                  <span class="fx-tag" style="font-size:9.5px;padding:1px 4px;">JPY × 0.217</span>
-                </td>
-                <td><div class="cell-sub v">NT$ 673</div></td>
-                <td><button class="btn-del" onclick="delRow(this)">×</button></td>
-              </tr>
-              <tr class="empty-row" id="day1-empty">
-                <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
-                <td><input class="inp-name" type="text" placeholder="輸入景點名稱…" oninput="handleDayEmpty(this,'day1-empty',1)"></td>
-                <td><select class="sel-ticket-type" disabled><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
-                <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
-                <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>JPY</option><option>TWD</option></select></td>
-                <td><div class="cell-sub">—</div></td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-tour" checked><label class="net-chk-lbl" for="ni-tour">包含景點門票</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含富士山五合目入場費…）">
       </div>
-
-      <!-- D2 -->
-      <div class="day-block">
-        <div class="day-hd" onclick="toggleDay(this)">
-          <span class="day-badge">D2</span>
-          <span class="day-route">新宿・迪士尼樂園</span>
-          <span class="day-total">NT$ —</span>
-          <span style="color:var(--tx3);font-size:12px;">▾</span>
-        </div>
-        <div class="day-bd">
-          <table class="ticket-table">
-            <thead>
-              <tr>
-                <th style="width:26px;"></th><th>票種</th>
-                <th class="num" style="width:54px;">數量</th>
-                <th class="num" style="width:75px;">單價</th>
-                <th style="width:60px;">幣別</th>
-                <th class="num" style="width:95px;">NT$ 小計</th>
-                <th style="width:26px;"></th>
-              </tr>
-            </thead>
-            <tbody class="day-tbody" data-day="2">
-              <tr class="empty-row" id="day2-empty">
-                <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
-                <td><input class="inp-name" type="text" placeholder="輸入景點名稱…" oninput="handleDayEmpty(this,'day2-empty',2)"></td>
-                <td><select class="sel-ticket-type" disabled><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
-                <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
-                <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>JPY</option><option>TWD</option></select></td>
-                <td><div class="cell-sub">—</div></td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- D3 -->
-      <div class="day-block">
-        <div class="day-hd" onclick="toggleDay(this)">
-          <span class="day-badge">D3</span>
-          <span class="day-route">富士山・河口湖</span>
-          <span class="day-total">NT$ —</span>
-          <span style="color:var(--tx3);font-size:12px;">▾</span>
-        </div>
-        <div class="day-bd">
-          <table class="ticket-table">
-            <thead>
-              <tr><th style="width:26px;"></th><th>景點 / 項目</th><th style="width:82px;">票種</th><th class="num" style="width:54px;">數量</th><th class="num" style="width:75px;">單價</th><th style="width:95px;">幣別</th><th class="num" style="width:95px;">NT$ 小計</th><th style="width:26px;"></th></tr>
-            </thead>
-            <tbody class="day-tbody" data-day="3">
-              <tr class="empty-row" id="day3-empty">
-                <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
-                <td><input class="inp-name" type="text" placeholder="輸入景點名稱…" oninput="handleDayEmpty(this,'day3-empty',3)"></td>
-                <td><select class="sel-ticket-type" disabled><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
-                <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
-                <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>JPY</option><option>TWD</option></select></td>
-                <td><div class="cell-sub">—</div></td><td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- D4 -->
-      <div class="day-block">
-        <div class="day-hd" onclick="toggleDay(this)">
-          <span class="day-badge">D4</span>
-          <span class="day-route">銀座・台場・自由行動</span>
-          <span class="day-total">NT$ —</span>
-          <span style="color:var(--tx3);font-size:12px;">▾</span>
-        </div>
-        <div class="day-bd">
-          <table class="ticket-table">
-            <thead><tr><th style="width:26px;"></th><th>景點 / 項目</th><th style="width:82px;">票種</th><th class="num" style="width:54px;">數量</th><th class="num" style="width:75px;">單價</th><th style="width:95px;">幣別</th><th class="num" style="width:95px;">NT$ 小計</th><th style="width:26px;"></th></tr></thead>
-            <tbody class="day-tbody" data-day="4">
-              <tr class="empty-row" id="day4-empty">
-                <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
-                <td><input class="inp-name" type="text" placeholder="輸入景點名稱…" oninput="handleDayEmpty(this,'day4-empty',4)"></td>
-                <td><select class="sel-ticket-type" disabled><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
-                <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
-                <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>JPY</option><option>TWD</option></select></td>
-                <td><div class="cell-sub">—</div></td><td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- D5 -->
-      <div class="day-block">
-        <div class="day-hd" onclick="toggleDay(this)">
-          <span class="day-badge">D5</span>
-          <span class="day-route">自由活動・回程</span>
-          <span class="day-total">NT$ —</span>
-          <span style="color:var(--tx3);font-size:12px;">▾</span>
-        </div>
-        <div class="day-bd">
-          <table class="ticket-table">
-            <thead><tr><th style="width:26px;"></th><th>景點 / 項目</th><th style="width:82px;">票種</th><th class="num" style="width:54px;">數量</th><th class="num" style="width:75px;">單價</th><th style="width:95px;">幣別</th><th class="num" style="width:95px;">NT$ 小計</th><th style="width:26px;"></th></tr></thead>
-            <tbody class="day-tbody" data-day="5">
-              <tr class="empty-row" id="day5-empty">
-                <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
-                <td><input class="inp-name" type="text" placeholder="輸入景點名稱…" oninput="handleDayEmpty(this,'day5-empty',5)"></td>
-                <td><select class="sel-ticket-type" disabled><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
-                <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
-                <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
-                <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>JPY</option><option>TWD</option></select></td>
-                <td><div class="cell-sub">—</div></td><td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
+      <div id="day-blocks"></div>
     </div>
   </div>
 
@@ -850,6 +688,10 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-transport" checked><label class="net-chk-lbl" for="ni-transport">包含車資</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含接送機、全程專車…）">
+      </div>
       <div class="vehicle-sel-row">
         <span class="vehicle-sel-lbl">車型</span>
         <select class="sel-vehicle" id="vehicle-type" onchange="updateLuggage()">
@@ -861,6 +703,14 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
           <option value="custom" data-luggage="">自訂</option>
         </select>
         <div class="luggage-tag" id="luggage-info">🧳 大行李 9件 / 小行李 18件</div>
+      </div>
+      <div id="vehicle-custom-row" style="display:none;margin-bottom:12px;display:none;">
+        <div style="display:flex;gap:8px;">
+          <input type="text" class="inp-sm" id="vehicle-custom-name" placeholder="車型名稱（如：中型廂型車 8人座）"
+            style="flex:1;background:var(--bg-surface);border:.5px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12.5px;color:var(--tx);font-family:var(--font);outline:none;">
+          <input type="text" class="inp-sm" id="vehicle-custom-luggage" placeholder="行李空間（如：大行李 6件）"
+            style="flex:1;background:var(--bg-surface);border:.5px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12.5px;color:var(--tx);font-family:var(--font);outline:none;">
+        </div>
       </div>
 
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -924,6 +774,10 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-guide" checked><label class="net-chk-lbl" for="ni-guide">包含司導/領隊費</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含日文導遊、台灣領隊…）">
+      </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
         <span style="font-size:12px;color:var(--tx2);">計算模式</span>
         <div class="mode-toggle">
@@ -946,6 +800,7 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
           <div class="cr-label">領隊費<small>5天</small></div>
           <div class="cr-inputs">
             <select class="sel-cur" onchange="updateFxTag(this)"><option>JPY</option><option selected>TWD</option></select>
+            <span class="fx-tag" style="display:none;"></span>
             <input type="number" class="inp-amt" placeholder="每天">
             <span class="qty-lbl">× 5天</span>
           </div>
@@ -967,6 +822,7 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
           <div class="cr-label">司導領隊費（總）</div>
           <div class="cr-inputs">
             <select class="sel-cur" onchange="updateFxTag(this)"><option>JPY</option><option selected>TWD</option></select>
+            <span class="fx-tag" style="display:none;"></span>
             <input type="number" class="inp-amt" placeholder="0">
           </div>
           <div class="cr-result">NT$ —</div>
@@ -984,6 +840,10 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-tip" checked><label class="net-chk-lbl" for="ni-tip">包含小費</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含司導小費，每人每天 JPY 500…）">
+      </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
         <span style="font-size:12px;color:var(--tx2);">計算模式</span>
         <div class="mode-toggle">
@@ -993,13 +853,13 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       </div>
       <div id="tip-daily">
         <div class="cost-row">
-          <div class="cr-label">每天每人小費<small>× 5天 × 15人</small></div>
+          <div class="cr-label">每天每人小費<small id="tip-days-pax-small">× —天 × —人</small></div>
           <div class="cr-inputs">
             <select class="sel-cur" onchange="updateFxTag(this)"><option selected>JPY</option><option>TWD</option></select>
             <span class="fx-tag">JPY × 0.217</span>
             <input type="number" class="inp-amt" placeholder="每天每人">
-            <span class="qty-lbl">× 5天 ×</span>
-            <input type="number" class="inp-qty" value="15">
+            <span class="qty-lbl" id="tip-days-qty">× —天 ×</span>
+            <input type="number" class="inp-qty" id="tip-pax-qty" value="0">
             <span class="qty-lbl">人</span>
           </div>
           <div class="cr-result">NT$ —</div>
@@ -1028,13 +888,17 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-insurance" checked><label class="net-chk-lbl" for="ni-insurance">包含責任險</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註">
+      </div>
       <div class="cost-row">
         <div class="cr-label">每人保費</div>
         <div class="cr-inputs">
           <select class="sel-cur"><option>TWD</option></select>
           <input type="number" class="inp-amt" placeholder="每人">
           <span class="qty-lbl">×</span>
-          <input type="number" class="inp-qty" value="15">
+          <input type="number" class="inp-qty" id="ins-pax-qty" value="0">
           <span class="qty-lbl">人</span>
         </div>
         <div class="cr-result">NT$ —</div>
@@ -1051,6 +915,10 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <button class="cc-toggle">▾</button>
     </div>
     <div class="cc-body">
+      <div class="cc-net-row">
+        <div class="net-chk-wrap"><input type="checkbox" class="net-chk" id="ni-other" checked><label class="net-chk-lbl" for="ni-other">包含其他費用</label></div>
+        <input type="text" class="inp-net-note" placeholder="備註（如：含網卡、接駁費…）">
+      </div>
       <table class="other-table">
         <thead>
           <tr>
@@ -1126,23 +994,15 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
       <!-- 成本明細 -->
       <table class="sum-table">
         <tbody>
-          <tr>
-            <td>✈️ 機票成本</td>
-            <td>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
-                <span>方案A &nbsp;NT$ —</span>
-                <span style="font-size:11px;color:var(--tx3);">方案B &nbsp;NT$ —</span>
-              </div>
-            </td>
-          </tr>
-          <tr><td>🏨 住宿成本</td><td>NT$ —</td></tr>
-          <tr><td>🍽 餐食成本</td><td>NT$ —</td></tr>
-          <tr><td>🗺 行程費用</td><td>NT$ —</td></tr>
-          <tr><td>🚌 車資</td><td>NT$ —</td></tr>
-          <tr><td>👤 司導 / 領隊費</td><td>NT$ —</td></tr>
-          <tr><td>💴 小費</td><td>NT$ —</td></tr>
-          <tr><td>🛡 責任險</td><td>NT$ —</td></tr>
-          <tr><td>＋ 其他費用</td><td>NT$ —</td></tr>
+          <tr><td>✈️ 機票成本</td><td id="sum-flight">NT$ —</td></tr>
+          <tr><td>🏨 住宿成本</td><td id="sum-hotel">NT$ —</td></tr>
+          <tr><td>🍽 餐食成本</td><td id="sum-meal">NT$ —</td></tr>
+          <tr><td>🗺 行程費用</td><td id="sum-tour">NT$ —</td></tr>
+          <tr><td>🚌 車資</td><td id="sum-transport">NT$ —</td></tr>
+          <tr><td>👤 司導 / 領隊費</td><td id="sum-guide">NT$ —</td></tr>
+          <tr><td>💴 小費</td><td id="sum-tip">NT$ —</td></tr>
+          <tr><td>🛡 責任險</td><td id="sum-insurance">NT$ —</td></tr>
+          <!-- other cost rows injected here by syncOtherSummary() -->
           <tr class="total-row"><td>總成本（使用方案A）</td><td>NT$ —</td></tr>
         </tbody>
       </table>
@@ -1185,7 +1045,7 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
                 <div class="pax-type-name">成人</div>
                 <div class="pax-type-sub">Adult</div>
               </td>
-              <td class="num">12</td>
+              <td class="num" id="pax-cnt-adult">—</td>
               <td class="num">NT$ —</td>
               <td class="num"><span class="selling-price">—</span></td>
               <td class="num">NT$ —</td>
@@ -1195,7 +1055,7 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
                 <div class="pax-type-name">佔床加床</div>
                 <div class="pax-type-sub">Child with extra bed</div>
               </td>
-              <td class="num">2</td>
+              <td class="num" id="pax-cnt-childbed">—</td>
               <td class="num">NT$ —</td>
               <td class="num"><input class="inp-custom-price" type="number" placeholder="自訂售價"></td>
               <td class="num">NT$ —</td>
@@ -1205,7 +1065,7 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
                 <div class="pax-type-name">不佔床</div>
                 <div class="pax-type-sub">Child no bed</div>
               </td>
-              <td class="num">1</td>
+              <td class="num" id="pax-cnt-childnobed">—</td>
               <td class="num" style="font-size:11px;color:var(--tx3);">（扣除房費分攤）</td>
               <td class="num"><input class="inp-custom-price" type="number" placeholder="自訂售價"></td>
               <td class="num">NT$ —</td>
@@ -1215,7 +1075,7 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
                 <div class="pax-type-name">嬰兒</div>
                 <div class="pax-type-sub">Infant</div>
               </td>
-              <td class="num">1</td>
+              <td class="num" id="pax-cnt-infant">—</td>
               <td class="num" style="font-size:11px;color:var(--tx3);">（僅機票+稅）</td>
               <td class="num"><input class="inp-custom-price" type="number" placeholder="自訂售價"></td>
               <td class="num">NT$ —</td>
@@ -1237,6 +1097,196 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
           </tbody>
         </table>
 
+        <!-- 淨報定價區 -->
+        <div class="net-pricing" id="net-pricing">
+
+          <!-- ① 拖拉分類區 -->
+          <div class="net-zone-wrap">
+            <div class="net-zone-col">
+              <div class="net-zone-title">📦 廠商 NET 報價包含</div>
+              <div class="net-zone" id="net-zone-supplier">
+                <div class="net-chip" data-key="flight">✈️ 機票</div>
+                <div class="net-chip" data-key="hotel">🏨 住宿</div>
+                <div class="net-chip" data-key="meal">🍽 餐食</div>
+                <div class="net-chip" data-key="tour">🗺 行程</div>
+                <div class="net-chip" data-key="transport">🚌 車資</div>
+                <div class="net-chip" data-key="guide">👤 司導</div>
+                <div class="net-chip" data-key="insurance">🛡 保險</div>
+              </div>
+            </div>
+            <div class="net-zone-col">
+              <div class="net-zone-title">➕ 我方另加（不含於廠商報價）</div>
+              <div class="net-zone" id="net-zone-own">
+                <div class="net-chip" data-key="tip">💴 小費</div>
+                <div class="net-chip" data-key="other">＋ 其他費用</div>
+              </div>
+            </div>
+            <div class="net-zone-col" style="flex:0 0 120px;">
+              <div class="net-zone-title">🚫 不使用</div>
+              <div class="net-zone" id="net-zone-unused"></div>
+            </div>
+          </div>
+
+          <!-- ② 供應商 NET 報價（每人）-->
+          <div class="net-cost-block">
+            <div class="net-block-title">供應商 NET 報價（每人）</div>
+            <div class="net-includes-note">包含：<strong id="np-includes-label">機票、住宿、餐食、行程、車資、司導、保險</strong></div>
+            <div class="net-pax-row">
+              <span class="net-pax-name">成人</span>
+              <span class="net-pax-cnt" id="np-cnt-adult">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-cost-adult" placeholder="0" oninput="calcNetMode()">
+              <span class="net-row-sub" id="np-cost-adult-sub">NT$ —</span>
+            </div>
+            <div class="net-pax-row" id="np-row-childbed" style="display:none;">
+              <span class="net-pax-name">佔床兒童</span>
+              <span class="net-pax-cnt" id="np-cnt-childbed">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-cost-childbed" placeholder="0" oninput="calcNetMode()">
+              <span class="net-row-sub" id="np-cost-childbed-sub">NT$ —</span>
+            </div>
+            <div class="net-pax-row" id="np-row-childnobed" style="display:none;">
+              <span class="net-pax-name">不佔床</span>
+              <span class="net-pax-cnt" id="np-cnt-childnobed">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-cost-childnobed" placeholder="0" oninput="calcNetMode()">
+              <span class="net-row-sub" id="np-cost-childnobed-sub">NT$ —</span>
+            </div>
+            <div class="net-pax-row" id="np-row-infant" style="display:none;">
+              <span class="net-pax-name">嬰兒</span>
+              <span class="net-pax-cnt" id="np-cnt-infant">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-cost-infant" placeholder="0" oninput="calcNetMode()">
+              <span class="net-row-sub" id="np-cost-infant-sub">NT$ —</span>
+            </div>
+          </div>
+
+          <!-- ③ 我方另加費用 -->
+          <div class="net-cost-block">
+            <div class="net-block-title">我方另加費用</div>
+            <table class="other-table">
+              <thead>
+                <tr>
+                  <th style="width:26px;"></th>
+                  <th>項目名稱</th>
+                  <th style="width:82px;">計算方式</th>
+                  <th class="num" style="width:52px;">數量</th>
+                  <th class="num" style="width:88px;">單價</th>
+                  <th style="width:100px;">幣別</th>
+                  <th class="num" style="width:95px;">NT$ 小計</th>
+                  <th style="width:26px;"></th>
+                </tr>
+              </thead>
+              <tbody id="net-own-tbody">
+                <tr class="empty-row" id="net-own-empty-row">
+                  <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
+                  <td><input class="inp-name" type="text" placeholder="輸入項目名稱，或從下方快速選擇…" oninput="handleNetOwnEmpty(this)"></td>
+                  <td><select class="sel-unit" disabled><option>總價</option><option>× 人數</option><option>× 天數</option><option>× 台車</option></select></td>
+                  <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
+                  <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
+                  <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>TWD</option><option>JPY</option><option>USD</option></select></td>
+                  <td><div class="cell-sub">—</div></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="preset-row">
+              <span class="preset-lbl">快速新增：</span>
+              <button class="btn-preset" onclick="addNetOwnPreset('小費')">小費</button>
+              <button class="btn-preset" onclick="addNetOwnPreset('接駁費')">接駁費</button>
+              <button class="btn-preset" onclick="addNetOwnPreset('網卡費')">網卡費</button>
+              <button class="btn-preset" onclick="addNetOwnPreset('旅遊平安險')">旅遊平安險</button>
+              <button class="btn-preset" onclick="addNetOwnPreset('簽證費')">簽證費</button>
+              <button class="btn-preset" onclick="addNetOwnPreset('行李超重費')">行李超重費</button>
+            </div>
+          </div>
+
+          <!-- ④ 成本合計條 -->
+          <div class="net-cost-strip">
+            <div class="net-strip-item">
+              <div class="nsi-lbl">廠商 NET 小計</div>
+              <div class="nsi-val" id="np-supplier-total">NT$ —</div>
+            </div>
+            <div class="nsi-op">＋</div>
+            <div class="net-strip-item">
+              <div class="nsi-lbl">我方另加小計</div>
+              <div class="nsi-val" id="np-own-total">NT$ —</div>
+            </div>
+            <div class="nsi-op">=</div>
+            <div class="net-strip-item total">
+              <div class="nsi-lbl">成本合計（每人／成人基準）</div>
+              <div class="nsi-val" id="np-cost-per-pax">NT$ —</div>
+            </div>
+          </div>
+
+          <!-- ⑤ 客人售價 -->
+          <div class="net-cost-block">
+            <div class="net-block-title">客人售價（每人）</div>
+            <div class="net-pax-row">
+              <span class="net-pax-name">成人</span>
+              <span class="net-pax-cnt" id="np-scnt-adult">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-sell-adult" placeholder="0" oninput="calcNetMode('sell')">
+              <span class="net-row-sub" id="np-sell-adult-sub">NT$ —</span>
+            </div>
+            <div class="net-pax-row" id="np-srow-childbed" style="display:none;">
+              <span class="net-pax-name">佔床兒童</span>
+              <span class="net-pax-cnt" id="np-scnt-childbed">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-sell-childbed" placeholder="0" oninput="calcNetMode('sell')">
+              <span class="net-row-sub" id="np-sell-childbed-sub">NT$ —</span>
+            </div>
+            <div class="net-pax-row" id="np-srow-childnobed" style="display:none;">
+              <span class="net-pax-name">不佔床</span>
+              <span class="net-pax-cnt" id="np-scnt-childnobed">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-sell-childnobed" placeholder="0" oninput="calcNetMode('sell')">
+              <span class="net-row-sub" id="np-sell-childnobed-sub">NT$ —</span>
+            </div>
+            <div class="net-pax-row" id="np-srow-infant" style="display:none;">
+              <span class="net-pax-name">嬰兒</span>
+              <span class="net-pax-cnt" id="np-scnt-infant">—</span>
+              <span class="net-cur-lbl">NT$</span>
+              <input type="number" class="inp-net-price" id="np-sell-infant" placeholder="0" oninput="calcNetMode('sell')">
+              <span class="net-row-sub" id="np-sell-infant-sub">NT$ —</span>
+            </div>
+            <!-- 刷卡手續費 -->
+            <div class="cc-fee-row">
+              <span class="cc-fee-lbl">刷卡手續費</span>
+              <input type="number" class="inp-cc-fee" id="np-cc-fee" placeholder="0" step="0.1" oninput="calcNetMode()">
+              <span class="cc-fee-lbl">%</span>
+              <span class="cc-fee-note">客人實付 = 售價 × (1 + 手續費%)</span>
+            </div>
+          </div>
+
+          <!-- ⑥ 利潤分析 -->
+          <div class="net-profit-row">
+            <div class="net-profit-item">
+              <div class="npi-lbl">總成本</div>
+              <div class="npi-val" id="np-total-cost">NT$ —</div>
+            </div>
+            <div class="net-profit-item">
+              <div class="npi-lbl">總收入</div>
+              <div class="npi-val" id="np-total-rev">NT$ —</div>
+            </div>
+            <div class="net-profit-item">
+              <div class="npi-lbl">毛利 <span style="font-weight:400;opacity:.6;font-size:9px;">（可手動）</span></div>
+              <div class="npi-editable">
+                <input type="number" class="inp-npi" id="np-profit-inp" placeholder="—" oninput="calcNetFromProfit()">
+                <span class="inp-npi-unit">NT$</span>
+              </div>
+            </div>
+            <div class="net-profit-item">
+              <div class="npi-lbl">利潤率 <span style="font-weight:400;opacity:.6;font-size:9px;">（可手動）</span></div>
+              <div class="npi-editable">
+                <input type="number" class="inp-npi" id="np-margin-inp" placeholder="—" step="0.1" oninput="calcNetFromMargin()">
+                <span class="inp-npi-unit">%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
         <!-- 匯出 -->
         <div class="export-row">
           <span class="exp-hint">匯出版本</span>
@@ -1254,9 +1304,118 @@ input:disabled,select:disabled{opacity:.35;pointer-events:none;}
 
 </div><!-- /content -->
 
+<!-- ══ PREVIEW PANEL ══ -->
+<aside id="preview-panel">
+  <div class="pv-hd">
+    <span class="pv-title">即時預覽</span>
+    <button class="pv-toggle" title="收起" onclick="togglePreviewPanel()">✕</button>
+  </div>
+  <div class="pv-body">
+
+    <!-- 逐項模式 -->
+    <div class="pv-itemized-block">
+      <div class="pv-sec-lbl">各項成本</div>
+      <div class="pv-row pv-zero" id="pv-r-flight"><span>✈️ 機票</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-hotel"><span>🏨 住宿</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-meal"><span>🍽 餐食</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-tour"><span>🗺 行程</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-transport"><span>🚌 車資</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-guide"><span>👤 司導</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-tip"><span>💴 小費</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-insurance"><span>🛡 保險</span><span>NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-r-other"><span>＋ 其他</span><span>NT$ —</span></div>
+      <div class="pv-row pv-total"><span>總成本</span><span id="pv-grand">NT$ —</span></div>
+      <div class="pv-divider"></div>
+      <div class="pv-row" id="pv-perpax-row"><span id="pv-perpax-lbl">÷ 1 人（佔床）</span><span id="pv-per-pax">NT$ —</span></div>
+      <div class="pv-divider"></div>
+      <div class="pv-row pv-sell"><span>成人售價</span><span id="pv-sell-adult">NT$ —</span></div>
+      <div class="pv-row pv-profit" id="pv-margin-row"><span>利潤率</span><span id="pv-margin">—</span></div>
+    </div>
+
+    <!-- 淨報模式 -->
+    <div class="pv-net-block">
+      <div class="pv-sec-lbl">成本</div>
+      <div class="pv-row pv-zero" id="pv-net-r-supplier"><span>廠商 NET</span><span id="pv-net-supplier">NT$ —</span></div>
+      <div class="pv-row pv-zero" id="pv-net-r-own"><span>我方另加</span><span id="pv-net-own">NT$ —</span></div>
+      <div class="pv-row" style="font-size:11px;color:var(--tx3);"><span>每人成本</span><span id="pv-net-per-pax">NT$ —</span></div>
+      <div class="pv-divider"></div>
+      <div class="pv-sec-lbl">售價</div>
+      <div class="pv-row pv-sell"><span>成人售價</span><span id="pv-net-sell">NT$ —</span></div>
+      <div class="pv-row" style="font-size:11px;color:var(--tx3);"><span>刷卡後總收</span><span id="pv-net-rev">NT$ —</span></div>
+      <div class="pv-divider"></div>
+      <div class="pv-sec-lbl">利潤</div>
+      <div class="pv-row" id="pv-net-profit-row"><span>毛利</span><span id="pv-net-profit">NT$ —</span></div>
+      <div class="pv-row pv-profit" id="pv-net-margin-row"><span>利潤率</span><span id="pv-net-margin">—</span></div>
+    </div>
+
+  </div>
+</aside>
+
+</div><!-- /page-body -->
+
 <script>
 // FX rates (TODO: load from Supabase settings)
 const FX = { TWD:1, JPY:0.217, USD:32.10, EUR:35.20, HKD:4.12, THB:0.92, KRW:0.023 };
+
+// ════════════════════════════════════════════
+// GLOBAL CONTEXT（由 loadInquiryData 更新）
+// ════════════════════════════════════════════
+const G = { days:1, nights:0, paxTotal:1, paxBed:1, adult:1, childBed:0, childNobed:0, infant:0 };
+
+// ── Helpers ──
+function fmt(n) {
+  const r = Math.round(n || 0);
+  return r === 0 ? '—' : r.toLocaleString('en-US');
+}
+function toTWD(amt, cur) {
+  return (parseFloat(amt) || 0) * (FX[cur] || 1);
+}
+function setCcTotal(card, total) {
+  if (!card) return;
+  const el = card.querySelector('.cc-total');
+  if (el) el.textContent = total > 0 ? `NT$ ${fmt(total)}` : 'NT$ —';
+}
+function setSum(id, total) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = total > 0 ? `NT$ ${fmt(total)}` : 'NT$ —';
+}
+
+// ════════════════════════════════════════════
+// ROW CALCULATORS
+// ════════════════════════════════════════════
+
+// 標準 cost-row：inp-amt × inp-qty × FX → .cr-result，回傳 TWD 合計
+function calcCostRow(row) {
+  const amtEl = row.querySelector('.inp-amt');
+  const qtyEl = row.querySelector('.inp-qty');
+  const curEl = row.querySelector('.sel-cur');
+  const resEl = row.querySelector('.cr-result');
+  if (!amtEl || !resEl) return 0;
+  const cur   = curEl?.value || 'TWD';
+  const amt   = parseFloat(amtEl.value) || 0;
+  const qty   = qtyEl ? (parseFloat(qtyEl.value) || 0) : 1;
+  const total = toTWD(amt, cur) * qty;
+  resEl.textContent = total > 0 ? `NT$ ${fmt(total)}` : 'NT$ —';
+  resEl.classList.toggle('v', total > 0);
+  return total;
+}
+
+// ticket/other table row：inp-tqty × inp-tprice × FX → .cell-sub，回傳 TWD 合計
+function calcTableRow(tr) {
+  if (tr.classList.contains('empty-row')) return 0;
+  const qtyEl   = tr.querySelector('.inp-tqty');
+  const priceEl = tr.querySelector('.inp-tprice');
+  const curEl   = tr.querySelector('.sel-cur');
+  const subEl   = tr.querySelector('.cell-sub');
+  if (!priceEl || !subEl) return 0;
+  const qty   = parseFloat(qtyEl?.value) || 0;
+  const price = parseFloat(priceEl.value) || 0;
+  const cur   = curEl?.value || 'TWD';
+  const total = toTWD(price, cur) * qty;
+  subEl.textContent = total > 0 ? `NT$ ${fmt(total)}` : '—';
+  subEl.classList.toggle('v', total > 0);
+  return total;
+}
 
 function updateFxTag(sel){
   const cur = sel.value;
@@ -1268,11 +1427,27 @@ function updateFxTag(sel){
 
 // init all fx tags on load
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.sel-cur').forEach(sel => {
-    updateFxTag(sel);
-  });
+  loadInquiryData();  // build dynamic sections first
+  document.querySelectorAll('.sel-cur').forEach(sel => updateFxTag(sel));
   initSortable('other-tbody');
-  document.querySelectorAll('.day-tbody').forEach(tb => initSortable(tb.id||tb));
+  document.querySelectorAll('.day-tbody').forEach(tb => initSortable(tb));
+  initNetZones();     // 淨報模式拖拉區
+  calcAll();  // 初始計算
+
+  // 握手：通知 opener（admin）本頁已就緒，admin 會回送 gomars:load-inquiry
+  if (window.opener) {
+    window.opener.postMessage({type: 'gomars:quote-ready'}, '*');
+  }
+});
+
+// 收到 admin 的 load signal → 重新讀入詢價單資料並重算
+window.addEventListener('message', e => {
+  if (e.data?.type === 'gomars:load-inquiry') {
+    loadInquiryData();
+    document.querySelectorAll('.sel-cur').forEach(sel => updateFxTag(sel));
+    document.querySelectorAll('.day-tbody').forEach(tb => initSortable(tb));
+    calcAll();
+  }
 });
 
 function initSortable(tbodyOrId){
@@ -1282,6 +1457,7 @@ function initSortable(tbodyOrId){
     handle:'.drag-handle', animation:150,
     ghostClass:'sortable-ghost', chosenClass:'sortable-chosen',
     filter:'.empty-row',
+    preventOnFilter: false,  // 允許 empty-row 內的 input 正常取得焦點
   });
 }
 
@@ -1310,12 +1486,14 @@ function switchMode(prefix, mode, btn){
   document.querySelectorAll(`[id^="${prefix}-"]`).forEach(el => {
     el.style.display = (el.id === `${prefix}-${mode}`) ? '' : 'none';
   });
+  calcAll();
 }
 function setPricingMode(mode, btn){
   btn.closest('.mode-toggle').querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('pricing-percent').style.display = mode==='percent' ? 'flex' : 'none';
   document.getElementById('pricing-fixed').style.display   = mode==='fixed'   ? 'flex' : 'none';
+  calcAll();
 }
 function setViewMode(mode, btn){
   btn.closest('.view-toggle').querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -1327,7 +1505,14 @@ function updateLuggage(){
   const sel = document.getElementById('vehicle-type');
   const opt = sel.options[sel.selectedIndex];
   const info = opt.dataset.luggage;
-  document.getElementById('luggage-info').textContent = info ? `🧳 ${info}` : '自訂車型';
+  const customRow = document.getElementById('vehicle-custom-row');
+  if (opt.value === 'custom') {
+    document.getElementById('luggage-info').textContent = '自訂車型';
+    if (customRow) customRow.style.display = '';
+  } else {
+    document.getElementById('luggage-info').textContent = info ? `🧳 ${info}` : '';
+    if (customRow) customRow.style.display = 'none';
+  }
 }
 
 // ── OTHER COSTS TABLE ──
@@ -1341,6 +1526,7 @@ function handleOtherEmpty(input){
   row.querySelector('.drag-handle').style.opacity = '.4';
   row.lastElementChild.innerHTML = `<button class="btn-del" onclick="delRow(this)">×</button>`;
   appendOtherEmpty();
+  calcAll();
 }
 function appendOtherEmpty(){
   const tbody = document.getElementById('other-tbody');
@@ -1378,6 +1564,7 @@ function handleDayEmpty(input, emptyId, day){
   row.querySelector('.drag-handle').style.opacity = '.4';
   row.lastElementChild.innerHTML = `<button class="btn-del" onclick="delRow(this)">×</button>`;
   appendDayEmpty(emptyId, day);
+  calcAll();
 }
 function appendDayEmpty(emptyId, day){
   const tbody = document.querySelector(`.day-tbody[data-day="${day}"]`);
@@ -1412,12 +1599,987 @@ function addDayPreset(name, qty, emptyId, day){
   },60);
 }
 
-function delRow(btn){ btn.closest('tr').remove(); }
+function delRow(btn){
+  btn.closest('tr').remove();
+  calcAll();
+}
+
+// ── 成本總計：同步其他費用明細（含金額）──
+function syncOtherSummary() {
+  const totalRow = document.querySelector('#sec-summary .total-row');
+  if (!totalRow) return;
+  let prev = totalRow.previousElementSibling;
+  while (prev && prev.dataset.other === '1') {
+    const del = prev; prev = prev.previousElementSibling; del.remove();
+  }
+  const items = [];
+  document.querySelectorAll('#other-tbody tr:not(.empty-row)').forEach(tr => {
+    const name = tr.querySelector('.inp-name')?.value?.trim();
+    if (!name) return;
+    const total = calcTableRow(tr);
+    items.push({ name, total });
+  });
+  items.reverse().forEach(({ name, total }) => {
+    const tr = document.createElement('tr');
+    tr.dataset.other = '1';
+    tr.innerHTML = `<td style="padding-left:18px;font-size:12px;color:var(--tx3);">⌙ ${name}</td><td>${total > 0 ? `NT$ ${fmt(total)}` : 'NT$ —'}</td>`;
+    totalRow.insertAdjacentElement('beforebegin', tr);
+  });
+}
+
+// ════════════════════════════════════════════
+// SECTION CALCULATORS
+// ════════════════════════════════════════════
+
+function calcFlight() {
+  const planTotals = [];
+  document.querySelectorAll('#flight-plans .plan-card').forEach((card, ci) => {
+    let t = 0;
+    card.querySelectorAll('.cost-row').forEach(row => { t += calcCostRow(row); });
+    planTotals[ci] = t;
+    const planEl = card.querySelector('.plan-total');
+    if (planEl) planEl.textContent = t > 0 ? `NT$ ${fmt(t)}` : 'NT$ —';
+    const amtSpan = document.querySelector(`.plan-radio-amt[data-plan="${PLAN_LETTERS[ci]}"]`);
+    if (amtSpan) amtSpan.textContent = t > 0 ? `NT$ ${fmt(t)}` : 'NT$ —';
+  });
+  const checkedRadio = document.querySelector('input[name="flight-plan"]:checked');
+  let active = planTotals[0] || 0;
+  if (checkedRadio && checkedRadio.value !== 'both') {
+    const idx = PLAN_LETTERS.indexOf(checkedRadio.value);
+    if (idx >= 0 && planTotals[idx] != null) active = planTotals[idx];
+  }
+  const totalFlightEl = document.getElementById('total-flight');
+  if (totalFlightEl) totalFlightEl.textContent = active > 0 ? `NT$ ${fmt(active)}` : 'NT$ —';
+  setSum('sum-flight', active);
+  setCcTotal(document.getElementById('sec-flight'), active);
+  return active;
+}
+
+function calcHotel() {
+  let total = 0;
+  document.querySelectorAll('#hotel-blocks .hotel-block').forEach(block => {
+    block.querySelectorAll('.cost-row').forEach(row => { total += calcCostRow(row); });
+  });
+  setSum('sum-hotel', total);
+  setCcTotal(document.getElementById('sec-hotel'), total);
+  return total;
+}
+
+function calcMeal() {
+  let total = 0;
+  document.querySelectorAll('#meal-rows-container .meal-row').forEach(row => {
+    total += calcCostRow(row);
+  });
+  setSum('sum-meal', total);
+  setCcTotal(document.getElementById('sec-meal'), total);
+  return total;
+}
+
+function calcTour() {
+  let total = 0;
+  document.querySelectorAll('#day-blocks .day-block').forEach(block => {
+    let dayTotal = 0;
+    block.querySelectorAll('.day-tbody tr').forEach(tr => { dayTotal += calcTableRow(tr); });
+    total += dayTotal;
+    const dayEl = block.querySelector('.day-total');
+    if (dayEl) dayEl.textContent = dayTotal > 0 ? `NT$ ${fmt(dayTotal)}` : 'NT$ —';
+  });
+  setSum('sum-tour', total);
+  setCcTotal(document.getElementById('sec-tour'), total);
+  return total;
+}
+
+function calcTransport() {
+  let total = 0;
+  const lump  = document.getElementById('transport-lump');
+  const split = document.getElementById('transport-split');
+  const section = (lump && lump.style.display !== 'none') ? lump : split;
+  if (section) section.querySelectorAll('.cost-row').forEach(row => { total += calcCostRow(row); });
+  setSum('sum-transport', total);
+  setCcTotal(document.getElementById('sec-transport'), total);
+  return total;
+}
+
+function calcGuide() {
+  let total = 0;
+  const daily = document.getElementById('guide-daily');
+  const lump  = document.getElementById('guide-lump');
+  if (daily && daily.style.display !== 'none') {
+    // 每天費用模式：沒有 inp-qty，乘以 G.days
+    daily.querySelectorAll('.cost-row').forEach(row => {
+      const amtEl = row.querySelector('.inp-amt');
+      const curEl = row.querySelector('.sel-cur');
+      const resEl = row.querySelector('.cr-result');
+      if (!amtEl || !resEl) return;
+      const t = toTWD(parseFloat(amtEl.value) || 0, curEl?.value || 'TWD') * G.days;
+      resEl.textContent = t > 0 ? `NT$ ${fmt(t)}` : 'NT$ —';
+      resEl.classList.toggle('v', t > 0);
+      total += t;
+    });
+  } else if (lump && lump.style.display !== 'none') {
+    lump.querySelectorAll('.cost-row').forEach(row => { total += calcCostRow(row); });
+  }
+  setSum('sum-guide', total);
+  setCcTotal(document.getElementById('sec-guide'), total);
+  return total;
+}
+
+function calcTip() {
+  let total = 0;
+  const daily = document.getElementById('tip-daily');
+  const lump  = document.getElementById('tip-lump');
+  if (daily && daily.style.display !== 'none') {
+    // 每天每人模式：inp-amt × inp-qty（人數）× G.days
+    daily.querySelectorAll('.cost-row').forEach(row => {
+      const amtEl = row.querySelector('.inp-amt');
+      const qtyEl = row.querySelector('.inp-qty');
+      const curEl = row.querySelector('.sel-cur');
+      const resEl = row.querySelector('.cr-result');
+      if (!amtEl || !resEl) return;
+      const t = toTWD(parseFloat(amtEl.value) || 0, curEl?.value || 'TWD')
+                * (parseFloat(qtyEl?.value) || 0) * G.days;
+      resEl.textContent = t > 0 ? `NT$ ${fmt(t)}` : 'NT$ —';
+      resEl.classList.toggle('v', t > 0);
+      total += t;
+    });
+  } else if (lump && lump.style.display !== 'none') {
+    lump.querySelectorAll('.cost-row').forEach(row => { total += calcCostRow(row); });
+  }
+  setSum('sum-tip', total);
+  setCcTotal(document.getElementById('sec-tip'), total);
+  return total;
+}
+
+function calcInsurance() {
+  let total = 0;
+  document.querySelectorAll('#sec-insurance .cost-row').forEach(row => {
+    total += calcCostRow(row);
+  });
+  setSum('sum-insurance', total);
+  setCcTotal(document.getElementById('sec-insurance'), total);
+  return total;
+}
+
+function calcOther() {
+  let total = 0;
+  document.querySelectorAll('#other-tbody tr:not(.empty-row)').forEach(tr => {
+    total += calcTableRow(tr);
+  });
+  setCcTotal(document.getElementById('sec-other'), total);
+  return total;
+}
+
+// ════════════════════════════════════════════
+// SUMMARY + PRICING
+// ════════════════════════════════════════════
+
+function calcSummary(totals) {
+  const grand = Object.values(totals).reduce((a, b) => a + b, 0);
+
+  // 更新 total-row
+  const checkedRadio = document.querySelector('input[name="flight-plan"]:checked');
+  const planLabel = checkedRadio
+    ? (checkedRadio.value === 'both' ? '多方案' : `方案 ${checkedRadio.value}`)
+    : '方案 A';
+  const totalRow = document.querySelector('#sec-summary .total-row');
+  if (totalRow) {
+    const tds = totalRow.querySelectorAll('td');
+    if (tds[0]) tds[0].textContent = `總成本（使用${planLabel}）`;
+    if (tds[1]) tds[1].textContent = grand > 0 ? `NT$ ${fmt(grand)}` : 'NT$ —';
+  }
+
+  const paxBed = G.paxBed || 1;
+  const costPerBedPax = grand / paxBed;
+
+  // 加成計算
+  const isPct = document.getElementById('pricing-percent')?.style.display !== 'none';
+  const marginInp = isPct
+    ? document.querySelector('#pricing-percent .inp-margin')
+    : document.querySelector('#pricing-fixed .inp-margin');
+  const marginVal = parseFloat(marginInp?.value) || 0;
+  const sellingPerPax = isPct
+    ? Math.round(costPerBedPax * (1 + marginVal / 100))
+    : Math.round(costPerBedPax + marginVal);
+
+  const tbody = document.querySelector('.pax-price-table tbody');
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll('tr:not(.total-pax)');
+
+  // 成人列
+  if (rows[0]) {
+    const tds = rows[0].querySelectorAll('td');
+    if (tds[2]) tds[2].textContent = grand > 0 ? `NT$ ${fmt(costPerBedPax)}` : 'NT$ —';
+    if (tds[3]) {
+      const spEl = tds[3].querySelector('.selling-price');
+      if (spEl) spEl.textContent = grand > 0 ? fmt(sellingPerPax) : '—';
+    }
+    if (tds[4]) tds[4].textContent = G.adult > 0 && grand > 0
+      ? `NT$ ${fmt(sellingPerPax * G.adult)}` : 'NT$ —';
+  }
+
+  // 佔床加床 / 不佔床 / 嬰兒（自訂售價 × 人數）
+  [[1, G.childBed], [2, G.childNobed], [3, G.infant]].forEach(([ri, cnt]) => {
+    if (!rows[ri]) return;
+    const tds = rows[ri].querySelectorAll('td');
+    const customPx = parseFloat(tds[3]?.querySelector('.inp-custom-price')?.value) || 0;
+    if (tds[4]) tds[4].textContent = cnt > 0 && customPx > 0
+      ? `NT$ ${fmt(customPx * cnt)}` : 'NT$ —';
+  });
+
+  // Join Tour
+  if (rows[4]) {
+    const tds = rows[4].querySelectorAll('td');
+    const joinQty  = parseFloat(tds[1]?.querySelector('input')?.value) || 0;
+    const customPx = parseFloat(tds[3]?.querySelector('.inp-custom-price')?.value) || 0;
+    if (tds[4]) tds[4].textContent = joinQty > 0 && customPx > 0
+      ? `NT$ ${fmt(customPx * joinQty)}` : 'NT$ —';
+  }
+
+  // 總收入
+  let rev = G.adult > 0 && grand > 0 ? sellingPerPax * G.adult : 0;
+  [[1, G.childBed], [2, G.childNobed], [3, G.infant]].forEach(([ri, cnt]) => {
+    if (!rows[ri] || cnt <= 0) return;
+    const tds = rows[ri].querySelectorAll('td');
+    rev += (parseFloat(tds[3]?.querySelector('.inp-custom-price')?.value) || 0) * cnt;
+  });
+  if (rows[4]) {
+    const tds = rows[4].querySelectorAll('td');
+    const joinQty = parseFloat(tds[1]?.querySelector('input')?.value) || 0;
+    rev += (parseFloat(tds[3]?.querySelector('.inp-custom-price')?.value) || 0) * joinQty;
+  }
+  const totalPaxRow = tbody.querySelector('.total-pax');
+  if (totalPaxRow) {
+    const td = totalPaxRow.querySelector('td:last-child');
+    if (td) td.textContent = rev > 0 ? `NT$ ${fmt(rev)}` : 'NT$ —';
+  }
+}
+
+// ════════════════════════════════════════════
+// MASTER RECALC
+// ════════════════════════════════════════════
+
+function calcAll() {
+  const totals = {
+    flight:    calcFlight(),
+    hotel:     calcHotel(),
+    meal:      calcMeal(),
+    tour:      calcTour(),
+    transport: calcTransport(),
+    guide:     calcGuide(),
+    tip:       calcTip(),
+    insurance: calcInsurance(),
+    other:     calcOther(),
+  };
+  syncOtherSummary();
+  calcSummary(totals);
+  updatePreview();
+}
+
+// ════════════════════════════════════════════
+// NET MODE
+// ════════════════════════════════════════════
+
+function setQuoteMode(mode, btn) {
+  document.querySelectorAll('.mode-sel-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (mode === 'net') {
+    document.body.classList.add('quote-mode-net');
+  } else {
+    document.body.classList.remove('quote-mode-net');
+    calcAll();
+  }
+}
+
+// ── 我方另加費用 table handlers ──
+let _noid = 200;
+function handleNetOwnEmpty(input) {
+  if (!input.value.trim()) return;
+  const row = input.closest('tr');
+  row.classList.remove('empty-row'); row.removeAttribute('id');
+  row.setAttribute('data-id', ++_noid);
+  row.querySelectorAll('input,select').forEach(el => el.disabled = false);
+  row.querySelector('.drag-handle').style.opacity = '.4';
+  row.lastElementChild.innerHTML = `<button class="btn-del" onclick="delRow(this)">×</button>`;
+  appendNetOwnEmpty();
+  calcNetMode();
+}
+function appendNetOwnEmpty() {
+  const tbody = document.getElementById('net-own-tbody');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.className = 'empty-row'; tr.id = 'net-own-empty-row';
+  tr.innerHTML = `
+    <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
+    <td><input class="inp-name" type="text" placeholder="輸入項目名稱，或從下方快速選擇…" oninput="handleNetOwnEmpty(this)"></td>
+    <td><select class="sel-unit" disabled><option>總價</option><option>× 人數</option><option>× 天數</option><option>× 台車</option></select></td>
+    <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
+    <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
+    <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>TWD</option><option>JPY</option><option>USD</option></select></td>
+    <td><div class="cell-sub">—</div></td><td></td>`;
+  tbody.appendChild(tr);
+}
+function addNetOwnPreset(name) {
+  const er = document.getElementById('net-own-empty-row');
+  if (!er) return;
+  er.querySelector('.inp-name').value = name;
+  handleNetOwnEmpty(er.querySelector('.inp-name'));
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#net-own-tbody tr:not(.empty-row)');
+    if (rows.length) rows[rows.length-1].querySelector('.inp-tprice').focus();
+  }, 60);
+}
+
+// ── 更新廠商包含標籤 ──
+function updateNetIncludesLabel() {
+  const chips = document.querySelectorAll('#net-zone-supplier .net-chip:not(.net-chip-fixed):not(.net-chip-unused)');
+  const labels = Array.from(chips).map(c => c.textContent.trim());
+  const el = document.getElementById('np-includes-label');
+  if (el) el.textContent = labels.length > 0 ? labels.join('、') : '（無）';
+}
+
+// ── Net zone SortableJS 初始化 ──
+function initNetZones() {
+  const sz = document.getElementById('net-zone-supplier');
+  const oz = document.getElementById('net-zone-own');
+  const uz = document.getElementById('net-zone-unused');
+  if (!sz || !oz || !uz || !window.Sortable) return;
+  const onEnd = (evt) => {
+    // chip 進入 unused zone → 灰化；離開 → 恢復
+    const chip = evt.item;
+    const inUnused = !!chip.closest('#net-zone-unused');
+    chip.classList.toggle('net-chip-unused', inUnused);
+    updateNetIncludesLabel();
+    calcNetMode();
+    saveZoneState();
+  };
+  const zoneOpts = {
+    group: 'net-chips',
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    filter: '.net-chip-fixed',
+    preventOnFilter: true,
+    onEnd,
+  };
+  Sortable.create(sz, zoneOpts);
+  Sortable.create(oz, zoneOpts);
+  Sortable.create(uz, zoneOpts);
+  // drag-over highlight
+  [sz, oz, uz].forEach(zone => {
+    zone.addEventListener('dragover',  () => zone.classList.add('drag-over'));
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop',      () => zone.classList.remove('drag-over'));
+  });
+  restoreZoneState();
+  initSortable('net-own-tbody');
+}
+
+// ── NET MODE CALC ──
+let _netProfitLock = false;
+
+function _calcNetOwnTotal() {
+  let t = 0;
+  document.querySelectorAll('#net-own-tbody tr:not(.empty-row)').forEach(tr => { t += calcTableRow(tr); });
+  return t;
+}
+
+function calcNetMode(trigger) {
+  if (_netProfitLock) return;
+  const paxTypes = [
+    { id:'adult',     cnt: G.adult },
+    { id:'childbed',  cnt: G.childBed },
+    { id:'childnobed',cnt: G.childNobed },
+    { id:'infant',    cnt: G.infant },
+  ];
+  const setV = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const ccPct = (parseFloat(document.getElementById('np-cc-fee')?.value) || 0) / 100;
+
+  // ── 廠商 NET 小計 ──
+  let supplierTotal = 0;
+  paxTypes.forEach(({ id, cnt }) => {
+    const costEl  = document.getElementById(`np-cost-${id}`);
+    const costSub = document.getElementById(`np-cost-${id}-sub`);
+    const cost = parseFloat(costEl?.value) || 0;
+    const n    = cnt || 0;
+    if (costSub) {
+      costSub.textContent = cost > 0 && n > 0 ? `NT$ ${fmt(cost * n)}` : 'NT$ —';
+      costSub.classList.toggle('v', cost > 0 && n > 0);
+    }
+    supplierTotal += cost * n;
+  });
+
+  // ── 我方另加小計 ──
+  const ownTotal = _calcNetOwnTotal();
+
+  // 成本合計條
+  setV('np-supplier-total', supplierTotal > 0 ? `NT$ ${fmt(supplierTotal)}` : 'NT$ —');
+  setV('np-own-total',      ownTotal      > 0 ? `NT$ ${fmt(ownTotal)}`      : 'NT$ —');
+  const adultNetCost  = parseFloat(document.getElementById('np-cost-adult')?.value) || 0;
+  const ownPerAdult   = G.paxBed > 0 ? ownTotal / G.paxBed : 0;
+  const costPerAdult  = adultNetCost + ownPerAdult;
+  setV('np-cost-per-pax', costPerAdult > 0 ? `NT$ ${fmt(costPerAdult)}` : 'NT$ —');
+
+  // ── 客人售價小計 ──
+  const totalCost = supplierTotal + ownTotal;
+  let totalRev = 0;
+  paxTypes.forEach(({ id, cnt }) => {
+    const sellEl  = document.getElementById(`np-sell-${id}`);
+    const sellSub = document.getElementById(`np-sell-${id}-sub`);
+    const sell = parseFloat(sellEl?.value) || 0;
+    const n    = cnt || 0;
+    const effective = sell * (1 + ccPct);
+    if (sellSub) {
+      sellSub.textContent = sell > 0 && n > 0 ? `NT$ ${fmt(effective * n)}` : 'NT$ —';
+      sellSub.classList.toggle('v', sell > 0 && n > 0);
+    }
+    totalRev += effective * n;
+  });
+
+  // ── 利潤分析 ──
+  setV('np-total-cost', totalCost > 0 ? `NT$ ${fmt(totalCost)}` : 'NT$ —');
+  setV('np-total-rev',  totalRev  > 0 ? `NT$ ${fmt(totalRev)}`  : 'NT$ —');
+  const profit = totalRev - totalCost;
+  const margin = totalRev > 0 ? profit / totalRev * 100 : null;
+
+  _netProfitLock = true;
+  const profitInp = document.getElementById('np-profit-inp');
+  const marginInp = document.getElementById('np-margin-inp');
+  if (trigger !== 'profit' && profitInp) {
+    profitInp.value = totalRev > 0 ? Math.round(profit) : '';
+  }
+  if (trigger !== 'margin' && marginInp) {
+    marginInp.value = margin !== null ? margin.toFixed(1) : '';
+  }
+  if (profitInp) profitInp.classList.toggle('loss', profit < 0 && totalRev > 0);
+  if (marginInp) marginInp.classList.toggle('loss', profit < 0 && totalRev > 0);
+  _netProfitLock = false;
+  updatePreview();
+}
+
+// 手動填毛利 → 回推成人售價
+function calcNetFromProfit() {
+  const ownTotal    = _calcNetOwnTotal();
+  const ownPerAdult = G.paxBed > 0 ? ownTotal / G.paxBed : 0;
+  const costPerAdult = (parseFloat(document.getElementById('np-cost-adult')?.value) || 0) + ownPerAdult;
+  const profitVal   = parseFloat(document.getElementById('np-profit-inp')?.value);
+  if (isNaN(profitVal)) return;
+  const ccPct = (parseFloat(document.getElementById('np-cc-fee')?.value) || 0) / 100;
+  // sell * (1+ccPct) = costPerAdult + profitVal → sell = (cost+profit)/(1+ccPct)
+  const newSell = (costPerAdult + profitVal) / (1 + ccPct);
+  const sellInp = document.getElementById('np-sell-adult');
+  if (sellInp) { sellInp.value = Math.round(newSell); }
+  calcNetMode('profit');
+}
+
+// 手動填利潤率 → 回推成人售價
+function calcNetFromMargin() {
+  const ownTotal    = _calcNetOwnTotal();
+  const ownPerAdult = G.paxBed > 0 ? ownTotal / G.paxBed : 0;
+  const costPerAdult = (parseFloat(document.getElementById('np-cost-adult')?.value) || 0) + ownPerAdult;
+  const marginVal   = parseFloat(document.getElementById('np-margin-inp')?.value);
+  if (isNaN(marginVal) || marginVal >= 100) return;
+  const ccPct = (parseFloat(document.getElementById('np-cc-fee')?.value) || 0) / 100;
+  // margin = profit/rev, rev = cost/(1-margin%), sell = rev/(1+ccPct)
+  const rev     = costPerAdult / (1 - marginVal / 100);
+  const newSell = rev / (1 + ccPct);
+  const sellInp = document.getElementById('np-sell-adult');
+  if (sellInp) { sellInp.value = Math.round(newSell); }
+  calcNetMode('margin');
+}
+
+// ── Event wiring ──
+document.addEventListener('input', e => {
+  // 淨報模式的另加費用表格
+  if (e.target.closest('#net-own-tbody')) { calcNetMode(); return; }
+  const inCalcArea = e.target.closest(
+    '.cost-card, .summary-card, #hotel-blocks, #meal-rows-container, #day-blocks, #flight-plans'
+  );
+  if (inCalcArea) calcAll();
+});
+document.addEventListener('change', e => {
+  if (e.target.closest('#net-own-tbody')) { calcNetMode(); return; }
+  if (e.target.matches('.sel-cur, .sel-unit, input[name="flight-plan"]')) calcAll();
+});
 
 // ── ACTIONS ──
+// ════════════════════════════════════════════
+// PREVIEW PANEL
+// ════════════════════════════════════════════
+function pvSet(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function pvHasVal(text) { return text && text !== 'NT$ —' && text !== '—'; }
+
+function updatePreview() {
+  const isNet = document.body.classList.contains('quote-mode-net');
+
+  if (!isNet) {
+    // ── 各項成本列 ──
+    const SEC = [
+      ['flight','sec-flight'], ['hotel','sec-hotel'], ['meal','sec-meal'],
+      ['tour','sec-tour'], ['transport','sec-transport'], ['guide','sec-guide'],
+      ['tip','sec-tip'], ['insurance','sec-insurance'], ['other','sec-other'],
+    ];
+    SEC.forEach(([key, secId]) => {
+      const row = document.getElementById(`pv-r-${key}`);
+      if (!row) return;
+      const text = document.querySelector(`#${secId} .cc-total`)?.textContent?.trim() || 'NT$ —';
+      row.querySelector('span:last-child').textContent = text;
+      row.classList.toggle('pv-zero', !pvHasVal(text));
+    });
+
+    // ── 總成本 ──
+    const grandText = document.querySelector('#sec-summary .total-row td:last-child')?.textContent?.trim() || 'NT$ —';
+    pvSet('pv-grand', grandText);
+
+    // ── 每人成本 ──
+    const paxBed = G.paxBed || 1;
+    const costTd  = document.querySelector('.pax-price-table tbody tr:first-child td:nth-child(3)');
+    const costText = costTd?.textContent?.trim() || 'NT$ —';
+    pvSet('pv-per-pax', costText);
+    pvSet('pv-perpax-lbl', `÷ ${paxBed} 人（佔床）`);
+
+    // ── 成人售價 & 利潤率 ──
+    const spEl  = document.querySelector('.pax-price-table tbody tr:first-child .selling-price');
+    const spVal = spEl?.textContent?.trim();
+    const hasPrice = spVal && spVal !== '—';
+    pvSet('pv-sell-adult', hasPrice ? `NT$ ${spVal}` : 'NT$ —');
+
+    if (hasPrice) {
+      const sell = parseFloat(spVal.replace(/,/g,'')) || 0;
+      const cost = parseFloat(costText.replace(/[^0-9.]/g,'')) || 0;
+      const margin = sell > 0 ? ((sell - cost) / sell * 100).toFixed(1) : null;
+      const marginRow = document.getElementById('pv-margin-row');
+      pvSet('pv-margin', margin !== null ? `${margin}%` : '—');
+      if (marginRow) {
+        marginRow.classList.toggle('pv-profit', margin === null || parseFloat(margin) >= 0);
+        marginRow.classList.toggle('pv-loss',   margin !== null && parseFloat(margin) < 0);
+      }
+    } else {
+      pvSet('pv-margin', '—');
+    }
+
+  } else {
+    // ── 淨報模式 ──
+    const supplierText = document.getElementById('np-supplier-total')?.textContent?.trim() || 'NT$ —';
+    const ownText      = document.getElementById('np-own-total')?.textContent?.trim()      || 'NT$ —';
+    const perPaxText   = document.getElementById('np-cost-per-pax')?.textContent?.trim()   || 'NT$ —';
+    const revText      = document.getElementById('np-total-rev')?.textContent?.trim()      || 'NT$ —';
+    pvSet('pv-net-supplier', supplierText);
+    pvSet('pv-net-own',      ownText);
+    pvSet('pv-net-per-pax',  perPaxText);
+    pvSet('pv-net-rev',      revText);
+
+    const sellAdult = parseFloat(document.getElementById('np-sell-adult')?.value) || 0;
+    pvSet('pv-net-sell', sellAdult > 0 ? `NT$ ${fmt(sellAdult)}` : 'NT$ —');
+
+    document.getElementById('pv-net-r-supplier')?.classList.toggle('pv-zero', !pvHasVal(supplierText));
+    document.getElementById('pv-net-r-own')?.classList.toggle('pv-zero', !pvHasVal(ownText));
+
+    const profitVal = parseFloat(document.getElementById('np-profit-inp')?.value);
+    const marginVal = parseFloat(document.getElementById('np-margin-inp')?.value);
+    pvSet('pv-net-profit', !isNaN(profitVal) ? `NT$ ${fmt(Math.round(profitVal))}` : 'NT$ —');
+    pvSet('pv-net-margin', !isNaN(marginVal) ? `${marginVal.toFixed(1)}%` : '—');
+
+    const profitRow = document.getElementById('pv-net-profit-row');
+    const marginRow = document.getElementById('pv-net-margin-row');
+    const isLoss = !isNaN(profitVal) && profitVal < 0;
+    [profitRow, marginRow].forEach(r => {
+      if (!r) return;
+      r.classList.toggle('pv-profit', !isLoss);
+      r.classList.toggle('pv-loss',    isLoss);
+    });
+  }
+}
+
+function togglePreviewPanel() {
+  const p = document.getElementById('preview-panel');
+  if (!p) return;
+  p.classList.toggle('pv-hidden');
+}
+
 function saveDraft(){ alert('TODO: 儲存至 Supabase'); }
 function exportPrint(){ window.print(); }
 function exportWord(){ alert('TODO: 匯出 Word'); }
+
+// ── ZONE STATE ──
+const QUOTE_DRAFT_KEY = 'gomars_quote_draft';
+
+function saveZoneState() {
+  const result = {};
+  ['net-zone-supplier','net-zone-own','net-zone-unused'].forEach(id => {
+    result[id] = Array.from(document.querySelectorAll(`#${id} .net-chip`))
+      .map(c => c.dataset.key).filter(Boolean);
+  });
+  try {
+    const draft = JSON.parse(localStorage.getItem(QUOTE_DRAFT_KEY) || '{}');
+    draft.zones = result;
+    localStorage.setItem(QUOTE_DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+
+function restoreZoneState() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(QUOTE_DRAFT_KEY) || '{}');
+    if (!draft.zones) return;
+    const allChips = {};
+    document.querySelectorAll('.net-chip[data-key]').forEach(c => { allChips[c.dataset.key] = c; });
+    ['net-zone-supplier','net-zone-own','net-zone-unused'].forEach(id => {
+      const zone = document.getElementById(id);
+      if (!zone) return;
+      (draft.zones[id] || []).forEach(key => {
+        const chip = allChips[key];
+        if (chip && !chip.classList.contains('net-chip-fixed')) {
+          zone.appendChild(chip);
+          chip.classList.toggle('net-chip-unused', id === 'net-zone-unused');
+        }
+      });
+    });
+    updateNetIncludesLabel();
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+// INQUIRY DATA LOADER
+// ══════════════════════════════════════════
+
+const ROOM_TYPE_NAMES = ['單人房 SGL','雙人房 TWN','雙人房 DBL','雙人房加床','三人房 TRP'];
+const PLAN_LETTERS   = ['A','B','C','D','E'];
+const PLAN_COLORS    = ['var(--bl)','var(--orbit)','var(--gr)','var(--pu)','var(--amber)'];
+
+function guessDestCur(dest, combos) {
+  const d = (dest||'').toLowerCase();
+  const airport = ((combos?.[0]?.out?.slice(-1)?.[0]?.to)||'').toUpperCase();
+  if (/nrt|hnd|kix|cts|oka|fuk|ngo|sdj/.test(airport)||/日本|japan/.test(d)) return 'JPY';
+  if (/icn|gmp/.test(airport)||/韓國|korea/.test(d)) return 'KRW';
+  if (/bkk|hkt|cnx|dmk/.test(airport)||/泰國|thailand/.test(d)) return 'THB';
+  if (/hkg/.test(airport)||/香港/.test(d)) return 'HKD';
+  if (/sin/.test(airport)||/新加坡/.test(d)) return 'USD';
+  return 'JPY';
+}
+
+function buildCurOptions(selected) {
+  return ['TWD','JPY','USD','EUR','HKD','THB','KRW']
+    .map(c => `<option${c===selected?' selected':''}>${c}</option>`).join('');
+}
+
+function buildFlightPlanCard(letter, color, combo, paxQty, destCur) {
+  const allLegs = [
+    ...combo.out.map(f=>({...f,dir:'out'})),
+    ...combo.ret.map(f=>({...f,dir:'ret'})),
+  ];
+  // Route string: 出發地 → 目的地（航班）/ 回程
+  const outLegs = allLegs.filter(f=>f.dir==='out'&&(f.num||f.from));
+  const retLegs = allLegs.filter(f=>f.dir==='ret'&&(f.num||f.from));
+  const legStr = leg => { const r=[leg.from,leg.to].filter(Boolean).join(' → '); return leg.num?`${r}（${leg.num}）`:r; };
+  const routeParts = [...outLegs.map(legStr), ...retLegs.map(legStr)];
+  const routeStr = routeParts.join(' / ')||'（未填寫航班）';
+
+  const cur = destCur||'JPY';
+  const fxHide = cur==='TWD' ? 'display:none;' : '';
+
+  // 只需 2 列：去回票面合計 + 去回稅金合計
+  const rows = `
+    <div class="cost-row">
+      <div class="cr-label">去回程票面<small>每人</small></div>
+      <div class="cr-inputs">
+        <select class="sel-cur" onchange="updateFxTag(this)">${buildCurOptions(cur)}</select>
+        <span class="fx-tag" style="${fxHide}">${cur} × ${FX[cur]??'?'}</span>
+        <input type="number" class="inp-amt" placeholder="0">
+        <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="${paxQty}"><span class="qty-lbl">人</span>
+      </div>
+      <div class="cr-result">NT$ —</div>
+    </div>
+    <div class="cost-row">
+      <div class="cr-label">去回程稅金<small>每人</small></div>
+      <div class="cr-inputs">
+        <select class="sel-cur" onchange="updateFxTag(this)">${buildCurOptions(cur)}</select>
+        <span class="fx-tag" style="${fxHide}">${cur} × ${FX[cur]??'?'}</span>
+        <input type="number" class="inp-amt" placeholder="0">
+        <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="${paxQty}"><span class="qty-lbl">人</span>
+      </div>
+      <div class="cr-result">NT$ —</div>
+    </div>`;
+
+  return `
+    <div class="plan-card">
+      <div class="plan-header">
+        <span class="plan-badge" style="background:${color};">方案 ${letter}</span>
+        <span class="plan-route">${routeStr}</span>
+        <span class="plan-total">NT$ —</span>
+      </div>
+      <div class="plan-body">${rows}</div>
+    </div>`;
+}
+
+function buildMealRowHtml(timing, desc, mealType, qty, cur) {
+  const fxHide = cur==='TWD' ? 'display:none;' : '';
+  return `
+    <div class="meal-row">
+      <div class="meal-meta">
+        <div class="meal-timing">${timing}</div>
+        <div class="meal-desc">${desc||'—'}</div>
+        <div class="meal-type">${mealType||''}</div>
+      </div>
+      <div class="cr-inputs">
+        <select class="sel-cur" onchange="updateFxTag(this)">${buildCurOptions(cur)}</select>
+        <span class="fx-tag" style="${fxHide}">${cur} × ${FX[cur]??'?'}</span>
+        <input type="number" class="inp-amt" placeholder="每人">
+        <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="${qty}"><span class="qty-lbl">人</span>
+      </div>
+      <div class="cr-result">NT$ —</div>
+    </div>`;
+}
+
+function buildDayBlock(dayNum, route) {
+  const eid = `day${dayNum}-empty`;
+  return `
+    <div class="day-block">
+      <div class="day-hd" onclick="toggleDay(this)">
+        <span class="day-badge">D${dayNum}</span>
+        <span class="day-route">${route||'（未填寫路線）'}</span>
+        <span class="day-total">NT$ —</span>
+        <span style="color:var(--tx3);font-size:12px;">▾</span>
+      </div>
+      <div class="day-bd">
+        <table class="ticket-table">
+          <thead><tr>
+            <th style="width:26px;"></th><th>景點 / 項目</th>
+            <th style="width:82px;">票種</th>
+            <th class="num" style="width:54px;">數量</th>
+            <th class="num" style="width:75px;">單價</th>
+            <th style="width:95px;">幣別</th>
+            <th class="num" style="width:95px;">NT$ 小計</th>
+            <th style="width:26px;"></th>
+          </tr></thead>
+          <tbody class="day-tbody" data-day="${dayNum}">
+            <tr class="empty-row" id="${eid}">
+              <td><span class="drag-handle" style="opacity:.15;">⠿</span></td>
+              <td><input class="inp-name" type="text" placeholder="輸入景點名稱…" oninput="handleDayEmpty(this,'${eid}',${dayNum})"></td>
+              <td><select class="sel-ticket-type" disabled><option>大人票</option><option>小孩票</option><option>團體票</option><option>學生票</option><option>敬老票</option><option>嬰兒票</option><option>自訂</option></select></td>
+              <td><input class="inp-tqty" type="number" placeholder="—" disabled></td>
+              <td><input class="inp-tprice" type="number" placeholder="0" disabled></td>
+              <td><select class="sel-cur" disabled style="font-size:11.5px;padding:4px 5px;"><option>JPY</option><option>TWD</option></select></td>
+              <td><div class="cell-sub">—</div></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function loadInquiryData() {
+  let data;
+  try {
+    const raw = localStorage.getItem('gomars_inquiry_draft');
+    if (!raw) return;
+    data = JSON.parse(raw);
+  } catch(e) { return; }
+
+  const s         = data._save || {};
+  const days      = data.days  || [];
+  const nights    = data.nights || 0;
+  const totalDays = nights + 1;
+  const adult     = parseInt(data.adult)     || 0;
+  const childBed  = parseInt(data.childBed)  || 0;
+  const childNobed= parseInt(data.childNobed)|| 0;
+  const infant    = parseInt(data.infant)    || 0;
+  const paxTotal  = adult + childBed + childNobed;
+  const paxBed    = adult + childBed;
+  const destCur   = guessDestCur(data.dest, s.flightCombos);
+
+  // 更新全域計算狀態
+  Object.assign(G, { days:totalDays, nights, paxTotal, paxBed, adult, childBed, childNobed, infant });
+
+  // ── 1. Top nav case info ──
+  const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setEl('tn-client', data.client || '（未命名）');
+  setEl('tn-dest',   data.dest   || '—');
+  setEl('tn-nights', nights ? `${totalDays}天${nights}夜` : '');
+  const dateParts = [data.depDate, data.retDate].filter(Boolean);
+  setEl('tn-dates', dateParts.length === 2 ? `${dateParts[0]} → ${dateParts[1]}` : dateParts[0] || '—');
+
+  // ── 1b. Pax bar ──
+  const paxBarEl = document.getElementById('q-pax-bar');
+  if (paxBarEl) paxBarEl.innerHTML = `
+    <div class="pax-grp"><div class="pd pd-ad"></div><span class="pax-n">${adult}</span><span class="pax-l">成人</span></div>
+    ${childBed   ? `<div class="pax-grp"><div class="pd pd-bed"></div><span class="pax-n">${childBed}</span><span class="pax-l">佔床兒童</span></div>` : ''}
+    ${childNobed ? `<div class="pax-grp"><div class="pd pd-nobed"></div><span class="pax-n">${childNobed}</span><span class="pax-l">不佔床</span></div>` : ''}
+    ${infant     ? `<div class="pax-grp"><div class="pd pd-inf"></div><span class="pax-n">${infant}</span><span class="pax-l">嬰兒</span></div>` : ''}
+    <div class="pax-calc">計算基準（排除嬰兒）：<strong>${paxTotal} 人</strong>　｜　佔床人數：<strong>${paxBed} 人</strong></div>`;
+
+  // ── 1c. Net pricing pax rows ──
+  const showRow = (id, cnt, label) => {
+    const row  = document.getElementById(`np-row-${id}`);
+    const srow = document.getElementById(`np-srow-${id}`);
+    const show = cnt > 0;
+    if (row)  row.style.display  = show ? '' : 'none';
+    if (srow) srow.style.display = show ? '' : 'none';
+    setEl(`np-cnt-${id}`,  show ? `×${cnt}` : '');
+    setEl(`np-scnt-${id}`, show ? `×${cnt}` : '');
+  };
+  setEl('np-cnt-adult',  `×${adult}`);
+  setEl('np-scnt-adult', `×${adult}`);
+  showRow('childbed',   childBed,   '佔床兒童');
+  showRow('childnobed', childNobed, '不佔床');
+  showRow('infant',     infant,     '嬰兒');
+
+  // ── 2. Flight section ──
+  const flightPlansEl    = document.getElementById('flight-plans');
+  const flightSelectorEl = document.getElementById('flight-plan-selector');
+  const flightRadiosEl   = document.getElementById('flight-plan-radios');
+  if (flightPlansEl) {
+    const combos = (s.flightCombos||[]).filter(c=>[...c.out,...c.ret].some(f=>f.num||f.from));
+    if (combos.length === 0) {
+      const fxHide = destCur==='TWD' ? 'display:none;' : '';
+      flightPlansEl.innerHTML = `
+        <div class="plan-card">
+          <div class="plan-header">
+            <span class="plan-badge" style="background:var(--bl);">方案 A</span>
+            <span class="plan-route">（詢價單未填寫參考航班，請手動填入）</span>
+            <span class="plan-total">NT$ —</span>
+          </div>
+          <div class="plan-body">
+            <div class="cost-row">
+              <div class="cr-label">去回程票面<small>每人</small></div>
+              <div class="cr-inputs">
+                <select class="sel-cur" onchange="updateFxTag(this)">${buildCurOptions(destCur)}</select>
+                <span class="fx-tag" style="${fxHide}">${destCur} × ${FX[destCur]??'?'}</span>
+                <input type="number" class="inp-amt" placeholder="0">
+                <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="${paxBed}"><span class="qty-lbl">人</span>
+              </div>
+              <div class="cr-result">NT$ —</div>
+            </div>
+            <div class="cost-row">
+              <div class="cr-label">去回程稅金<small>每人</small></div>
+              <div class="cr-inputs">
+                <select class="sel-cur" onchange="updateFxTag(this)">${buildCurOptions(destCur)}</select>
+                <span class="fx-tag" style="${fxHide}">${destCur} × ${FX[destCur]??'?'}</span>
+                <input type="number" class="inp-amt" placeholder="0">
+                <span class="qty-lbl">×</span><input type="number" class="inp-qty" value="${paxBed}"><span class="qty-lbl">人</span>
+              </div>
+              <div class="cr-result">NT$ —</div>
+            </div>
+          </div>
+        </div>`;
+      if (flightSelectorEl) flightSelectorEl.style.display = 'none';
+    } else {
+      flightPlansEl.innerHTML = combos.map((c,ci)=>
+        buildFlightPlanCard(PLAN_LETTERS[ci]||String(ci+1), PLAN_COLORS[ci]||'var(--bl)', c, paxBed, destCur)
+      ).join('');
+      if (combos.length > 1 && flightSelectorEl && flightRadiosEl) {
+        flightSelectorEl.style.display = '';
+        flightRadiosEl.innerHTML = combos.map((c,ci)=>{
+          const ltr = PLAN_LETTERS[ci];
+          const airline = c.out?.[0]?.airline || c.out?.[0]?.num || `方案${ltr}`;
+          return `<label class="plan-radio${ci===0?' selected':''}"><input type="radio" name="flight-plan" value="${ltr}"${ci===0?' checked':''}> 方案 ${ltr}（${airline}）<span class="plan-radio-amt" data-plan="${ltr}">NT$ —</span></label>`;
+        }).join('') + `<label class="plan-radio"><input type="radio" name="flight-plan" value="both"> 兩方案都列出</label>`;
+      }
+    }
+  }
+
+  // ── 3. Hotel section ──
+  const hotelBlocksEl = document.getElementById('hotel-blocks');
+  if (hotelBlocksEl) {
+    const hotelGroups = [];
+    for (let i = 0; i < nights; i++) {
+      const hotel = (days[i]?.hotels||[''])[0]||'';
+      if (!hotelGroups.length || hotelGroups[hotelGroups.length-1].name !== hotel)
+        hotelGroups.push({name:hotel, from:i+1, to:i+1});
+      else
+        hotelGroups[hotelGroups.length-1].to = i+1;
+    }
+    const roomRows = s.roomRows?.length ? s.roomRows : [{selectedIndex:1, qty:1}];
+    let hIdx = 0;
+    hotelBlocksEl.innerHTML = hotelGroups.length === 0
+      ? `<div style="color:var(--tx3);font-size:12px;padding:12px 0;">尚未填寫住宿資料</div>`
+      : hotelGroups.map(hg => {
+          const nc = hg.to - hg.from + 1;
+          const nightLbl = hg.from===hg.to ? `D${hg.from}（${nc}晚）` : `D${hg.from}–D${hg.to}（${nc}晚）`;
+          const fxHide = destCur==='TWD' ? 'display:none;' : '';
+          const roomRowsHtml = roomRows.map(rr => {
+            const typeName = ROOM_TYPE_NAMES[rr.selectedIndex]||'雙人房 TWN';
+            return `
+              <div class="cost-row">
+                <div class="cr-label">${typeName}<small>${rr.qty}間 × ${nc}夜</small></div>
+                <div class="cr-inputs">
+                  <select class="sel-cur" onchange="updateFxTag(this)">${buildCurOptions(destCur)}</select>
+                  <span class="fx-tag" style="${fxHide}">${destCur} × ${FX[destCur]??'?'}</span>
+                  <input type="number" class="inp-amt" placeholder="每晚">
+                  <span class="qty-lbl">× ${rr.qty}間 × ${nc}夜</span>
+                </div>
+                <div class="cr-result">NT$ —</div>
+              </div>`;
+          }).join('');
+          const idx = hIdx++;
+          return `
+            <div class="hotel-block">
+              <div class="hotel-hd">
+                <div class="hotel-name">${hg.name||'（未填寫飯店名）'}</div>
+                <div class="hotel-nights">${nightLbl}</div>
+                <div class="meal-checks">
+                  <label class="meal-check"><input type="radio" name="hotel${idx+1}-meal" value="none" checked> 不含餐</label>
+                  <label class="meal-check"><input type="radio" name="hotel${idx+1}-meal" value="breakfast"> 含早餐</label>
+                  <label class="meal-check"><input type="radio" name="hotel${idx+1}-meal" value="halfboard"> 一泊二食（含晚餐）</label>
+                  <label class="meal-check"><input type="radio" name="hotel${idx+1}-meal" value="fullboard"> 含全餐</label>
+                </div>
+              </div>
+              <div class="hotel-bd">${roomRowsHtml}</div>
+            </div>`;
+        }).join('');
+  }
+
+  // ── 4. Meal section ──
+  const mealContEl = document.getElementById('meal-rows-container');
+  if (mealContEl) {
+    let mealHtml = '';
+    days.forEach((day, i) => {
+      const m = day.meals||{};
+      if (m.l && m.l !== '敬請自理') {
+        const desc = m.lx ? `${m.l}：${m.lx}` : m.l;
+        mealHtml += buildMealRowHtml(`D${i+1} · 午餐`, desc, m.l, paxTotal, m.lcur||destCur);
+      }
+      if (m.d && m.d !== '敬請自理') {
+        const desc = m.dx ? `${m.d}：${m.dx}` : m.d;
+        mealHtml += buildMealRowHtml(`D${i+1} · 晚餐`, desc, m.d, paxTotal, m.dcur||destCur);
+      }
+    });
+    mealContEl.innerHTML = mealHtml ||
+      `<div style="color:var(--tx3);font-size:12px;padding:4px 0;">詢價單餐食均為敬請自理</div>`;
+  }
+
+  // ── 5. Day tour section ──
+  const dayBlocksEl = document.getElementById('day-blocks');
+  if (dayBlocksEl) {
+    dayBlocksEl.innerHTML = days.map((d,i) => buildDayBlock(i+1, d.route)).join('');
+  }
+
+  // ── 6. Guide section – update day count labels ──
+  document.querySelectorAll('#guide-daily .cr-label small').forEach(el => {
+    el.textContent = `${totalDays}天`;
+  });
+  document.querySelectorAll('#guide-daily .qty-lbl').forEach(el => {
+    if (el.textContent.trim().startsWith('×') && el.textContent.includes('天'))
+      el.textContent = `× ${totalDays}天`;
+  });
+
+  // ── 7. Tip section ──
+  const tipPaxEl   = document.getElementById('tip-pax-qty');
+  const tipSmallEl = document.getElementById('tip-days-pax-small');
+  const tipQtyEl   = document.getElementById('tip-days-qty');
+  if (tipPaxEl)   tipPaxEl.value = paxTotal;
+  if (tipSmallEl) tipSmallEl.textContent = `× ${totalDays}天 × ${paxTotal}人`;
+  if (tipQtyEl)   tipQtyEl.textContent   = `× ${totalDays}天 ×`;
+
+  // ── 8. Insurance ──
+  const insPaxEl = document.getElementById('ins-pax-qty');
+  if (insPaxEl) insPaxEl.value = paxTotal;
+
+  // ── 9. Summary pax counts ──
+  const setTxt = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  setTxt('pax-cnt-adult',     adult);
+  setTxt('pax-cnt-childbed',  childBed);
+  setTxt('pax-cnt-childnobed',childNobed);
+  setTxt('pax-cnt-infant',    infant);
+}
 </script>
 </body>
 </html>

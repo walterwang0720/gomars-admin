@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/admin", "destination": "/gomars_admin.html" },
+    { "source": "/inquiry", "destination": "/gomars_inquiry.html" },
+    { "source": "/quote", "destination": "/gomars_quote.html" }
+  ]
+}

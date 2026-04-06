@@ -1,23 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-theme="light">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>GOMARS Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="gomars_base.css">
 <style>
-/* ─── FONTS ─── */
+/* ── Admin 專屬 token（共用 token 見 gomars_base.css）── */
 :root{
-  --font:"PingFang TC","Microsoft JhengHei","SF Pro Text","Segoe UI",system-ui,sans-serif;
-  --font-cond:"Barlow Condensed","Arial Narrow",sans-serif;
-
-  /* ─── BRAND ─── */
-  --orbit:#EA5404;--mars:#C43A10;--dust:#B85C00;
-  --gr:#1D7A4E;--grb:#E6F4ED;--grd:#155C39;
-  --bl:#185FA5;--blb:#E6F1FB;--bld:#0E4279;
-  --br:#EA5404;--brd:#B83D00;--brl:#FDF0E9;--brm:#F7C9A8;
-  --pu:#6B4FBB;--pub:#F0EBFF;
-
+  --nav-w:220px;--nav-w-col:52px;
   /* ─── SIDEBAR (light) ─── */
   --sb-bg:#FFFFFF;--sb-border:#E0DDD8;
   --sb-logo-bg:#F7F3EF;
@@ -25,38 +17,8 @@
   --sb-hover:#F7F6F4;--sb-active-bg:#FDF0E9;--sb-active-txt:#C43A10;
   --sb-logo-txt:#1A1A1A;--sb-logo-sub:#C43A10;
   --sb-badge:#C43A10;--sb-user-name:#1A1A1A;--sb-user-role:#9A9690;
-
-  /* ─── SURFACES (light) ─── */
-  --bg-page:#F0EFE9;--bg-card:#ffffff;--bg-surface:#F7F6F4;--bg-hover:#EFEDE8;
-  --border:#E0DDD8;--border-soft:#EFEDE8;
-  --tx:#1A1A1A;--tx2:#5C5955;--tx3:#9A9690;
-  --g50:#F7F6F4;--g100:#EFEDE8;--g200:#E0DDD8;--g300:#C8C4BE;--g400:#9A9690;--g500:#6E6A65;--g600:#5C5955;--g700:#3D3B38;
-
-  --nav-w:220px;--nav-w-col:52px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 12px rgba(0,0,0,.08);
-  --radius:10px;
 }
-
-[data-theme="dark"]{
-  --sb-bg:#1C1B1A;--sb-border:rgba(255,255,255,.07);
-  --sb-logo-bg:#252422;
-  --sb-txt:#C8C4BE;--sb-txt-head:rgba(200,196,190,.3);
-  --sb-hover:#2A2927;--sb-active-bg:rgba(196,58,16,.18);--sb-active-txt:#F08060;
-  --sb-logo-txt:#FFFFFF;--sb-logo-sub:#E8440A;
-  --sb-badge:#C43A10;--sb-user-name:#E8E4DF;--sb-user-role:#6E6A65;
-
-  --bg-page:#111110;--bg-card:#1C1B1A;--bg-surface:#252422;--bg-hover:#2A2927;
-  --border:#2E2C2A;--border-soft:#242220;
-  --tx:#E8E4DF;--tx2:#9A9690;--tx3:#5C5955;
-  --g50:#252422;--g100:#2A2927;--g200:#333130;--g300:#4A4845;--g400:#6E6A65;--g500:#9A9690;--g600:#C8C4BE;--g700:#E0DDD8;
-  --brl:#2A1506;--brm:#4A2510;
-  --grb:#0A2018;--blb:#0A1828;--pub:#1A1528;
-  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 12px rgba(0,0,0,.4);
-}
-
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s;}
+body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
 
 /* ══════════════════════════════════════
    LOGIN SCREEN
@@ -379,15 +341,6 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
 .toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
 
-/* ── THEME PICKER ── */
-.theme-opt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
-.theme-preview{width:64px;height:44px;border-radius:8px;border:2px solid transparent;overflow:hidden;transition:border .15s;}
-.theme-preview.selected{border-color:var(--br);}
-.theme-preview-light{background:#F0EFE9;}
-.theme-preview-dark{background:#111110;}
-.theme-preview-light::after,.theme-preview-dark::after{content:'';display:block;height:10px;margin:6px 8px 0;border-radius:2px;background:rgba(234,84,4,.3);}
-.theme-label{font-size:10px;color:var(--tx3);}
-.theme-label.selected{color:var(--br);font-weight:600;}
 
 /* ── CIS CHIPS ── */
 .cis-chips{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
@@ -585,7 +538,6 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
 .cpill-done{background:var(--grb);color:var(--grd);}
 .cpill-wip{background:#FFF3E0;color:#B85C00;}
 .cpill-todo{background:var(--g100);color:var(--tx3);}
-[data-theme="dark"] .cpill-wip{background:#2A1E06;color:#F5C97A;}
 
 /* ── CASE DETAIL ── */
 .case-detail-wrap{display:flex;flex-direction:column;flex:1;min-height:0;}
@@ -606,7 +558,12 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
 .ctp-wip{background:#FFF3E0;color:#B85C00;}
 .ctp-todo{background:var(--g100);color:var(--tx3);}
 .ctp-locked{background:var(--g100);color:var(--tx3);opacity:.5;}
-[data-theme="dark"] .ctp-wip{background:#2A1E06;color:#F5C97A;}
+.cases-table th:first-child,.cases-table td:first-child{width:36px;padding:8px 6px;text-align:center;}
+.cases-table th:last-child,.cases-table td:last-child{width:44px;padding:8px 6px;text-align:center;}
+.case-cb{cursor:pointer;width:14px;height:14px;accent-color:var(--mars);}
+.case-trash-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:3px 5px;border-radius:5px;transition:background .15s;line-height:1;}
+.case-trash-btn:hover{background:#fde8e2;}
+.btn-danger{background:var(--mars)!important;color:#fff!important;border-color:var(--mars)!important;}
 .case-content{flex:1;display:flex;flex-direction:column;min-height:0;}
 .case-panel{display:none;flex:1;flex-direction:column;}
 .case-panel.active{display:flex;}
@@ -798,11 +755,11 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
     <!-- TopBar -->
     <div class="topbar">
       <div class="topbar-left">
+        <button class="case-back" id="topbar-back" onclick="backToCases()" style="display:none;margin-right:6px;">← 案件管理</button>
         <span class="page-title" id="topbar-title">儀表板</span>
         <span class="page-sub" id="topbar-sub"></span>
       </div>
       <div class="topbar-right">
-        <button class="tb-icon" onclick="toggleTheme()" title="切換深色/淺色模式" id="theme-btn">🌙</button>
         <div class="sb-avatar" style="width:28px;height:28px;font-size:11px;cursor:default;" id="topbar-avatar">U</div>
       </div>
     </div>
@@ -899,11 +856,18 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
     <div class="view" id="view-cases">
       <div class="cases-wrap">
         <div class="cases-toolbar">
-          <input class="inp" id="cases-search" placeholder="🔍 搜尋案號、客戶、目的地…" oninput="renderCasesList()" style="flex:1;min-width:180px;"/>
           <div class="cases-filter-tabs">
+            <button class="cases-filter-tab active" id="cvb-active" onclick="setCasesViewMode('active')">📁 所有案件</button>
+            <button class="cases-filter-tab" id="cvb-trash" onclick="setCasesViewMode('trash')">🗑️ 回收站</button>
+          </div>
+          <input class="inp" id="cases-search" placeholder="🔍 搜尋案號、客戶、目的地…" oninput="renderCasesList()" style="flex:1;min-width:180px;"/>
+          <div class="cases-filter-tabs" id="cases-status-tabs">
             <button class="cases-filter-tab active" onclick="setCasesFilter('all',this)">全部</button>
             <button class="cases-filter-tab" onclick="setCasesFilter('active',this)">進行中</button>
             <button class="cases-filter-tab" onclick="setCasesFilter('finalized',this)">已完成</button>
+          </div>
+          <div id="cases-batch-btns" style="display:flex;gap:6px;">
+            <button class="btn btn-danger" onclick="batchDeleteCases()">🗑️ 刪除選中</button>
           </div>
           <button class="btn btn-primary" onclick="newCase()">＋ 新增案件</button>
         </div>
@@ -911,19 +875,21 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
           <table class="cases-table">
             <thead>
               <tr>
+                <th><input type="checkbox" class="case-cb" id="case-cb-all" onchange="toggleAllCaseCb(this)"></th>
                 <th>案號</th>
                 <th>客戶</th>
                 <th>目的地</th>
                 <th>出發日</th>
-                <th>詢價單</th>
-                <th>成本報價</th>
-                <th>客報</th>
+                <th>天數</th>
+                <th>人數</th>
+                <th>負責業務</th>
                 <th>售價（/人）</th>
                 <th>建立時間</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="cases-tbody">
-              <tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:28px;">載入中…</td></tr>
+              <tr><td colspan="11" style="text-align:center;color:var(--tx3);padding:28px;">載入中…</td></tr>
             </tbody>
           </table>
         </div>
@@ -933,16 +899,6 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
     <!-- ── 案件詳細（三頁籤） ── -->
     <div class="view" id="view-case-detail">
       <div class="case-detail-wrap">
-        <!-- Header -->
-        <div class="case-detail-hdr">
-          <button class="case-back" onclick="backToCases()">← 案件管理</button>
-          <div class="case-hdr-divider"></div>
-          <div class="case-hdr-info">
-            <div class="case-hdr-num" id="cd-num">GM-2026-MMDD-NNN</div>
-            <div class="case-hdr-name" id="cd-name">—</div>
-            <div class="case-hdr-meta" id="cd-meta">—</div>
-          </div>
-        </div>
         <!-- Tabs -->
         <div class="case-tabs-bar">
           <button class="case-tab-btn active" id="ct-inquiry" onclick="switchCaseTab('inquiry')">
@@ -1243,8 +1199,7 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
               <thead><tr><th>鍵值</th><th>用途</th></tr></thead>
               <tbody>
                 <tr><td>gomars_inquiry_draft</td><td>詢價單草稿（gomars_inquiry.html）</td></tr>
-                <tr><td>gomars_flight_db</td><td>航班資料庫 prototype 資料</td></tr>
-                <tr><td>gomars_theme</td><td>使用者主題偏好（light / dark）</td></tr>
+                <tr><td>gomars_flight_db</td><td>航班資料庫本地快取（UI 不阻塞，純加速用）</td></tr>
               </tbody>
             </table>
           </div>
@@ -1263,11 +1218,8 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
             <button class="settings-nav-item" onclick="switchSettings(this,'s-cis')">🔴 CIS 品牌設定</button>
             <button class="settings-nav-item" onclick="switchSettings(this,'s-fx')">💱 匯率設定</button>
             <button class="settings-nav-item" onclick="switchSettings(this,'s-banner')">📣 Banner 管理</button>
-            <button class="settings-nav-item" onclick="switchSettings(this,'s-account')">👤 帳號管理</button>
-            <button class="settings-nav-item" onclick="switchSettings(this,'s-password')">🔒 密碼更換</button>
-            <button class="settings-nav-item" onclick="switchSettings(this,'s-notify')">🔔 通知偏好</button>
-            <button class="settings-nav-item" onclick="switchSettings(this,'s-team')">👥 團隊成員</button>
-            <button class="settings-nav-item" onclick="switchSettings(this,'s-data')">🗄 資料 &amp; 備份</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-team')">👥 團隊管理</button>
+            <button class="settings-nav-item" onclick="switchSettings(this,'s-personal')">⚙️ 個人設定</button>
           </div>
         </div>
         <!-- Panels -->
@@ -1275,19 +1227,6 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
 
           <!-- 外觀 -->
           <div class="settings-panel active" id="s-appearance">
-            <div class="settings-section">
-              <div class="settings-section-title">🎨 介面主題</div>
-              <div style="display:flex;gap:16px;padding:8px 0;">
-                <div class="theme-opt" onclick="setTheme('light')">
-                  <div class="theme-preview theme-preview-light" id="tp-light"></div>
-                  <div class="theme-label" id="tl-light">☀ 淺色模式</div>
-                </div>
-                <div class="theme-opt" onclick="setTheme('dark')">
-                  <div class="theme-preview theme-preview-dark" id="tp-dark"></div>
-                  <div class="theme-label" id="tl-dark">🌙 深色模式</div>
-                </div>
-              </div>
-            </div>
             <div class="settings-section">
               <div class="settings-section-title">🔠 語系 &amp; 格式</div>
               <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">介面語言</div></div><select class="inp" style="max-width:160px;"><option selected>繁體中文</option><option>简体中文</option><option>English</option></select></div>
@@ -1439,8 +1378,8 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
             </div>
           </div>
 
-          <!-- 帳號 -->
-          <div class="settings-panel" id="s-account">
+          <!-- 團隊管理（帳號 + 成員） -->
+          <div class="settings-panel" id="s-team">
             <div class="settings-section">
               <div class="settings-section-title">👤 個人帳號資訊</div>
               <div class="g2" style="margin-bottom:14px;">
@@ -1454,37 +1393,6 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
                 <button class="btn btn-primary btn-sm" onclick="showToast('帳號資訊已更新')">儲存變更</button>
               </div>
             </div>
-          </div>
-
-          <!-- 密碼 -->
-          <div class="settings-panel" id="s-password">
-            <div class="settings-section">
-              <div class="settings-section-title">🔒 更換密碼</div>
-              <div style="max-width:380px;">
-                <div class="f" style="margin-bottom:12px;"><span class="lbl">目前密碼</span><input class="inp" type="password" placeholder="輸入目前密碼"/></div>
-                <div class="f" style="margin-bottom:12px;"><span class="lbl">新密碼</span><input class="inp" type="password" placeholder="至少 8 碼，含英數字"/></div>
-                <div class="f" style="margin-bottom:16px;"><span class="lbl">確認新密碼</span><input class="inp" type="password" placeholder="再次輸入新密碼"/></div>
-                <p style="font-size:11px;color:var(--tx3);margin-bottom:12px;">密碼需至少 8 碼，含大小寫字母與數字。</p>
-                <button class="btn btn-primary btn-sm" onclick="showToast('密碼已成功更換')">確認更換密碼</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 通知 -->
-          <div class="settings-panel" id="s-notify">
-            <div class="settings-section">
-              <div class="settings-section-title">🔔 通知偏好設定</div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">供應商報價回覆通知</div><div class="settings-row-desc">供應商上傳報價回覆時通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">報價有效期到期提醒</div><div class="settings-row-desc">到期前 3 天提醒</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">客人回覆通知</div><div class="settings-row-desc">客人確認或詢問報價單時通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">出發日提前提醒</div><div class="settings-row-desc">距出發日 7 天、3 天前各一次</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">匯率異動通知</div><div class="settings-row-desc">主要幣別波動超過 ±3% 時提醒</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">系統更新公告</div><div class="settings-row-desc">新版本發布通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-            </div>
-          </div>
-
-          <!-- 團隊 -->
-          <div class="settings-panel" id="s-team">
             <div class="settings-section">
               <div class="settings-section-title">👥 團隊成員管理</div>
               <table class="data-table" style="margin-bottom:12px;">
@@ -1497,17 +1405,26 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg-page);min-heigh
             </div>
           </div>
 
-          <!-- 資料 -->
-          <div class="settings-panel" id="s-data">
+          <!-- 個人設定（密碼 + 通知） -->
+          <div class="settings-panel" id="s-personal">
             <div class="settings-section">
-              <div class="settings-section-title">🗄 資料管理</div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">匯出所有案件資料</div><div class="settings-row-desc">Excel / CSV 格式匯出全部案件記錄</div></div><button class="btn btn-sm" onclick="showToast('資料匯出準備中…')">匯出 Excel</button></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">資料備份</div><div class="settings-row-desc">目前：LocalStorage · 未來：Supabase 雲端</div></div><button class="btn btn-sm" onclick="showToast('備份成功')">立即備份</button></div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">清除詢價單暫存</div><div class="settings-row-desc">清除 gomars_inquiry_draft，不影響已送出案件</div></div><button class="btn btn-sm btn-danger" onclick="if(confirm('確定清除草稿？')){localStorage.removeItem('gomars_inquiry_draft');showToast('草稿暫存已清除')}">清除暫存</button></div>
+              <div class="settings-section-title">🔒 更換密碼</div>
+              <div style="max-width:380px;">
+                <div class="f" style="margin-bottom:12px;"><span class="lbl">目前密碼</span><input class="inp" type="password" placeholder="輸入目前密碼"/></div>
+                <div class="f" style="margin-bottom:12px;"><span class="lbl">新密碼</span><input class="inp" type="password" placeholder="至少 8 碼，含英數字"/></div>
+                <div class="f" style="margin-bottom:16px;"><span class="lbl">確認新密碼</span><input class="inp" type="password" placeholder="再次輸入新密碼"/></div>
+                <p style="font-size:11px;color:var(--tx3);margin-bottom:12px;">密碼需至少 8 碼，含大小寫字母與數字。串接 Supabase Auth <code style="font-size:10px;">updateUser()</code>。</p>
+                <button class="btn btn-primary btn-sm" onclick="showToast('密碼已成功更換')">確認更換密碼</button>
+              </div>
             </div>
-            <div class="settings-section" style="border-color:#F7C1C1;">
-              <div class="settings-section-title" style="color:#A32D2D;">帳號操作</div>
-              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">登出帳號</div><div class="settings-row-desc">登出後需重新使用 Email 或 Google 登入</div></div><button class="btn btn-sm btn-danger" onclick="doLogout()">🚪 登出</button></div>
+            <div class="settings-section">
+              <div class="settings-section-title">🔔 通知偏好設定 <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:8px;">未來對接 LINE 通知</span></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">供應商報價回覆通知</div><div class="settings-row-desc">供應商上傳報價回覆時通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">報價有效期到期提醒</div><div class="settings-row-desc">到期前 3 天提醒</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">客人回覆通知</div><div class="settings-row-desc">客人確認或詢問報價單時通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">出發日提前提醒</div><div class="settings-row-desc">距出發日 7 天、3 天前各一次</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">匯率異動通知</div><div class="settings-row-desc">主要幣別波動超過 ±3% 時提醒</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+              <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">系統更新公告</div><div class="settings-row-desc">新版本發布通知</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
             </div>
           </div>
 
@@ -1722,6 +1639,7 @@ function showErr(msg) {
 //  Enter app after auth
 // ══════════════════════════════════════
 function enterApp(user) {
+  _currentUser = user
   document.getElementById('login-screen').style.display = 'none'
   document.getElementById('app').classList.add('active')
 
@@ -1823,69 +1741,148 @@ function switchView(id, btn) {
   document.getElementById('topbar-title').textContent = meta.title || id
   document.getElementById('topbar-sub').textContent   = meta.sub   || ''
 
-  if (id === 'cases') renderCasesList()
+  if (id === 'cases') loadCases()
 }
 
 // ══════════════════════════════════════
 //  CASES LIST
 // ══════════════════════════════════════
 
-// Mock data — replace with Supabase fetch when ready
-const MOCK_CASES = [
-  { id:'1', case_number:'GM-2026-0320-001', client_name:'台積電員旅',     destination:'日本東京', depart_date:'2026-05-10', inquiry_status:'sent',  quote_status:'draft',     selling_price:null,  created_at:'2026-03-20' },
-  { id:'2', case_number:'GM-2026-0322-002', client_name:'聯發科旅遊組',   destination:'韓國首爾', depart_date:'2026-06-01', inquiry_status:'sent',  quote_status:'finalized', selling_price:28500, created_at:'2026-03-22' },
-  { id:'3', case_number:'GM-2026-0325-003', client_name:'王小明（FIT）',  destination:'泰國曼谷', depart_date:'2026-04-22', inquiry_status:'draft', quote_status:null,        selling_price:null,  created_at:'2026-03-25' },
-  { id:'4', case_number:'GM-2026-0328-004', client_name:'台大校友會',     destination:'義大利羅馬',depart_date:'2026-09-15',inquiry_status:'sent',  quote_status:'draft',     selling_price:null,  created_at:'2026-03-28' },
-  { id:'5', case_number:'GM-2026-0401-005', client_name:'新光三越獎勵旅遊',destination:'北海道', depart_date:'2026-07-08', inquiry_status:'draft', quote_status:null,        selling_price:null,  created_at:'2026-04-01' },
-  { id:'6', case_number:'GM-2026-0403-006', client_name:'林先生家族遊',   destination:'峇里島',   depart_date:'2026-05-28', inquiry_status:'sent',  quote_status:'finalized', selling_price:45200, created_at:'2026-04-03' },
-]
+let _currentUser   = null   // set in enterApp; used for owner-based case isolation
+let _casesFilter   = 'all'
+let _casesViewMode = 'active'
+let _casesData     = []
 
-let _casesFilter = 'all'
-let _casesData   = MOCK_CASES
+async function loadCases() {
+  const tbody = document.getElementById('cases-tbody')
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#888">載入中…</td></tr>'
+  // 案件隔離：只載入屬於目前登入帳號的案件（owner = email）
+  // 未來升級為 team_id 篩選時可在此替換條件
+  const ownerEmail = _currentUser?.email
+  let query = sb.from('gomars_cases')
+    .select('id,case_number,client_name,destination,depart_date,days,pax,owner,inquiry_status,quote_status,selling_price,created_at,status,deleted_at')
+    .order('created_at', { ascending: false })
+  if (ownerEmail) query = query.or(`owner.eq.${ownerEmail},owner.is.null`)
+  const { data, error } = await query
+  if (error) { showToast('載入案件失敗：' + error.message); return }
+  _casesData = data || []
+  renderCasesList()
+}
 
 function setCasesFilter(f, btn) {
   _casesFilter = f
-  document.querySelectorAll('.cases-filter-tab').forEach(b => b.classList.remove('active'))
+  document.querySelectorAll('#cases-status-tabs .cases-filter-tab').forEach(b => b.classList.remove('active'))
   if (btn) btn.classList.add('active')
   renderCasesList()
 }
 
+function setCasesViewMode(mode) {
+  _casesViewMode = mode
+  document.getElementById('cvb-active')?.classList.toggle('active', mode === 'active')
+  document.getElementById('cvb-trash')?.classList.toggle('active', mode === 'trash')
+  // 回收站模式隱藏狀態篩選
+  const statusTabs = document.getElementById('cases-status-tabs')
+  if (statusTabs) statusTabs.style.display = mode === 'trash' ? 'none' : ''
+  // 切換批量操作按鈕
+  const batchWrap = document.getElementById('cases-batch-btns')
+  if (batchWrap) {
+    batchWrap.innerHTML = mode === 'trash'
+      ? `<button class="btn" onclick="batchRestoreCases()">⏪ 全部還原</button>
+         <button class="btn btn-danger" onclick="clearTrash()">🔥 清空回收站</button>`
+      : `<button class="btn btn-danger" onclick="batchDeleteCases()">🗑️ 刪除選中</button>`
+  }
+  renderCasesList()
+}
+
+function _trashDaysLeft(deleted_at) {
+  if (!deleted_at) return 30
+  return Math.max(0, 30 - Math.floor((Date.now() - new Date(deleted_at)) / 86400000))
+}
+
 function renderCasesList() {
-  const q     = (document.getElementById('cases-search')?.value || '').toLowerCase()
-  const tbody = document.getElementById('cases-tbody')
+  const q       = (document.getElementById('cases-search')?.value || '').toLowerCase()
+  const tbody   = document.getElementById('cases-tbody')
+  const theadTr = document.querySelector('#view-cases .cases-table thead tr')
   if (!tbody) return
 
+  const isTrash = _casesViewMode === 'trash'
+
   let data = _casesData.filter(c => {
+    if (isTrash ? c.status !== 'deleted' : c.status === 'deleted') return false
     if (q && !`${c.case_number} ${c.client_name} ${c.destination}`.toLowerCase().includes(q)) return false
-    if (_casesFilter === 'active'    && c.quote_status === 'finalized') return false
-    if (_casesFilter === 'finalized' && c.quote_status !== 'finalized') return false
+    if (!isTrash) {
+      if (_casesFilter === 'active'    && c.quote_status === 'finalized') return false
+      if (_casesFilter === 'finalized' && c.quote_status !== 'finalized') return false
+    }
     return true
   })
 
-  // Update badge
+  // badge（不含已刪除）
   const badge = document.getElementById('badge-cases')
-  if (badge) badge.textContent = _casesData.length
+  if (badge) badge.textContent = _casesData.filter(c => c.status !== 'deleted').length
+
+  // reset select-all
+  const cbAll = document.getElementById('case-cb-all')
+  if (cbAll) cbAll.checked = false
+
+  // 動態切換 thead
+  if (theadTr) {
+    theadTr.innerHTML = isTrash
+      ? `<th><input type="checkbox" class="case-cb" id="case-cb-all" onchange="toggleAllCaseCb(this)"></th>
+         <th>案號</th><th>客戶</th><th>目的地</th><th>出發日</th>
+         <th>天數</th><th>人數</th><th>負責業務</th>
+         <th>刪除時間</th><th>剩餘天數</th><th></th>`
+      : `<th><input type="checkbox" class="case-cb" id="case-cb-all" onchange="toggleAllCaseCb(this)"></th>
+         <th>案號</th><th>客戶</th><th>目的地</th><th>出發日</th>
+         <th>天數</th><th>人數</th><th>負責業務</th>
+         <th>售價（/人）</th><th>建立時間</th><th></th>`
+  }
 
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:28px;">沒有符合條件的案件</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:var(--tx3);padding:28px;">${isTrash ? '🗑️ 回收站是空的' : '沒有符合條件的案件'}</td></tr>`
     return
   }
 
   tbody.innerHTML = data.map(c => {
-    const price = c.selling_price
-      ? `NT$ ${c.selling_price.toLocaleString()}`
-      : `<span style="color:var(--tx3)">—</span>`
-    return `<tr onclick="openCase('${c.id}')">
-      <td><span class="case-num">${c.case_number}</span></td>
-      <td class="case-client">${c.client_name}</td>
-      <td class="case-dest">${c.destination}</td>
-      <td style="color:var(--tx2);font-size:12px;">${c.depart_date}</td>
-      <td>${caseStatusPill(c.inquiry_status, 'inquiry')}</td>
-      <td>${caseStatusPill(c.quote_status,   'quote')}</td>
-      <td><span class="cpill cpill-todo">—</span></td>
-      <td style="font-size:12.5px;">${price}</td>
-      <td style="color:var(--tx3);font-size:11px;">${c.created_at}</td>
-    </tr>`
+    if (isTrash) {
+      const left = _trashDaysLeft(c.deleted_at)
+      const leftColor = left <= 7 ? 'var(--mars)' : left <= 14 ? '#B85C00' : 'var(--tx2)'
+      const delDate = c.deleted_at ? c.deleted_at.slice(0,10) : '—'
+      return `<tr>
+        <td onclick="event.stopPropagation()"><input type="checkbox" class="case-cb" data-id="${c.id}"></td>
+        <td><span class="case-num">${c.case_number}</span></td>
+        <td class="case-client">${c.client_name}</td>
+        <td class="case-dest">${c.destination}</td>
+        <td style="color:var(--tx2);font-size:12px;">${c.depart_date}</td>
+        <td style="color:var(--tx2);font-size:12px;">${c.days ? c.days+'天' : '—'}</td>
+        <td style="color:var(--tx2);font-size:12px;">${c.pax ? c.pax+'人' : '—'}</td>
+        <td style="font-size:11px;color:var(--tx2);">${c.owner || '—'}</td>
+        <td style="color:var(--tx3);font-size:11px;">${delDate}</td>
+        <td style="color:${leftColor};font-size:12px;font-weight:600;">${left} 天</td>
+        <td onclick="event.stopPropagation()" style="white-space:nowrap;">
+          <button class="case-trash-btn" onclick="restoreCase('${c.id}',event)" title="還原">⏪</button>
+          <button class="case-trash-btn" onclick="permanentDeleteCase('${c.id}',event)" title="永久刪除" style="color:var(--mars);">🔥</button>
+        </td>
+      </tr>`
+    } else {
+      const price = c.selling_price ? `NT$ ${c.selling_price.toLocaleString()}` : `<span style="color:var(--tx3)">—</span>`
+      const days  = c.days ? `${c.days}天` : `<span style="color:var(--tx3)">—</span>`
+      const pax   = c.pax  ? `${c.pax}人`  : `<span style="color:var(--tx3)">—</span>`
+      const owner = c.owner ? `<span style="font-size:11px;">${c.owner}</span>` : `<span style="color:var(--tx3)">—</span>`
+      return `<tr onclick="openCase('${c.id}')">
+        <td onclick="event.stopPropagation()"><input type="checkbox" class="case-cb" data-id="${c.id}"></td>
+        <td><span class="case-num">${c.case_number}</span></td>
+        <td class="case-client">${c.client_name}</td>
+        <td class="case-dest">${c.destination}</td>
+        <td style="color:var(--tx2);font-size:12px;">${c.depart_date}</td>
+        <td style="color:var(--tx2);font-size:12px;">${days}</td>
+        <td style="color:var(--tx2);font-size:12px;">${pax}</td>
+        <td>${owner}</td>
+        <td style="font-size:12.5px;">${price}</td>
+        <td style="color:var(--tx3);font-size:11px;">${c.created_at}</td>
+        <td onclick="event.stopPropagation()"><button class="case-trash-btn" onclick="softDeleteCase('${c.id}',event)" title="移至垃圾桶">🗑️</button></td>
+      </tr>`
+    }
   }).join('')
 }
 
@@ -1900,8 +1897,103 @@ function caseStatusPill(status, type) {
   return '<span class="cpill cpill-todo">未開始</span>'
 }
 
+// 案號生成：GM{YYYYMMDD}{NNN}，無橫線
+// 相容：舊格式 GM-YYYY-MMDD-NNN 仍可正常顯示與搜尋（不做轉換）
+function generateCaseId() {
+  const ymd = new Date().toISOString().slice(0,10).replace(/-/g,'')
+  const existing = _casesData.filter(c => c.case_number.replace(/-/g,'').startsWith('GM'+ymd))
+  const seq = String(existing.length + 1).padStart(3,'0')
+  return `GM${ymd}${seq}`
+}
+
 function newCase() {
-  toast('新增案件 — Supabase 串接後啟用', 'info')
+  _currentCase  = null
+  _iframeLoaded = {}
+
+  document.getElementById('topbar-back').style.display = ''
+  document.getElementById('topbar-title').textContent = '新增案件'
+  document.getElementById('topbar-sub').textContent   = '填寫詢價單後儲存至雲端'
+
+  setCaseTabPill('inquiry',      null)
+  setCaseTabPill('cost-quote',   null)
+  setCaseTabPill('client-quote', null, true)
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+  document.getElementById('view-case-detail').classList.add('active')
+
+  switchCaseTab('inquiry')
+}
+
+// 軟刪除：更新 status='deleted' + deleted_at，不從 DB 移除
+// Edge Function 定期清理：超過 30 天的 deleted 案件執行永久刪除
+function softDeleteCase(id, e) {
+  e?.stopPropagation()
+  if (!confirm('將此案件移至垃圾桶？30 天後將自動永久刪除。')) return
+  const deletedAt = new Date().toISOString()
+  const idx = _casesData.findIndex(c => c.id === id)
+  if (idx !== -1) { _casesData[idx].status = 'deleted'; _casesData[idx].deleted_at = deletedAt }
+  renderCasesList()
+  showToast('已移至垃圾桶')
+  sb.from('gomars_cases').update({ status:'deleted', deleted_at:deletedAt }).eq('id', id).catch(()=>{})
+}
+
+function batchDeleteCases() {
+  const ids = [...document.querySelectorAll('.case-cb:checked')].map(cb => cb.dataset.id)
+  if (!ids.length) { showToast('請先勾選要刪除的案件'); return }
+  if (!confirm(`將 ${ids.length} 個案件移至垃圾桶？30 天後將自動永久刪除。`)) return
+  const deletedAt = new Date().toISOString()
+  ids.forEach(id => {
+    const idx = _casesData.findIndex(c => c.id === id)
+    if (idx !== -1) { _casesData[idx].status = 'deleted'; _casesData[idx].deleted_at = deletedAt }
+  })
+  renderCasesList()
+  showToast(`已將 ${ids.length} 個案件移至垃圾桶`)
+  sb.from('gomars_cases').update({ status:'deleted', deleted_at:deletedAt }).in('id', ids).catch(()=>{})
+}
+
+function toggleAllCaseCb(cbAll) {
+  document.querySelectorAll('.case-cb:not(#case-cb-all)').forEach(cb => { cb.checked = cbAll.checked })
+}
+
+// ── 回收站操作 ──
+function restoreCase(id, e) {
+  e?.stopPropagation()
+  const idx = _casesData.findIndex(c => c.id === id)
+  if (idx !== -1) { _casesData[idx].status = 'active'; _casesData[idx].deleted_at = null }
+  renderCasesList()
+  showToast('案件已還原')
+  sb.from('gomars_cases').update({ status:'active', deleted_at:null }).eq('id', id).catch(()=>{})
+}
+
+function permanentDeleteCase(id, e) {
+  e?.stopPropagation()
+  if (!confirm('永久刪除此案件？此動作無法復原。')) return
+  _casesData = _casesData.filter(c => c.id !== id)
+  renderCasesList()
+  showToast('已永久刪除')
+  sb.from('gomars_cases').delete().eq('id', id).catch(()=>{})
+}
+
+function batchRestoreCases() {
+  const ids = [...document.querySelectorAll('.case-cb:checked')].map(cb => cb.dataset.id)
+  if (!ids.length) { showToast('請先勾選要還原的案件'); return }
+  ids.forEach(id => {
+    const idx = _casesData.findIndex(c => c.id === id)
+    if (idx !== -1) { _casesData[idx].status = 'active'; _casesData[idx].deleted_at = null }
+  })
+  renderCasesList()
+  showToast(`已還原 ${ids.length} 個案件`)
+  sb.from('gomars_cases').update({ status:'active', deleted_at:null }).in('id', ids).catch(()=>{})
+}
+
+function clearTrash() {
+  const trashIds = _casesData.filter(c => c.status === 'deleted').map(c => c.id)
+  if (!trashIds.length) { showToast('回收站已是空的'); return }
+  if (!confirm(`永久刪除回收站內全部 ${trashIds.length} 個案件？此動作無法復原。`)) return
+  _casesData = _casesData.filter(c => c.status !== 'deleted')
+  renderCasesList()
+  showToast('已清空回收站')
+  sb.from('gomars_cases').delete().in('id', trashIds).catch(()=>{})
 }
 
 // ══════════════════════════════════════
@@ -1916,21 +2008,19 @@ function openCase(id) {
   _currentCase  = c
   _iframeLoaded = {}
 
-  // Update header
-  document.getElementById('cd-num').textContent  = c.case_number
-  document.getElementById('cd-name').textContent = c.client_name
-  document.getElementById('cd-meta').textContent = `${c.destination}　　出發：${c.depart_date}`
-  document.getElementById('topbar-sub').textContent = c.case_number
+  // Update topbar: show back button + case info
+  document.getElementById('topbar-back').style.display = ''
+  document.getElementById('topbar-title').textContent = c.client_name || c.case_number
+  document.getElementById('topbar-sub').textContent   = `${c.case_number}　${c.destination}`
 
   // Update tab status pills
-  setCaseTabPill('inquiry',     c.inquiry_status)
-  setCaseTabPill('cost-quote',  c.quote_status)
+  setCaseTabPill('inquiry',      c.inquiry_status)
+  setCaseTabPill('cost-quote',   c.quote_status)
   setCaseTabPill('client-quote', null, true)
 
   // Switch view (keep sidebar highlight on "cases")
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
   document.getElementById('view-case-detail').classList.add('active')
-  document.getElementById('topbar-title').textContent = '案件管理'
 
   switchCaseTab('inquiry')
 }
@@ -1964,13 +2054,34 @@ function switchCaseTab(tab) {
 }
 
 function backToCases() {
+  document.getElementById('topbar-back').style.display = 'none'
   switchView('cases', document.querySelector('[data-view=cases]'))
 }
 
 // Listen for 「轉報價」 postMessage from inquiry iframe
+let _pendingQuoteWindow = null
 window.addEventListener('message', e => {
   if (e.data?.type === 'gomars:to-cost-quote') {
-    switchCaseTab('cost-quote')
+    const mainIframe = document.getElementById('inquiry-iframe')
+    if (mainIframe && e.source === mainIframe.contentWindow) {
+      // 主詢價頁面 → 開新分頁，等 quote 頁 ready 後再送 load signal
+      _pendingQuoteWindow = window.open('gomars_quote.html', '_blank')
+    } else {
+      // 案件詳情 → 切換 tab（lazy-load iframe 會自行讀 localStorage）
+      switchCaseTab('cost-quote')
+      // 若 iframe 已載入，送 reload signal
+      const iframe = document.getElementById('cp-cost-quote-iframe')
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage({type: 'gomars:load-inquiry'}, '*')
+      }
+    }
+  }
+  // Quote 頁就緒後回報，admin 回送 load signal
+  if (e.data?.type === 'gomars:quote-ready') {
+    if (_pendingQuoteWindow && e.source === _pendingQuoteWindow) {
+      _pendingQuoteWindow.postMessage({type: 'gomars:load-inquiry'}, '*')
+      _pendingQuoteWindow = null
+    }
   }
 })
 
@@ -1986,29 +2097,6 @@ function toggleSidebar() {
   tog.textContent = sb.classList.contains('col') ? '▶' : '◀'
 }
 
-// ══════════════════════════════════════
-//  Theme
-// ══════════════════════════════════════
-function setTheme(t) {
-  document.documentElement.setAttribute('data-theme', t)
-  localStorage.setItem('gomars_theme', t)
-  const isDark = t === 'dark'
-  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙'
-  // Update settings theme picker
-  const tpLight = document.getElementById('tp-light')
-  const tpDark  = document.getElementById('tp-dark')
-  const tlLight = document.getElementById('tl-light')
-  const tlDark  = document.getElementById('tl-dark')
-  if (tpLight) { tpLight.style.borderColor = isDark ? '' : 'var(--br)'; tpLight.classList.toggle('selected', !isDark) }
-  if (tpDark)  { tpDark.style.borderColor  = isDark ? 'var(--br)' : ''; tpDark.classList.toggle('selected', isDark) }
-  if (tlLight) { tlLight.className = 'theme-label' + (isDark ? '' : ' selected') }
-  if (tlDark)  { tlDark.className  = 'theme-label' + (isDark ? ' selected' : '') }
-}
-
-function toggleTheme() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark'
-  setTheme(dark ? 'light' : 'dark')
-}
 
 // ══════════════════════════════════════
 //  Devlog tabs
@@ -2123,10 +2211,6 @@ function toast(msg, type='info') {
 //  Init
 // ══════════════════════════════════════
 ;(async () => {
-  // Restore theme
-  const savedTheme = localStorage.getItem('gomars_theme')
-  if (savedTheme) setTheme(savedTheme)
-
   // Check anon key placeholder
   if (SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
     console.warn('[GOMARS] 請在 gomars_admin.html 第 230 行填入 Supabase anon key。')
@@ -2194,6 +2278,45 @@ function getFdb() {
 }
 function setFdb(db) {
   localStorage.setItem('gomars_flight_db', JSON.stringify(db))
+  _syncFdbToSupabase(db)
+}
+async function _syncFdbToSupabase(db) {
+  try {
+    const rows=Object.entries(db).map(([flight_no,e])=>({
+      flight_no, airline:e.airline||null, from:e.from||null,
+      to:e.to||null, dep:e.dep||null, arr:e.arr||null,
+      updated_at:e.savedAt||new Date().toISOString()
+    }))
+    if(!rows.length) return
+    await sb.from('flight_db').upsert(rows,{onConflict:'flight_no'})
+  } catch(e){}
+}
+async function fetchFdbFromSupabase() {
+  try {
+    const local=getFdb()
+    const {data,error}=await sb.from('flight_db').select('*')
+    if(error) return
+    // 雲端資料轉成與本機相同格式
+    const cloud={}
+    if(data?.length) data.forEach(r=>{
+      cloud[r.flight_no]={airline:r.airline,from:r.from,to:r.to,
+        dep:r.dep,arr:r.arr,savedAt:r.updated_at}
+    })
+    // 合併：本機有的保留，雲端多的補進來
+    const merged={...cloud,...local}
+    localStorage.setItem('gomars_flight_db',JSON.stringify(merged))
+    // 把本機有但雲端沒有的航班推上去
+    const localOnly=Object.entries(local)
+      .filter(([k])=>!cloud[k])
+      .map(([flight_no,e])=>({
+        flight_no, airline:e.airline||null, from:e.from||null,
+        to:e.to||null, dep:e.dep||null, arr:e.arr||null,
+        updated_at:e.savedAt||new Date().toISOString()
+      }))
+    if(localOnly.length) await sb.from('flight_db').upsert(localOnly,{onConflict:'flight_no'})
+    renderFlightTable()
+    fdbRefreshFilterOptions()
+  } catch(e){}
 }
 
 // ── Render table ──
@@ -2529,7 +2652,8 @@ function fdbDeleteEntry(key) {
   if (!confirm(`確定刪除 ${key}？`)) return
   const db = getFdb()
   delete db[key]
-  setFdb(db)
+  localStorage.setItem('gomars_flight_db', JSON.stringify(db))
+  sb.from('flight_db').delete().eq('flight_no', key).catch(()=>{})
   renderFlightTable()
   showToast(`已刪除 ${key}`)
 }
@@ -2667,6 +2791,8 @@ function fdbDownload(filename, content, mime) {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fdb-import-overlay')?.addEventListener('click', e => { if(e.target===e.currentTarget) closeFdbImport() })
   document.getElementById('fdb-edit-overlay')?.addEventListener('click',  e => { if(e.target===e.currentTarget) closeFdbEdit() })
+  fetchFdbFromSupabase()
+  loadCases()
 })
 
 // Re-render when switching to flightdb view
