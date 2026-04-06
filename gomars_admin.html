@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>GOMARS Admin</title>
+<title>GOMARS | 旅遊後台管理</title>
+<link rel="icon" href="_ref/logo.svg" type="image/svg+xml">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="gomars_base.css">
 <style>
@@ -1936,10 +1937,8 @@ async function softDeleteCase(id, e) {
     .update({ status:'deleted', deleted_at:deletedAt })
     .eq('id', id)
   if (error) { showToast('移至垃圾桶失敗：' + error.message); return }
-  const idx = _casesData.findIndex(c => c.id === id)
-  if (idx !== -1) { _casesData[idx].status = 'deleted'; _casesData[idx].deleted_at = deletedAt }
-  renderCasesList()
   showToast('已移至垃圾桶')
+  loadCases()
 }
 
 async function batchDeleteCases() {
@@ -1951,12 +1950,8 @@ async function batchDeleteCases() {
     .update({ status:'deleted', deleted_at:deletedAt })
     .in('id', ids)
   if (error) { showToast('批量刪除失敗：' + error.message); return }
-  ids.forEach(id => {
-    const idx = _casesData.findIndex(c => c.id === id)
-    if (idx !== -1) { _casesData[idx].status = 'deleted'; _casesData[idx].deleted_at = deletedAt }
-  })
-  renderCasesList()
   showToast(`已將 ${ids.length} 個案件移至垃圾桶`)
+  loadCases()
 }
 
 function toggleAllCaseCb(cbAll) {
@@ -1970,10 +1965,8 @@ async function restoreCase(id, e) {
     .update({ status:'active', deleted_at:null })
     .eq('id', id)
   if (error) { showToast('還原失敗：' + error.message); return }
-  const idx = _casesData.findIndex(c => c.id === id)
-  if (idx !== -1) { _casesData[idx].status = 'active'; _casesData[idx].deleted_at = null }
-  renderCasesList()
   showToast('案件已還原')
+  loadCases()
 }
 
 async function permanentDeleteCase(id, e) {
@@ -1983,9 +1976,8 @@ async function permanentDeleteCase(id, e) {
     .delete()
     .eq('id', id)
   if (error) { showToast('永久刪除失敗：' + error.message); return }
-  _casesData = _casesData.filter(c => c.id !== id)
-  renderCasesList()
   showToast('已永久刪除')
+  loadCases()
 }
 
 async function batchRestoreCases() {
@@ -1995,12 +1987,8 @@ async function batchRestoreCases() {
     .update({ status:'active', deleted_at:null })
     .in('id', ids)
   if (error) { showToast('批量還原失敗：' + error.message); return }
-  ids.forEach(id => {
-    const idx = _casesData.findIndex(c => c.id === id)
-    if (idx !== -1) { _casesData[idx].status = 'active'; _casesData[idx].deleted_at = null }
-  })
-  renderCasesList()
   showToast(`已還原 ${ids.length} 個案件`)
+  loadCases()
 }
 
 async function clearTrash() {
@@ -2011,9 +1999,8 @@ async function clearTrash() {
     .delete()
     .in('id', trashIds)
   if (error) { showToast('清空回收站失敗：' + error.message); return }
-  _casesData = _casesData.filter(c => c.status !== 'deleted')
-  renderCasesList()
   showToast('已清空回收站')
+  loadCases()
 }
 
 // ══════════════════════════════════════
