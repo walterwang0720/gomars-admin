@@ -1,5 +1,4 @@
 {
-  "cleanUrls": true,
   "rewrites": [
     { "source": "/admin", "destination": "/gomars_admin.html" },
     { "source": "/inquiry", "destination": "/gomars_inquiry.html" },
