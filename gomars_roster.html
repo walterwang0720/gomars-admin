@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOMARS 團大表</title>
+<script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+<link rel="stylesheet" href="gomars_base.css">
+<style>
+/* ── TopBar ──────────────────────────────────────────── */
+#topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--bg-card); border-bottom: .5px solid var(--border);
+  display: flex; align-items: center; gap: 8px; padding: 0 18px; height: 46px;
+}
+.logo { font-size: 15px; font-weight: 800; letter-spacing: .08em; color: var(--space,#0D0A08); }
+.logo span { color: var(--orbit); }
+.topbar-title { font-size: 12px; color: var(--tx3); font-weight: 500; }
+.spacer { flex: 1; }
+
+/* ── OCR Banner ──────────────────────────────────────── */
+#ocr-banner {
+  background: var(--blb,#E6F1FB); border-bottom: 1px solid var(--bl,#185FA5);
+  height: 0; overflow: hidden; transition: height .25s ease;
+}
+#ocr-banner.visible { height: 42px; }
+#ocr-banner-inner {
+  height: 42px; display: flex; align-items: center; gap: 12px; padding: 0 18px;
+}
+.ocr-b-label { font-size: 12px; font-weight: 600; color: var(--bld,#0E4279); white-space: nowrap; }
+.ocr-b-file  { font-size: 11px; color: var(--bl,#185FA5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+.ocr-pbar    { flex: 1; height: 6px; background: rgba(24,95,165,.15); border-radius: 3px; overflow: hidden; min-width: 100px; }
+.ocr-pfill   { height: 100%; background: var(--bl,#185FA5); transition: width .3s ease; width: 0%; }
+.ocr-pct     { font-size: 11px; font-weight: 700; color: var(--bld,#0E4279); font-family: var(--font-mono); white-space: nowrap; min-width: 30px; text-align: right; }
+.ocr-spin    { width: 14px; height: 14px; border: 2px solid var(--bl,#185FA5); border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Seg ─────────────────────────────────────────────── */
+.seg { display: flex; background: var(--bg-surface); border: .5px solid var(--border); border-radius: 7px; padding: 2px; gap: 2px; }
+.seg-btn { border: none; background: transparent; padding: 5px 13px; border-radius: 5px; font-size: 12px; cursor: pointer; color: var(--tx2); font-family: var(--font); transition: all .15s; white-space: nowrap; }
+.seg-btn.on { background: var(--bg-card); color: var(--tx); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
+
+/* ── Layout ──────────────────────────────────────────── */
+body { margin: 0; background: var(--bg-page,#F0EFE9); min-height: 100vh; }
+
+/* ── List View ───────────────────────────────────────── */
+#list-view { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.roster-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-card); border: .5px solid var(--border);
+  border-radius: 10px; padding: 10px 16px;
+}
+#count-label { font-size: 12px; color: var(--tx3); margin-left: auto; }
+
+/* ── Table ───────────────────────────────────────────── */
+.crm-table-wrap { background: var(--bg-card); border: .5px solid var(--border); border-radius: 10px; overflow: hidden; }
+.crm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.crm-table th { text-align: left; padding: 9px 12px; font-size: 11px; font-weight: 600; color: var(--tx3); background: var(--bg-surface); border-bottom: .5px solid var(--border); white-space: nowrap; }
+.crm-table td { padding: 10px 12px; border-bottom: .5px solid var(--border-soft,#EFEDE8); color: var(--tx); vertical-align: middle; }
+.crm-table tbody tr:last-child td { border-bottom: none; }
+.crm-table tbody tr { cursor: pointer; transition: background .12s; }
+.crm-table tbody tr:hover { background: var(--bg-hover,#EFEDE8); }
+.seq-num { font-family: var(--font-mono); font-size: 11px; background: var(--bg-surface); border: .5px solid var(--border); border-radius: 4px; padding: 1px 6px; color: var(--tx2); }
+.ocr-tag { font-size: 10px; font-weight: 600; color: var(--bld,#0E4279); background: var(--blb,#E6F1FB); border: .5px solid var(--bl,#185FA5); border-radius: 4px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+.row-actions { display: flex; gap: 4px; align-items: center; white-space: nowrap; }
+.empty-state { text-align: center; padding: 52px 20px; color: var(--tx3); }
+.empty-icon  { font-size: 36px; margin-bottom: 10px; }
+.empty-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; color: var(--tx2); }
+
+/* ── Edit View ───────────────────────────────────────── */
+#edit-view { display: none; padding: 16px 20px; }
+#edit-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+
+/* Form panel (left) */
+#edit-form-panel {
+  background: var(--bg-card); border: .5px solid var(--border);
+  border-radius: 12px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.panel-hdr { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: .5px solid var(--border); }
+.panel-title { font-size: 13px; font-weight: 700; color: var(--tx); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.f  { display: flex; flex-direction: column; gap: 4px; }
+.lbl { font-size: 10px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .06em; }
+.lbl.req::after { content: ' *'; color: var(--orbit); }
+.section-divider { font-size: 10px; font-weight: 700; color: var(--tx3); text-transform: uppercase; letter-spacing: .08em; padding: 4px 0 6px; border-top: .5px solid var(--border); margin-top: 2px; }
+.edit-actions { display: flex; align-items: center; gap: 8px; padding-top: 14px; border-top: .5px solid var(--border); margin-top: 2px; }
+.edit-actions .spacer { flex: 1; }
+
+/* Compact photo row */
+.photo-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; background: var(--bg-surface);
+  border: .5px solid var(--border); border-radius: 8px; cursor: default;
+}
+.photo-thumb {
+  width: 60px; height: 80px; flex-shrink: 0;
+  background: #eae6e0; border: .5px solid var(--border); border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; overflow: hidden; cursor: pointer; position: relative;
+}
+.photo-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+.photo-row-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.photo-row-hint { font-size: 11px; color: var(--tx3); }
+.photo-row-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+#edit-ocr-btn {
+  background: var(--blb,#E6F1FB);
+  border: .5px solid var(--bl,#185FA5); color: var(--bld,#0E4279);
+  border-radius: 7px; padding: 5px 10px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: var(--font); transition: all .15s; white-space: nowrap;
+}
+#edit-ocr-btn:hover:not(:disabled) { background: var(--bl,#185FA5); color: #fff; }
+#edit-ocr-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Photo viewer panel (right) */
+#pp-panel {
+  position: sticky; top: 62px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.pp-hint { font-size: 11px; font-weight: 600; color: var(--tx3); text-transform: uppercase; letter-spacing: .06em; }
+#pp-photo-view {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+  min-height: 260px; max-height: calc(100vh - 120px);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+#pp-photo-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  color: var(--tx3); font-size: 12px; padding: 32px 20px; text-align: center;
+  cursor: pointer;
+}
+#pp-photo-empty:hover { color: var(--tx2); }
+#pp-photo-empty-icon { font-size: 48px; opacity: .5; }
+#pp-photo-large {
+  display: none; width: 100%; object-fit: contain;
+  max-height: calc(100vh - 120px);
+}
+
+/* ── Overlay ─────────────────────────────────────────── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 300; display: none; align-items: center; justify-content: center; }
+.overlay.open { display: flex; }
+.confirm-modal { background: var(--bg-card); border-radius: 12px; padding: 24px; width: 360px; max-width: 92vw; box-shadow: 0 8px 40px rgba(0,0,0,.2); }
+.confirm-title   { font-size: 15px; font-weight: 700; color: var(--tx); margin-bottom: 8px; }
+.confirm-body    { font-size: 13px; color: var(--tx2); margin-bottom: 20px; line-height: 1.5; }
+.confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── Toast ───────────────────────────────────────────── */
+.toast-wrap { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
+.toast { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,.15); color: #fff; animation: slideIn .2s ease; pointer-events: none; max-width: 320px; }
+.toast.ok   { background: var(--gr,#1D7A4E); }
+.toast.err  { background: #C0392B; }
+.toast.info { background: var(--bl,#185FA5); }
+@keyframes slideIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- ═══ TopBar ═══ -->
+<div id="topbar">
+  <div class="logo">GO<span>MARS</span></div>
+  <div class="topbar-title">團大表</div>
+  <div class="spacer"></div>
+  <button id="ocr-btn"
+          style="background:var(--blb);color:var(--bld,#0E4279);border:.5px solid var(--bl);"
+          class="btn btn-sm" onclick="startBulkOcr()">🔍 批次辨識</button>
+  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-csv-input').click()">匯入 CSV</button>
+  <button class="btn btn-primary btn-sm" onclick="addPassenger()">＋ 新增</button>
+  <button class="btn btn-ghost  btn-sm" onclick="exportCSV()">匯出 CSV</button>
+</div>
+
+<!-- Hidden inputs -->
+<input type="file" id="bulk-ocr-input"   multiple accept="image/*" style="display:none;" onchange="handleBulkOcr(event)">
+<input type="file" id="import-csv-input" accept=".csv"             style="display:none;" onchange="handleCsvImport(event)">
+
+<!-- ═══ OCR Banner ═══ -->
+<div id="ocr-banner">
+  <div id="ocr-banner-inner">
+    <div class="ocr-spin"></div>
+    <span class="ocr-b-label" id="ocr-b-label">辨識中</span>
+    <span class="ocr-b-file"  id="ocr-b-file"></span>
+    <div class="ocr-pbar"><div class="ocr-pfill" id="ocr-pfill"></div></div>
+    <span class="ocr-pct" id="ocr-pct">0%</span>
+  </div>
+</div>
+
+<!-- ═══ List View ═══ -->
+<div id="list-view">
+  <div class="roster-toolbar">
+    <span id="count-label">共 0 位旅客</span>
+  </div>
+  <div class="crm-table-wrap">
+    <table class="crm-table">
+      <thead><tr>
+        <th>#</th><th>中文姓名</th><th>英文姓</th><th>英文名</th>
+        <th>身分證字號</th><th>護照號碼</th><th>出生日期</th><th>護照效期</th><th></th>
+      </tr></thead>
+      <tbody id="roster-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Edit View ═══ -->
+<div id="edit-view">
+  <div id="edit-layout">
+
+    <!-- LEFT: form -->
+    <div id="edit-form-panel">
+      <div class="panel-hdr">
+        <span class="panel-title" id="edit-panel-title">旅客資料</span>
+        <span id="edit-status-badge"></span>
+        <div style="flex:1"></div>
+        <button class="btn btn-ghost btn-sm" onclick="closeEditMode()">← 返回列表</button>
+      </div>
+
+      <!-- Compact photo row -->
+      <div class="photo-row" ondragover="event.preventDefault()" ondrop="handleImageDrop(event)">
+        <div class="photo-thumb" id="photo-thumb" onclick="document.getElementById('photo-file').click()">
+          <span id="photo-thumb-ph">🪪</span>
+          <img id="photo-preview" src="" alt="">
+        </div>
+        <div class="photo-row-info">
+          <div class="photo-row-hint">點擊圖示上傳證件照片（JPG/PNG，5 MB 以內）</div>
+          <div class="photo-row-btns">
+            <button id="edit-ocr-btn" onclick="runEditOcr()" disabled>🔍 OCR 辨識護照</button>
+            <button class="btn btn-ghost btn-sm" id="remove-photo-btn" style="display:none;" onclick="removePhoto()">移除照片</button>
+          </div>
+        </div>
+        <input type="file" id="photo-file" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+      </div>
+
+      <div class="section-divider">基本資料</div>
+      <div class="f"><label class="lbl req">中文姓名</label>
+        <input class="inp" id="f-chName" placeholder="例：方羽暢" oninput="updatePassportPreview()"></div>
+      <div class="g2">
+        <div class="f"><label class="lbl req">英文姓</label>
+          <input class="inp" id="f-enSurname" placeholder="例：FANG" oninput="updatePassportPreview()"></div>
+        <div class="f"><label class="lbl req">英文名</label>
+          <input class="inp" id="f-enGivenName" placeholder="例：YU-CHANG" oninput="updatePassportPreview()"></div>
+      </div>
+      <div class="g3">
+        <div class="f"><label class="lbl req">身分證字號</label>
+          <input class="inp" id="f-idNumber" placeholder="例：A123456789" oninput="updatePassportPreview()"></div>
+        <div class="f"><label class="lbl">出生年月日</label>
+          <input class="inp" id="f-birthdate" type="date" oninput="updatePassportPreview()"></div>
+        <div class="f"><label class="lbl">性別</label>
+          <select class="inp" id="f-gender" onchange="updatePassportPreview()">
+            <option value="">—</option><option>男</option><option>女</option>
+          </select></div>
+      </div>
+      <div class="g3">
+        <div class="f"><label class="lbl">護照號碼</label>
+          <input class="inp" id="f-passportNo" placeholder="例：301234567" oninput="updatePassportPreview()"></div>
+        <div class="f"><label class="lbl">發照日期</label>
+          <input class="inp" id="f-issueDate" type="date" oninput="updatePassportPreview()"></div>
+        <div class="f"><label class="lbl">效期截止日</label>
+          <input class="inp" id="f-expiryDate" type="date" oninput="updatePassportPreview()"></div>
+      </div>
+      <div class="f"><label class="lbl">發照地</label>
+        <input class="inp" id="f-issuePlace" placeholder="例：TWN" oninput="updatePassportPreview()"></div>
+
+      <div class="section-divider">其他資料</div>
+      <div class="g3">
+        <div class="f"><label class="lbl">國籍</label>
+          <input class="inp" id="f-nationality" placeholder="例：中華民國"></div>
+        <div class="f"><label class="lbl">出生地</label>
+          <input class="inp" id="f-birthPlace" placeholder="例：TAIPEI"></div>
+        <div class="f"><label class="lbl">旅客電話</label>
+          <input class="inp" id="f-phone" placeholder="例：0912345678"></div>
+      </div>
+
+      <div class="section-divider">台胞證（如適用）</div>
+      <div class="g3">
+        <div class="f"><label class="lbl">台胞證號</label>
+          <input class="inp" id="f-taiwanPermit" placeholder="—"></div>
+        <div class="f"><label class="lbl">簽發次數</label>
+          <input class="inp" id="f-taiwanPermitCount" placeholder="例：3"></div>
+        <div class="f"><label class="lbl">台胞證有效日期</label>
+          <input class="inp" id="f-taiwanPermitExpiry" type="date"></div>
+      </div>
+
+      <div class="section-divider">緊急連絡人</div>
+      <div class="g3">
+        <div class="f"><label class="lbl">姓名</label>
+          <input class="inp" id="f-emergencyName" placeholder="—"></div>
+        <div class="f"><label class="lbl">與旅客關係</label>
+          <input class="inp" id="f-emergencyRelation" placeholder="例：配偶"></div>
+        <div class="f"><label class="lbl">手機</label>
+          <input class="inp" id="f-emergencyPhone" placeholder="—"></div>
+      </div>
+
+      <!-- hidden: computed on save -->
+      <input type="hidden" id="f-enFull">
+
+      <div class="edit-actions">
+        <button class="btn btn-primary" onclick="savePassenger()">儲存</button>
+        <button class="btn btn-ghost"   onclick="closeEditMode()">取消</button>
+        <div class="spacer"></div>
+        <button class="btn btn-danger btn-sm" id="delete-btn" style="display:none;"
+                onclick="deletePassenger(_editId)">刪除旅客</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: photo viewer -->
+    <div id="pp-panel">
+      <div class="pp-hint">證件照片</div>
+      <div id="pp-photo-view">
+        <div id="pp-photo-empty" onclick="document.getElementById('photo-file').click()">
+          <div id="pp-photo-empty-icon">🪪</div>
+          <div>點此上傳照片</div>
+        </div>
+        <img id="pp-photo-large" src="" alt="證件照片">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ Delete Confirm ═══ -->
+<div class="overlay" id="confirm-overlay" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-modal">
+    <div class="confirm-title">確認刪除？</div>
+    <div class="confirm-body">此操作無法復原，旅客資料及照片將永久移除。</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-danger" onclick="doDelete()">確認刪除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   State
+════════════════════════════════════════════ */
+const STORAGE_KEY = 'gomars_roster_data'
+
+let _editId = null
+let _pendingDeleteId = null
+let _tempPhoto = null   // base64, held before save; '' = explicitly removed
+let _ocrRunning = false
+let _data   = []
+
+/* ── Mock / Seed Data ─── */
+const MOCK_DATA = [
+  { id: 'd1', seq:1, photo:null, ocrParsed:false, status:'ok',
+    chName:'王小明', enSurname:'WANG', enGivenName:'XIAOMING', enFull:'WANG XIAOMING',
+    gender:'男', birthdate:'1990-01-15', nationality:'中華民國',
+    idNumber:'A123456789', passportNo:'302345678',
+    issuePlace:'TWN', issueDate:'2020-05-01', expiryDate:'2030-05-01',
+    birthPlace:'TAIPEI', phone:'0912345678',
+    taiwanPermit:'', taiwanPermitCount:'', taiwanPermitExpiry:'',
+    emergencyName:'王大方', emergencyRelation:'父', emergencyPhone:'0923456789' },
+  { id: 'd2', seq:2, photo:null, ocrParsed:false, status:'pending',
+    chName:'李美華', enSurname:'LEE', enGivenName:'MEI-HUA', enFull:'LEE MEI-HUA',
+    gender:'女', birthdate:'1995-08-22', nationality:'中華民國',
+    idNumber:'B234567890', passportNo:'',
+    issuePlace:'', issueDate:'', expiryDate:'',
+    birthPlace:'', phone:'0934567890',
+    taiwanPermit:'', taiwanPermitCount:'', taiwanPermitExpiry:'',
+    emergencyName:'', emergencyRelation:'', emergencyPhone:'' }
+]
+
+/* ════════════════════════════════════════════
+   Persistence
+════════════════════════════════════════════ */
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const p = JSON.parse(raw)
+      if (Array.isArray(p) && p.length) {
+        _data = p; return
+      }
+      // Migration: old format had {domestic:[], overseas:[]}
+      if (p && (p.domestic || p.overseas)) {
+        _data = [...(p.domestic||[]), ...(p.overseas||[])]
+        reassignSeq(); saveData(); return
+      }
+    }
+  } catch(e) {}
+  // No real data → load mock
+  _data = JSON.parse(JSON.stringify(MOCK_DATA))
+  saveData()
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(_data))
+}
+
+/* ════════════════════════════════════════════
+   List
+════════════════════════════════════════════ */
+function renderList() {
+  const list = _data
+  document.getElementById('count-label').textContent = `共 ${list.length} 位旅客`
+
+  const tbody = document.getElementById('roster-tbody')
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+      <div class="empty-icon">👥</div>
+      <div class="empty-title">尚無旅客資料</div>
+      <button class="btn btn-primary btn-sm" onclick="addPassenger()">＋ 新增第一位旅客</button>
+    </div></td></tr>`
+    return
+  }
+
+  tbody.innerHTML = list.map(p => {
+    const ocrTag = p.ocrParsed ? `<span class="ocr-tag">OCR</span>` : ''
+    const badge  = p.status === 'ok'
+      ? `<span class="badge badge-green">完成</span>`
+      : `<span class="badge badge-orange">待補</span>`
+    return `<tr onclick="openEditMode('${p.id}')">
+      <td><span class="seq-num">${p.seq}</span></td>
+      <td>${escHtml(p.chName||'—')}${ocrTag}</td>
+      <td>${escHtml(p.enSurname||'—')}</td>
+      <td>${escHtml(p.enGivenName||'—')}</td>
+      <td>${escHtml(p.idNumber||'—')}</td>
+      <td>${escHtml(p.passportNo||'—')}</td>
+      <td>${p.birthdate||'—'}</td>
+      <td>${p.expiryDate||'—'}</td>
+      <td>
+        <div class="row-actions">
+          ${badge}
+          <button class="btn btn-ghost btn-sm"  onclick="event.stopPropagation();openEditMode('${p.id}')">編輯</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deletePassenger('${p.id}')">移除</button>
+        </div>
+      </td>
+    </tr>`
+  }).join('')
+}
+
+/* ════════════════════════════════════════════
+   Edit Mode
+════════════════════════════════════════════ */
+function openEditMode(id) {
+  _editId    = id
+  _tempPhoto = null
+
+  document.getElementById('delete-btn').style.display = id ? '' : 'none'
+
+  if (id) {
+    const p = _data.find(x => x.id === id)
+    if (!p) { showToast('找不到旅客資料', 'err'); return }
+    document.getElementById('edit-panel-title').textContent = p.chName || '旅客資料'
+    document.getElementById('edit-status-badge').innerHTML = p.status === 'ok'
+      ? `<span class="badge badge-green">完成</span>`
+      : `<span class="badge badge-orange">待補</span>`
+
+    sv('f-chName',            p.chName            || '')
+    sv('f-enFull',            p.enFull            || '')
+    sv('f-enSurname',         p.enSurname         || '')
+    sv('f-enGivenName',       p.enGivenName       || '')
+    sv('f-gender',            p.gender            || '')
+    sv('f-birthdate',         p.birthdate         || '')
+    sv('f-nationality',       p.nationality       || '')
+    sv('f-idNumber',          p.idNumber          || '')
+    sv('f-passportNo',        p.passportNo        || '')
+    sv('f-issuePlace',        p.issuePlace        || '')
+    sv('f-issueDate',         p.issueDate         || '')
+    sv('f-expiryDate',        p.expiryDate        || '')
+    sv('f-birthPlace',        p.birthPlace        || '')
+    sv('f-phone',             p.phone             || '')
+    sv('f-taiwanPermit',      p.taiwanPermit      || '')
+    sv('f-taiwanPermitCount', p.taiwanPermitCount || '')
+    sv('f-taiwanPermitExpiry',p.taiwanPermitExpiry|| '')
+    sv('f-emergencyName',     p.emergencyName     || '')
+    sv('f-emergencyRelation', p.emergencyRelation || '')
+    sv('f-emergencyPhone',    p.emergencyPhone    || '')
+
+    if (p.photo) showPhoto(p.photo)
+    else         hidePhoto()
+  } else {
+    document.getElementById('edit-panel-title').textContent = '新增旅客'
+    document.getElementById('edit-status-badge').innerHTML  = ''
+    ;['f-chName','f-enFull','f-enSurname','f-enGivenName','f-gender','f-birthdate',
+      'f-nationality','f-idNumber','f-passportNo','f-issueDate','f-expiryDate',
+      'f-birthPlace','f-phone','f-taiwanPermit','f-taiwanPermitCount','f-taiwanPermitExpiry',
+      'f-emergencyName','f-emergencyRelation','f-emergencyPhone'
+    ].forEach(fid => sv(fid, ''))
+    sv('f-issuePlace', 'TWN')
+    hidePhoto()
+  }
+
+  document.getElementById('list-view').style.display = 'none'
+  document.getElementById('edit-view').style.display = 'block'
+  window.scrollTo(0, 0)
+  updatePassportPreview()
+}
+
+function closeEditMode() {
+  _editId = null; _tempPhoto = null
+  document.getElementById('edit-view').style.display = 'none'
+  document.getElementById('list-view').style.display = ''
+}
+
+function sv(id, val) { const el = document.getElementById(id); if (el) el.value = val }
+function gv(id)      { const el = document.getElementById(id); return el ? el.value.trim() : '' }
+
+/* ════════════════════════════════════════════
+   Save
+════════════════════════════════════════════ */
+function readForm() {
+  const enS = gv('f-enSurname').toUpperCase()
+  const enG = gv('f-enGivenName').toUpperCase()
+  return {
+    chName:            gv('f-chName'),
+    enFull:            [enS, enG].filter(Boolean).join(' '),
+    enSurname:         enS,
+    enGivenName:       enG,
+    gender:            gv('f-gender'),
+    birthdate:         gv('f-birthdate'),
+    nationality:       gv('f-nationality'),
+    idNumber:          gv('f-idNumber').toUpperCase(),
+    passportNo:        gv('f-passportNo').toUpperCase(),
+    issuePlace:        gv('f-issuePlace').toUpperCase(),
+    issueDate:         gv('f-issueDate'),
+    expiryDate:        gv('f-expiryDate'),
+    birthPlace:        gv('f-birthPlace').toUpperCase(),
+    phone:             gv('f-phone'),
+    taiwanPermit:      gv('f-taiwanPermit'),
+    taiwanPermitCount: gv('f-taiwanPermitCount'),
+    taiwanPermitExpiry:gv('f-taiwanPermitExpiry'),
+    emergencyName:     gv('f-emergencyName'),
+    emergencyRelation: gv('f-emergencyRelation'),
+    emergencyPhone:    gv('f-emergencyPhone'),
+  }
+}
+
+function autoStatus(p) {
+  return (p.chName && (p.idNumber || p.passportNo)) ? 'ok' : 'pending'
+}
+
+function savePassenger() {
+  const fields = readForm()
+  if (_editId) {
+    const rec = _data.find(x => x.id === _editId)
+    if (!rec) return
+    Object.assign(rec, fields)
+    if (_tempPhoto !== null) rec.photo = _tempPhoto || null
+    rec.status = autoStatus(rec)
+  } else {
+    _data.push({
+      id: crypto.randomUUID(), seq: 0, photo: _tempPhoto || null,
+      ocrParsed: false, status: autoStatus(fields), ...fields
+    })
+  }
+  reassignSeq(); saveData()
+  showToast('已儲存', 'ok')
+  closeEditMode(); renderList()
+}
+
+function addPassenger() { openEditMode(null) }
+function reassignSeq() { _data.forEach((p, i) => { p.seq = i + 1 }) }
+
+/* ════════════════════════════════════════════
+   Delete
+════════════════════════════════════════════ */
+function deletePassenger(id) {
+  if (!id) return
+  _pendingDeleteId = id
+  document.getElementById('confirm-overlay').classList.add('open')
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open')
+  _pendingDeleteId = null
+}
+
+function doDelete() {
+  if (!_pendingDeleteId) return
+  const wasEditing = (_editId === _pendingDeleteId)
+  _data = _data.filter(p => p.id !== _pendingDeleteId)
+  reassignSeq(); saveData()
+  closeConfirm()
+  if (wasEditing) closeEditMode()
+  renderList()
+  showToast('已刪除', 'info')
+}
+
+/* ════════════════════════════════════════════
+   Image Upload
+════════════════════════════════════════════ */
+function handleImageUpload(e) {
+  const f = e.target.files[0]; if (!f) return
+  processImageFile(f); e.target.value = ''
+}
+function handleImageDrop(e) {
+  e.preventDefault()
+  const f = e.dataTransfer.files[0]
+  if (f && f.type.startsWith('image/')) processImageFile(f)
+}
+function processImageFile(file) {
+  if (file.size > 5 * 1024 * 1024) { showToast('圖片超過 5 MB', 'err'); return }
+  const r = new FileReader()
+  r.onload = e => { _tempPhoto = e.target.result; showPhoto(_tempPhoto) }
+  r.readAsDataURL(file)
+}
+function showPhoto(src) {
+  const img = document.getElementById('photo-preview')
+  const ph  = document.getElementById('photo-thumb-ph')
+  img.src = src; img.style.display = ''
+  if (ph) ph.style.display = 'none'
+  document.getElementById('remove-photo-btn').style.display = ''
+  document.getElementById('edit-ocr-btn').disabled = false
+  updatePassportPreview()
+}
+function hidePhoto() {
+  const img = document.getElementById('photo-preview')
+  const ph  = document.getElementById('photo-thumb-ph')
+  img.style.display = 'none'; img.src = ''
+  if (ph) ph.style.display = ''
+  document.getElementById('remove-photo-btn').style.display = 'none'
+  document.getElementById('edit-ocr-btn').disabled = true
+  updatePassportPreview()
+}
+function removePhoto() { _tempPhoto = ''; hidePhoto() }
+
+/* ════════════════════════════════════════════
+   Photo Preview (right panel)
+════════════════════════════════════════════ */
+function updatePassportPreview() {
+  const photo = _tempPhoto !== null
+    ? _tempPhoto
+    : (_editId ? (_data.find(x=>x.id===_editId)||{}).photo : null)
+  const img   = document.getElementById('pp-photo-large')
+  const empty = document.getElementById('pp-photo-empty')
+  if (!img || !empty) return
+  if (photo) {
+    img.src = photo; img.style.display = 'block'
+    empty.style.display = 'none'
+  } else {
+    img.style.display = 'none'; img.src = ''
+    empty.style.display = 'flex'
+  }
+}
+
+/* ════════════════════════════════════════════
+   OCR Image Preprocessor
+   Crops bottom 25% (MRZ zone) + 2× scale + true binarization
+════════════════════════════════════════════ */
+function ocrPreprocess(base64) {
+  return new Promise(resolve => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const cropY = Math.floor(img.height * 0.75)   // bottom 25%
+      const cropH = img.height - cropY
+      const scale = 2                                 // 2× for Tesseract resolution
+      canvas.width  = img.width  * scale
+      canvas.height = cropH * scale
+      const ctx = canvas.getContext('2d')
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+      ctx.drawImage(img, 0, cropY, img.width, cropH, 0, 0, canvas.width, canvas.height)
+      // True binarization: eliminates glare & color tints completely
+      const idata = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const d = idata.data
+      for (let i = 0; i < d.length; i += 4) {
+        const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]
+        const bw = gray < 128 ? 0 : 255               // hard threshold
+        d[i] = d[i+1] = d[i+2] = bw
+      }
+      ctx.putImageData(idata, 0, 0)
+      resolve(canvas.toDataURL('image/png'))
+    }
+    img.onerror = () => resolve(base64)
+    img.src = base64
+  })
+}
+
+/* ════════════════════════════════════════════
+   OCR MRZ-specific pass
+   Uses Tesseract worker with char whitelist + PSM 6
+   (only alphanumeric + '<', treats image as uniform block)
+════════════════════════════════════════════ */
+async function ocrMrzPass(base64) {
+  const processed = await ocrPreprocess(base64)
+  const worker = await Tesseract.createWorker('eng')
+  try {
+    await worker.setParameters({
+      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
+      tessedit_pageseg_mode: '6'    // uniform block — best for MRZ strip
+    })
+    const { data: { text } } = await worker.recognize(processed)
+    return text
+  } finally {
+    await worker.terminate()
+  }
+}
+
+/* ════════════════════════════════════════════
+   MRZ Parser
+════════════════════════════════════════════ */
+const NAT_MAP = {
+  TWN:'中華民國', CHN:'中國', JPN:'日本', KOR:'韓國', USA:'美國',
+  GBR:'英國', AUS:'澳大利亞', CAN:'加拿大', DEU:'德國', FRA:'法國',
+  SGP:'新加坡', THA:'泰國', VNM:'越南', PHL:'菲律賓', IDN:'印尼',
+  MYS:'馬來西亞', HKG:'香港', MAC:'澳門', IND:'印度'
+}
+
+function parseMrz(rawText) {
+  // Normalize: remove spaces within lines, uppercase
+  const lines = rawText.toUpperCase().split('\n')
+    .map(l => l.replace(/\s+/g,'').trim())
+    .filter(l => l.length >= 30)
+
+  // Common OCR substitutions in MRZ line 2 (digit positions)
+  function fixMrzLine2(s) {
+    return s.replace(/\s/g,'')
+      .replace(/O/g,'0')   // O → 0
+      .replace(/I/g,'1')   // I → 1
+      .replace(/S/g,'5')   // S → 5 (in digit fields)
+      .replace(/B/g,'8')   // B → 8
+  }
+
+  let l1 = null, l2 = null
+
+  // Pass A: strict — P< + 3-letter country
+  for (let i = 0; i < lines.length - 1; i++) {
+    const cur = lines[i]
+    if (cur.length >= 40 && /^P[<K][A-Z]{3}/.test(cur)) {
+      const cand = fixMrzLine2(lines[i+1])
+      if (cand.length >= 40 && /^[A-Z0-9<]{40,}/.test(cand)) {
+        l1 = cur.replace(/^(P)[^<A-Z]([A-Z]{3})/, 'P<$2').padEnd(44,'<').slice(0,44)
+        l2 = cand.padEnd(44,'0').slice(0,44)
+        break
+      }
+    }
+  }
+
+  // Pass B: lenient — any line starting with P that's long enough
+  if (!l1) {
+    for (let i = 0; i < lines.length - 1; i++) {
+      const cur = lines[i]
+      if (cur.length >= 40 && cur.startsWith('P') && (cur.match(/</g)||[]).length >= 3) {
+        const cand = fixMrzLine2(lines[i+1])
+        if (cand.length >= 40 && (cand.match(/[0-9]/g)||[]).length >= 10) {
+          l1 = cur.padEnd(44,'<').slice(0,44)
+          l2 = cand.padEnd(44,'0').slice(0,44)
+          break
+        }
+      }
+    }
+  }
+
+  if (!l1 || !l2) return null
+
+  const namePart = l1.slice(5)
+  const dbl      = namePart.indexOf('<<')
+  const surname  = (dbl >= 0 ? namePart.slice(0,dbl) : namePart).replace(/</g,' ').trim()
+  const given    = dbl >= 0 ? namePart.slice(dbl+2).replace(/</g,' ').trim() : ''
+  const passportNo = l2.slice(0,9).replace(/</g,'')
+  const natCode    = l2.slice(10,13)
+  const birthdateR = l2.slice(13,19)
+  const sexChar    = l2[20]
+  const expiryR    = l2.slice(21,27)
+
+  return {
+    enSurname:   surname,
+    enGivenName: given,
+    enFull:      [surname, given].filter(Boolean).join(' '),
+    passportNo:  passportNo,
+    nationality: NAT_MAP[natCode] || natCode,
+    birthdate:   mrzDate(birthdateR, 'birth'),
+    expiryDate:  mrzDate(expiryR,   'expiry'),
+    gender:      sexChar === 'M' ? '男' : sexChar === 'F' ? '女' : '',
+  }
+}
+
+function mrzDate(s, type) {
+  if (!s || s.length < 6 || !/^\d{6}$/.test(s)) return ''
+  const yy = parseInt(s.slice(0,2)), mm = s.slice(2,4), dd = s.slice(4,6)
+  const yr = type === 'expiry' ? 2000+yy : (2000+yy > new Date().getFullYear() ? 1900+yy : 2000+yy)
+  return `${yr}-${mm}-${dd}`
+}
+
+function applyMrz(mrz, target) {
+  // target: 'form' → fill inputs; object → assign fields
+  if (target === 'form') {
+    if (mrz.enSurname)   sv('f-enSurname',   mrz.enSurname)
+    if (mrz.enGivenName) sv('f-enGivenName', mrz.enGivenName)
+    if (mrz.enFull)      sv('f-enFull',      mrz.enFull)
+    if (mrz.passportNo)  sv('f-passportNo',  mrz.passportNo)
+    if (mrz.nationality) sv('f-nationality', mrz.nationality)
+    if (mrz.birthdate)   sv('f-birthdate',   mrz.birthdate)
+    if (mrz.expiryDate)  sv('f-expiryDate',  mrz.expiryDate)
+    if (mrz.gender)      sv('f-gender',      mrz.gender)
+  } else {
+    Object.assign(target, mrz, { ocrParsed: true })
+  }
+}
+
+/* ════════════════════════════════════════════
+   OCR — Single (Edit Mode)
+════════════════════════════════════════════ */
+async function runEditOcr() {
+  const btn = document.getElementById('edit-ocr-btn')
+  const src = _tempPhoto || (_editId ? (_data.find(x=>x.id===_editId)||{}).photo : null)
+  if (!src) return
+  btn.disabled = true; btn.textContent = '⏳ 辨識中...'
+  try {
+    // Pass 1: full image
+    const { data: { text } } = await Tesseract.recognize(src, 'eng')
+    let mrz = parseMrz(text)
+    if (!mrz) {
+      // Pass 2: crop + binarize + char whitelist + PSM 6
+      btn.textContent = '⏳ 二次辨識...'
+      const text2 = await ocrMrzPass(src)
+      mrz = parseMrz(text2)
+    }
+    if (mrz) { applyMrz(mrz, 'form'); updatePassportPreview(); showToast('OCR 完成，已填入護照資料', 'ok') }
+    else showToast('未找到 MRZ，請確認護照底部兩行清晰可見', 'info')
+  } catch(e) {
+    console.error('OCR error:', e)
+    showToast('OCR 失敗：' + e.message, 'err')
+  }
+  btn.disabled = false; btn.textContent = '🔍 OCR 辨識護照'
+}
+
+/* ════════════════════════════════════════════
+   OCR — Batch
+════════════════════════════════════════════ */
+function startBulkOcr() {
+  if (_ocrRunning) { showToast('辨識進行中，請稍候', 'info'); return }
+  document.getElementById('bulk-ocr-input').click()
+}
+
+async function handleBulkOcr(e) {
+  const files = Array.from(e.target.files); e.target.value = ''
+  if (!files.length || _ocrRunning) return
+
+  _ocrRunning = true
+  document.getElementById('ocr-btn').disabled = true
+  setBanner(true, 0, files.length, '辨識中...')
+
+  let okCount = 0, failCount = 0
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    setBanner(true, i, files.length, file.name)
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast(`${file.name} 超過 5 MB，略過`, 'err')
+      failCount++; continue
+    }
+
+    const base64 = await fileToBase64(file)
+    const rec = {
+      id: crypto.randomUUID(), seq: 0, photo: base64, ocrParsed: false, status: 'pending',
+      chName:'', enFull:'', enSurname:'', enGivenName:'', gender:'', birthdate:'',
+      nationality:'', idNumber:'', passportNo:'', issuePlace:'TWN', issueDate:'',
+      expiryDate:'', birthPlace:'', phone:'', taiwanPermit:'', taiwanPermitCount:'',
+      taiwanPermitExpiry:'', emergencyName:'', emergencyRelation:'', emergencyPhone:''
+    }
+    _data.push(rec)
+    reassignSeq(); saveData(); renderList()
+
+    try {
+      const { data: { text } } = await Tesseract.recognize(base64, 'eng')
+      let mrz = parseMrz(text)
+      if (!mrz) {
+        // Second pass: crop + binarize + char whitelist + PSM 6
+        const text2 = await ocrMrzPass(base64)
+        mrz = parseMrz(text2)
+      }
+      if (mrz) { applyMrz(mrz, rec); okCount++ }
+      else failCount++
+    } catch(err) { console.error('OCR recognize error:', err); failCount++ }
+
+    rec.status = autoStatus(rec)
+    setProgress((i + 1) / files.length)
+    reassignSeq(); saveData(); renderList()
+  }
+
+  setBanner(false)
+  _ocrRunning = false
+  document.getElementById('ocr-btn').disabled = false
+
+  const parts = []
+  if (okCount)   parts.push(`${okCount} 筆辨識成功`)
+  if (failCount) parts.push(`${failCount} 筆未辨識`)
+  showToast(`新增 ${files.length} 位旅客${parts.length ? '（' + parts.join('，') + '）' : ''}，請補填中文姓名`, 'ok')
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = e => resolve(e.target.result)
+    r.onerror = reject
+    r.readAsDataURL(file)
+  })
+}
+
+function setBanner(visible, current, total, filename) {
+  const b = document.getElementById('ocr-banner')
+  if (!visible) { b.classList.remove('visible'); return }
+  b.classList.add('visible')
+  document.getElementById('ocr-b-label').textContent = total ? `辨識中 ${current+1}/${total}` : '辨識中'
+  document.getElementById('ocr-b-file').textContent  = filename || ''
+  if (total) setProgress(current / total)
+}
+
+function setProgress(ratio) {
+  const pct = Math.round(ratio * 100)
+  document.getElementById('ocr-pfill').style.width = pct + '%'
+  document.getElementById('ocr-pct').textContent   = pct + '%'
+}
+
+/* ════════════════════════════════════════════
+   CSV Export
+════════════════════════════════════════════ */
+function exportCSV() {
+  const list = _data
+  if (!list.length) { showToast('目前沒有旅客資料', 'info'); return }
+
+  const header = ['護照號碼','身分證號碼','英文姓','英文名','性別','中文姓名','出生日期',
+                  '發照地','發照日期','截止日期','出生地','國籍','旅客電話',
+                  '台胞證號','台胞證簽發次數','台胞證有效日期',
+                  '緊急連絡人姓名','與緊急連絡人關係','緊急連絡人手機']
+  const rows = list.map(p => [
+    p.passportNo||'', p.idNumber||'', p.enSurname||'', p.enGivenName||'',
+    p.gender||'', p.chName||'', p.birthdate||'',
+    p.issuePlace||'', p.issueDate||'', p.expiryDate||'',
+    p.birthPlace||'', p.nationality||'', p.phone||'',
+    p.taiwanPermit||'', p.taiwanPermitCount||'', p.taiwanPermitExpiry||'',
+    p.emergencyName||'', p.emergencyRelation||'', p.emergencyPhone||''
+  ])
+
+  const esc = v => { const s = String(v); return /[,"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s }
+  const csv = [header, ...rows].map(r => r.map(esc).join(',')).join('\r\n')
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `團大表_${today()}.csv`
+  a.click(); URL.revokeObjectURL(a.href)
+  showToast(`已匯出 ${list.length} 位旅客`, 'ok')
+}
+
+/* ════════════════════════════════════════════
+   CSV Import
+════════════════════════════════════════════ */
+function handleCsvImport(e) {
+  const file = e.target.files[0]; e.target.value = ''
+  if (!file) return
+  const r = new FileReader()
+  r.onload = ev => {
+    try { parseCsvImport(ev.target.result.replace(/^\uFEFF/,'')) }
+    catch(err) { showToast('CSV 解析失敗：' + err.message, 'err') }
+  }
+  r.readAsText(file, 'utf-8')
+}
+
+function parseCsvImport(csv) {
+  const lines = csv.split(/\r?\n/).filter(l => l.trim())
+  if (lines.length < 2) { showToast('CSV 無資料列', 'err'); return }
+  const header = parseCsvLine(lines[0])
+  const get = (row, col) => { const i = header.indexOf(col); return i >= 0 ? (row[i]||'').trim() : '' }
+
+  let imported = 0
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseCsvLine(lines[i])
+    if (vals.every(v => !v.trim())) continue
+    const enS = get(vals,'英文姓') || get(vals,'英文姓名').split(' ')[0] || ''
+    const enG = get(vals,'英文名') || get(vals,'英文姓名').split(' ').slice(1).join(' ') || ''
+    const p = {
+      id: crypto.randomUUID(), seq: 0, photo: null, ocrParsed: false,
+      chName:            get(vals,'中文姓名') || (get(vals,'中文名') + get(vals,'中文姓')),
+      enSurname:         enS, enGivenName: enG,
+      enFull:            get(vals,'英文姓名') || [enS,enG].filter(Boolean).join(' '),
+      gender:            get(vals,'性別'),
+      birthdate:         get(vals,'出生日期'),
+      nationality:       get(vals,'國籍'),
+      passportNo:        get(vals,'護照號碼'),
+      idNumber:          get(vals,'身分證號碼'),
+      issuePlace:        get(vals,'發照地'),
+      issueDate:         get(vals,'發照日期'),
+      expiryDate:        get(vals,'截止日期'),
+      birthPlace:        get(vals,'出生地'),
+      phone:             get(vals,'旅客電話'),
+      taiwanPermit:      get(vals,'台胞證號'),
+      taiwanPermitCount: get(vals,'台胞證簽發次數'),
+      taiwanPermitExpiry:get(vals,'台胞證有效日期'),
+      emergencyName:     get(vals,'緊急連絡人姓名'),
+      emergencyRelation: get(vals,'與緊急連絡人關係'),
+      emergencyPhone:    get(vals,'緊急連絡人手機'),
+    }
+    p.status = autoStatus(p)
+    _data.push(p)
+    imported++
+  }
+
+  if (!imported) { showToast('CSV 中沒有可匯入的資料', 'err'); return }
+  reassignSeq(); saveData(); renderList()
+  showToast(`已匯入 ${imported} 筆旅客`, 'ok')
+}
+
+function parseCsvLine(line) {
+  const res = []; let inQ = false, cur = ''
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i]
+    if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++ } else inQ = !inQ }
+    else if (c === ',' && !inQ) { res.push(cur); cur = '' }
+    else cur += c
+  }
+  res.push(cur); return res
+}
+
+/* ════════════════════════════════════════════
+   Helpers
+════════════════════════════════════════════ */
+function today()   { return new Date().toISOString().slice(0,10).replace(/-/g,'') }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function showToast(msg, type='info') {
+  const d = Object.assign(document.createElement('div'), { className:`toast ${type}`, textContent:msg })
+  document.getElementById('toast-wrap').appendChild(d)
+  setTimeout(() => d.remove(), 3500)
+}
+
+/* ════════════════════════════════════════════
+   Init
+════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => { loadData(); renderList() })
+</script>
+</body>
+</html>

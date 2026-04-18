@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>國外旅遊合約產生器 | 平仄旅行</title>
+<style>
+/* ── GOMARS Base Tokens ── */
+:root{
+  --font:"PingFang TC","Microsoft JhengHei","SF Pro Text","Segoe UI",system-ui,sans-serif;
+  --orbit:#EA5404;--mars:#C43A10;
+  --bl:#185FA5;--blb:#E6F1FB;--bld:#0E4279;
+  --gr:#1D7A4E;--grb:#E6F4ED;
+  --g50:#F7F6F4;--g100:#EFEDE8;--g200:#E0DDD8;--g300:#C8C4BE;
+  --g400:#9A9690;--g500:#6E6A65;--g600:#5C5955;--g700:#3D3B38;
+  --bg-page:#F0EFE9;--bg-card:#fff;--bg-surface:#F7F6F4;--bg-hover:#EFEDE8;
+  --border:#E0DDD8;--border-soft:#EFEDE8;
+  --tx:#1A1A1A;--tx2:#5C5955;--tx3:#9A9690;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── App Shell ── */
+body{font-family:var(--font);background:var(--bg-page);color:var(--tx);font-size:13px;line-height:1.5;height:100vh;overflow:hidden;}
+.topbar{height:46px;background:var(--bg-card);border-bottom:.5px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.logo{font-size:14px;font-weight:800;color:var(--orbit);letter-spacing:.06em;flex:1;}
+.tb-btn{padding:5px 12px;border-radius:6px;border:.5px solid var(--border);background:var(--bg-surface);color:var(--tx);font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.tb-btn:hover{background:var(--bg-hover);}
+.tb-btn.primary{background:var(--orbit);color:#fff;border-color:var(--orbit);}
+.tb-btn.primary:hover{background:var(--mars);}
+.main-layout{display:flex;height:calc(100vh - 46px);overflow:hidden;}
+
+/* ── Form Panel ── */
+.form-panel{width:330px;min-width:280px;background:var(--bg-page);overflow-y:auto;border-right:.5px solid var(--border);padding:10px;flex-shrink:0;}
+.card{background:var(--bg-card);border:.5px solid var(--border);border-radius:var(--radius);padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow);}
+.card-title{font-size:10.5px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.sec-num{width:20px;height:20px;border-radius:5px;background:var(--orbit);color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.field{margin-bottom:7px;}
+.field>label{display:block;font-size:10.5px;color:var(--tx3);margin-bottom:2px;font-weight:600;}
+.inp{width:100%;background:var(--bg-surface);border:.5px solid var(--border);border-radius:7px;padding:5px 8px;font-size:12px;font-family:var(--font);color:var(--tx);transition:border-color .15s;}
+.inp:focus{outline:none;border-color:var(--bl);}
+.inp[readonly]{color:var(--orbit);font-weight:600;cursor:default;}
+select.inp{cursor:pointer;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.seg{display:flex;background:var(--bg-surface);border-radius:7px;padding:2px;gap:2px;}
+.seg-btn{flex:1;padding:4px 6px;border-radius:5px;border:none;background:transparent;font-size:11px;font-family:var(--font);cursor:pointer;color:var(--tx2);transition:all .15s;}
+.seg-btn.on{background:var(--bg-card);color:var(--tx);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.check-row{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--tx2);cursor:pointer;margin-bottom:4px;line-height:1.4;}
+.check-row input[type=checkbox]{accent-color:var(--orbit);flex-shrink:0;}
+.info-line{font-size:10.5px;color:var(--tx3);padding:4px 8px;background:var(--blb);border-radius:5px;margin-bottom:6px;}
+
+/* ── Preview Panel ── */
+.preview-panel{flex:1;overflow-y:auto;background:var(--g200);padding:40px 0;display:flex;flex-direction:column;align-items:center;gap:20px;}
+.page-label{font-size:10.5px;color:#666;font-weight:600;letter-spacing:.04em;}
+
+/* ── A4 Pages (screen) ── */
+.page-a4{width:794px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.1);border-radius:2px;padding:1cm 1.5cm;position:relative;overflow:visible;box-sizing:border-box;
+  font-family:"標楷體","DFKai-SB","BiauKai","PingFang TC","Microsoft JhengHei",serif;
+  font-size:10pt;line-height:1.45;color:#000;}
+
+/* ── Contract Typography ── */
+.c-header{text-align:center;margin-bottom:14px;}
+.c-company{font-size:13pt;font-weight:bold;letter-spacing:.08em;margin-bottom:3px;}
+.c-title{font-size:17pt;font-weight:bold;letter-spacing:.18em;margin-bottom:5px;}
+.c-govref{font-size:7.5pt;color:#333;line-height:1.5;}
+.c-review{border:1pt solid #000;padding:3px 10px;font-size:9pt;display:inline-block;margin:8px 0 12px;}
+.party-block{margin-bottom:10px;}
+.party-hdg{font-size:10pt;font-weight:bold;border-bottom:1pt solid #000;padding-bottom:2px;margin-bottom:5px;}
+.party-table{width:100%;border-collapse:collapse;font-size:9.5pt;}
+.party-table td{padding:2px 4px;vertical-align:top;}
+.party-table .lbl{font-weight:bold;white-space:nowrap;width:5.5em;}
+.divider{border:none;border-top:1pt solid #000;margin:8px 0;}
+.mutual{text-align:center;font-size:9.5pt;font-weight:bold;margin-bottom:8px;}
+
+/* Articles */
+.art{margin-bottom:4px;}
+.art-h{font-size:9.5pt;font-weight:bold;display:inline;}
+.art-p{font-size:9.5pt;display:inline;line-height:1.45;}
+.art-blk{font-size:9.5pt;line-height:1.45;text-indent:2em;margin-bottom:2px;}
+.art-blk-ni{font-size:9.5pt;line-height:1.45;margin-bottom:2px;}
+.art-list{margin:2px 0 2px 3em;font-size:9.5pt;line-height:1.4;}
+.art-list li{margin-bottom:1px;list-style:none;}
+.art-section{margin-top:2px;}
+
+/* Penalty Table */
+.pen-tbl{border-collapse:collapse;font-size:8.5pt;margin:3px 0 3px 2em;width:calc(100% - 2em);}
+.pen-tbl th{background:#f0f0f0;border:.5pt solid #555;padding:2px 8px;text-align:center;font-weight:bold;}
+.pen-tbl td{border:.5pt solid #555;padding:2px 8px;text-align:center;}
+
+/* Art.31 Insurance table */
+.ins-tbl{border-collapse:collapse;font-size:8.5pt;margin:3px 0 3px 2em;width:calc(100% - 2em);}
+.ins-tbl td{border:.5pt solid #555;padding:2px 8px;}
+
+/* Checkbox marks */
+.chk{display:inline-block;width:12px;height:12px;border:1pt solid #000;vertical-align:middle;text-align:center;line-height:11px;font-size:9pt;margin-right:2px;}
+
+/* Blank fields */
+.bl{display:inline-block;border-bottom:1pt solid #000;min-width:40px;vertical-align:bottom;text-align:center;}
+.bl-s{min-width:30px;}
+.bl-m{min-width:80px;}
+.bl-l{min-width:140px;}
+.bl-xl{min-width:200px;}
+
+/* Signature area */
+.sig-wrap{margin-top:14px;}
+.sig-top{border:1pt solid #000;padding:8px;margin-bottom:6px;}
+.sig-bottom{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.sig-box{border:1pt solid #000;padding:8px;}
+.sig-hdg{font-size:10pt;font-weight:bold;border-bottom:.5pt solid #999;padding-bottom:3px;margin-bottom:6px;}
+.sig-row{display:grid;grid-template-columns:5.5em 1fr;gap:2px;margin-bottom:4px;font-size:9pt;}
+.sig-lbl{font-weight:bold;}
+.sig-val{border-bottom:.5pt solid #000;min-height:16px;padding-bottom:1px;}
+.seal-placeholder{width:68px;height:68px;border:1pt dashed #999;display:inline-flex;align-items:center;justify-content:center;font-size:7.5pt;color:#aaa;flex-shrink:0;}
+.sig-date-row{font-size:8.5pt;margin-top:8px;line-height:1.6;}
+
+/* ── Article Title ── */
+.art-title{font-size:11pt;color:var(--orbit);font-weight:bold;display:block;margin-top:10px;margin-left:0;}
+.art-content{display:block;margin-left:0;line-height:1.5;}
+
+/* ── Cover Editor ── */
+.draggable-text{position:absolute;min-width:80px;min-height:24px;border:1px dashed #aaa;padding:4px 6px;font-size:12pt;cursor:move;background:rgba(255,255,255,.7);z-index:10;}
+.draggable-text:focus{outline:2px solid var(--orbit);border-color:transparent;}
+.draggable-img{position:absolute;cursor:move;max-width:300px;max-height:300px;z-index:10;border:1px dashed #aaa;}
+.cover-toolbar{width:794px;display:flex;gap:8px;align-items:center;padding:6px 10px;background:var(--bg-card);border:.5px solid var(--border);border-radius:8px 8px 0 0;box-shadow:var(--shadow);}
+.cover-toolbar label,
+.cover-toolbar button{padding:4px 10px;border-radius:5px;border:.5px solid var(--border);background:var(--bg-surface);color:var(--tx);font-size:11px;cursor:pointer;font-family:var(--font);}
+.cover-toolbar button:hover,
+.cover-toolbar label:hover{background:var(--bg-hover);}
+.cover-toolbar input[type=file]{display:none;}
+
+/* ── Print ── */
+@media print{
+  @page{size:A4;margin:1cm 1.5cm;}
+  body{height:auto;overflow:visible;background:#fff;margin:0;}
+  .topbar,.form-panel,.page-label,.no-print{display:none!important;}
+  .main-layout{height:auto;overflow:visible;}
+  .preview-panel{padding:0;background:none;overflow:visible;display:block;}
+  .page-a4{width:100%;padding:0;box-shadow:none;border-radius:0;border:none!important;overflow:visible;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">✈ 平仄旅行 ｜ 國外旅遊合約快速產生器</span>
+  <button class="tb-btn" onclick="resetForm()">重設</button>
+  <button class="tb-btn primary" onclick="window.print()">🖨 列印 / PDF</button>
+</div>
+
+<div class="main-layout">
+
+  <!-- ══ Form Panel ══ -->
+  <div class="form-panel" id="formPanel">
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">1</span>乙方旅行社</div>
+      <div class="field">
+        <label>旅行社</label>
+        <select class="inp" id="provider">
+          <option value="pingze">平仄旅行社（新竹地院）</option>
+          <option value="bawei">百威旅行社（台北地院）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>合約審閱日期</label>
+        <input type="date" class="inp" id="reviewDate">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">2</span>甲方（旅客）</div>
+      <div class="g2">
+        <div class="field">
+          <label>代表旅客姓名</label>
+          <input type="text" class="inp" id="guestName" placeholder="王小明">
+        </div>
+        <div class="field">
+          <label>參加人數</label>
+          <input type="number" class="inp" id="guestCount" placeholder="1" min="1">
+        </div>
+      </div>
+      <div class="field">
+        <label>緊急聯絡人姓名</label>
+        <input type="text" class="inp" id="emergencyName">
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>與旅客關係</label>
+          <input type="text" class="inp" id="emergencyRel" placeholder="配偶">
+        </div>
+        <div class="field">
+          <label>聯絡電話</label>
+          <input type="text" class="inp" id="emergencyPhone">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">3</span>行程資訊（第三、四條）</div>
+      <div class="field">
+        <label>旅遊團名稱</label>
+        <input type="text" class="inp" id="tourName" list="tourNameHL" placeholder="2026/05/01 日本東京5天">
+        <datalist id="tourNameHL"></datalist>
+      </div>
+      <div class="field">
+        <label>旅遊地區</label>
+        <input type="text" class="inp" id="tourArea" list="tourAreaHL" placeholder="日本東京、大阪、京都">
+        <datalist id="tourAreaHL"></datalist>
+      </div>
+      <div class="field">
+        <label>出發日期</label>
+        <input type="date" class="inp" id="depDate">
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>集合時間</label>
+          <input type="time" class="inp" id="depTime">
+        </div>
+        <div class="field">
+          <label>集合地點</label>
+          <input type="text" class="inp" id="depPlace" placeholder="桃園國際機場">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">4</span>費用（第五條）</div>
+      <div class="g2">
+        <div class="field">
+          <label>旅遊費用（元/人）</label>
+          <input type="number" class="inp" id="fee" placeholder="39500">
+        </div>
+        <div class="field">
+          <label>訂金（元/人）</label>
+          <input type="number" class="inp" id="deposit" placeholder="10000">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">5</span>航班 &amp; 小費（第八條）</div>
+      <div class="g2">
+        <div class="field">
+          <label>去程航空</label>
+          <input type="text" class="inp" id="airline1" placeholder="中華航空">
+        </div>
+        <div class="field">
+          <label>回程航空</label>
+          <input type="text" class="inp" id="airline2" placeholder="中華航空">
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>托運行李（公斤）</label>
+          <input type="number" class="inp" id="checkedBag" placeholder="23">
+        </div>
+        <div class="field">
+          <label>手提行李（公斤）</label>
+          <input type="number" class="inp" id="carryOn" placeholder="7">
+        </div>
+      </div>
+      <div class="field">
+        <label>小費（每日 × 天數）</label>
+        <div class="g3">
+          <div>
+            <div style="font-size:10px;color:var(--tx3);margin-bottom:2px;">每日（元）</div>
+            <input type="number" class="inp" id="tipDaily" placeholder="300">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--tx3);margin-bottom:2px;">天數</div>
+            <input type="number" class="inp" id="tipDays" placeholder="5">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--tx3);margin-bottom:2px;">合計（自動）</div>
+            <input type="text" class="inp" id="tipTotal" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">6</span>條款設定</div>
+      <div class="field">
+        <label>最低成團人數（第十條）</label>
+        <input type="number" class="inp" id="minPax" placeholder="15" min="1">
+      </div>
+      <div class="field">
+        <label>第十八條（第三人變更權）</label>
+        <div class="seg" id="art18Seg">
+          <button class="seg-btn on" data-val="normal" onclick="setSegBtn('art18Seg',this)">正常（21日前）</button>
+          <button class="seg-btn" data-val="loose" onclick="setSegBtn('art18Seg',this)">寬鬆（30日前）</button>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>利率（自動連動乙方）</label>
+          <input type="text" class="inp" id="rateDisp" readonly>
+        </div>
+        <div class="field">
+          <label>第十五條補償率（%）</label>
+          <input type="number" class="inp" id="compRate" value="5" min="1" max="5">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="sec-num">7</span>第三十五 / 三十七條</div>
+      <div class="field">
+        <label>第三十五條：個人資料同意</label>
+        <div class="seg" id="privacySeg">
+          <button class="seg-btn on" data-val="agree" onclick="setSegBtn('privacySeg',this)">■ 同意</button>
+        </div>
+        <div class="info-line" style="margin-top:4px;">甲方如不同意，乙方將無法提供本契約之旅遊服務</div>
+      </div>
+      <div class="field">
+        <label>第三十七條：姓名提供同團旅客</label>
+        <div class="seg" id="nameSeg">
+          <button class="seg-btn on" data-val="disagree" onclick="setSegBtn('nameSeg',this)">■ 不同意</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>附加協議選項</label>
+        <label class="check-row"><input type="checkbox" id="optA" checked>行前資料於出發前7天給予（尾款出發前7–14日收齊）</label>
+        <label class="check-row">
+          <input type="checkbox" id="optB">團費不含單人房差&nbsp;NT$
+          <input type="number" id="singleFee" class="inp" style="width:72px;display:inline-block;margin-left:3px;" placeholder="0">元
+        </label>
+        <label class="check-row"><input type="checkbox" id="optC" checked>支付訂金等同旅遊契約成立</label>
+      </div>
+    </div>
+
+  </div><!-- /form-panel -->
+
+  <!-- ══ Preview Panel ══ -->
+  <div class="preview-panel" id="previewPanel">
+    <div class="page-label no-print">合約預覽</div>
+    <div class="page-a4" id="pageContent"></div>
+  </div>
+
+</div><!-- /main-layout -->
+
+<script>
+/* ══════════════════════════════
+   Provider Data
+══════════════════════════════ */
+const PROV = {
+  pingze:{
+    name:'平仄旅行社股份有限公司',
+    regNo:'交觀甲字866200號',
+    owner:'廖韋翔',
+    addr:'300新竹市東區光復路一段360-10號',
+    phone:'03 577 7375',
+    email:'dofuntriphsinchu@gmail.com',
+    court:'新竹',
+    rate:5
+  },
+  bawei:{
+    name:'百威旅行社股份有限公司',
+    regNo:'交觀綜字第二一三二號',
+    owner:'蘇志斌',
+    addr:'80247高雄市苓雅區三多四路110號8樓之3',
+    phone:'(07) 536-5757',
+    fax:'(07) 536-9191',
+    email:'service@bwt.com.tw 或 boss@bwt.com.tw',
+    court:'台北',
+    rate:3
+  }
+};
+
+/* ══════════════════════════════
+   State
+══════════════════════════════ */
+const SEG = {art18Seg:'normal', privacySeg:'agree', nameSeg:'disagree'};
+
+/* ══════════════════════════════
+   Init
+══════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  const t = new Date();
+  const fmt = n => String(n).padStart(2,'0');
+  document.getElementById('reviewDate').value = `${t.getFullYear()}-${fmt(t.getMonth()+1)}-${fmt(t.getDate())}`;
+  loadHistory();
+  syncRateDisplay();
+  updatePreview();
+  document.getElementById('formPanel').addEventListener('input', onInput);
+  document.getElementById('formPanel').addEventListener('change', onInput);
+});
+
+function onInput(){
+  // Tip total
+  const td = parseInt(El('tipDaily').value)||0;
+  const tn = parseInt(El('tipDays').value)||0;
+  El('tipTotal').value = td&&tn ? fmtNum(td*tn) : '';
+  syncRateDisplay();
+  updatePreview();
+  saveHistory();
+}
+
+function syncRateDisplay(){
+  const p = PROV[El('provider').value];
+  El('rateDisp').value = p.rate+'%';
+}
+
+function setSegBtn(segId, btn){
+  SEG[segId] = btn.dataset.val;
+  document.querySelectorAll(`#${segId} .seg-btn`).forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  updatePreview();
+}
+
+function resetForm(){
+  if(!confirm('確定要清除所有填寫內容？')) return;
+  ['guestName','guestCount','emergencyName','emergencyRel','emergencyPhone',
+   'tourName','tourArea','depDate','depTime','depPlace',
+   'fee','deposit','tipDaily','tipDays','tipTotal',
+   'airline1','airline2','checkedBag','carryOn','minPax','singleFee']
+    .forEach(id=>{ const el=El(id); if(!el.readOnly) el.value=''; });
+  El('compRate').value='5';
+  ['optA','optC'].forEach(id=>El(id).checked=true);
+  El('optB').checked=false;
+  SEG.art18Seg='normal'; SEG.privacySeg='agree'; SEG.nameSeg='disagree';
+  ['art18Seg','privacySeg','nameSeg'].forEach(sid=>{
+    const seg=document.getElementById(sid);
+    const defs={art18Seg:'normal',privacySeg:'agree',nameSeg:'disagree'};
+    seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.val===defs[sid]));
+  });
+  syncRateDisplay();
+  updatePreview();
+}
+
+/* ══════════════════════════════
+   LocalStorage
+══════════════════════════════ */
+function saveHistory(){
+  ['tourName','tourArea'].forEach(id=>{
+    const v=El(id).value.trim();
+    if(!v) return;
+    const key='pz_'+id;
+    let list=JSON.parse(localStorage.getItem(key)||'[]');
+    list=[v,...list.filter(x=>x!==v)].slice(0,8);
+    localStorage.setItem(key,JSON.stringify(list));
+  });
+}
+function loadHistory(){
+  ['tourName','tourArea'].forEach(id=>{
+    const dlId=id==='tourName'?'tourNameHL':'tourAreaHL';
+    const list=JSON.parse(localStorage.getItem('pz_'+id)||'[]');
+    const dl=document.getElementById(dlId);
+    dl.innerHTML='';
+    list.forEach(v=>{const opt=document.createElement('option');opt.value=v;dl.appendChild(opt);});
+  });
+}
+
+/* ══════════════════════════════
+   Helpers
+══════════════════════════════ */
+function El(id){return document.getElementById(id);}
+function fmtNum(n){return Number(n).toLocaleString('zh-TW');}
+
+function getData(){
+  const p=PROV[El('provider').value];
+  const rd=El('reviewDate').value;
+  const dd=El('depDate').value;
+  return{
+    prov:El('provider').value, p,
+    reviewDate:rd, reviewRoc:toRoc(rd),
+    guestName:El('guestName').value.trim(),
+    guestCount:El('guestCount').value.trim(),
+    emergencyName:El('emergencyName').value.trim(),
+    emergencyRel:El('emergencyRel').value.trim(),
+    emergencyPhone:El('emergencyPhone').value.trim(),
+    tourName:El('tourName').value.trim(),
+    tourArea:El('tourArea').value.trim(),
+    depDate:dd, depRoc:toRocFull(dd),
+    depTime:(()=>{const v=El('depTime').value; if(!v) return ''; const[h,m]=v.split(':'); return h+'時'+m+'分';})(),
+    depPlace:El('depPlace').value.trim(),
+    fee:El('fee').value.trim(),
+    deposit:El('deposit').value.trim(),
+    tipDaily:El('tipDaily').value.trim(),
+    tipDays:El('tipDays').value.trim(),
+    tipTotal:El('tipTotal').value.trim(),
+    airline1:El('airline1').value.trim(),
+    airline2:El('airline2').value.trim(),
+    checkedBag:El('checkedBag').value.trim(),
+    carryOn:El('carryOn').value.trim(),
+    minPax:El('minPax').value.trim(),
+    compRate:El('compRate').value.trim()||'5',
+    art18days:SEG.art18Seg==='normal'?'二十一（21）':'三十（30）',
+    art18num:SEG.art18Seg==='normal'?'21':'30',
+    privacyAgree:SEG.privacySeg==='agree',
+    nameShareAgree:SEG.nameSeg==='agree',
+    optA:El('optA').checked,
+    optB:El('optB').checked,
+    singleFee:El('singleFee').value.trim(),
+    optC:El('optC').checked,
+  };
+}
+
+function toRoc(dateStr){
+  if(!dateStr) return '';
+  const d=new Date(dateStr+'T00:00:00');
+  return `${d.getFullYear()-1911}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function toRocFull(dateStr){
+  if(!dateStr) return '民國<span class="bl bl-s"></span>年<span class="bl bl-s"></span>月<span class="bl bl-s"></span>日';
+  const d=new Date(dateStr+'T00:00:00');
+  return `民國<u>${d.getFullYear()-1911}</u>年<u>${d.getMonth()+1}</u>月<u>${d.getDate()}</u>日`;
+}
+// blank field renderer
+function bk(val,cls='bl-m'){
+  if(val) return `<u>${val}</u>`;
+  return `<span class="bl ${cls}">&nbsp;&nbsp;&nbsp;</span>`;
+}
+function chk(checked){return `<span class="chk">${checked?'■':''}</span>`;}
+
+/* ══════════════════════════════
+   Update Preview
+══════════════════════════════ */
+function updatePreview(){
+  const d=getData();
+  El('pageContent').innerHTML=buildContent(d);
+}
+
+/* ══════════════════════════════
+   優化後的 Cover block (頁首橫向佈局)
+══════════════════════════════ */
+function buildCoverBlock(d){
+  const p=d.p;
+  return `
+<div class="c-header" style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1.5pt solid #000; padding-bottom:10px; margin-bottom:15px;">
+  <div style="text-align:left;">
+    <div style="font-size:22pt; font-weight:900; color:var(--orbit); font-family:sans-serif; letter-spacing:2px;">
+      ${p.name.substring(0,2)}<span style="color:#333;">旅行</span>
+    </div>
+    <div style="font-size:8pt; color:#666; font-weight:bold;">${p.name}</div>
+  </div>
+
+  <div style="text-align:right;">
+    <div style="font-size:16pt; font-weight:bold; letter-spacing:2px; margin-bottom:4px;">國外團體旅遊定型化契約</div>
+    <div style="font-size:7pt; color:#555;">交通部 112 年 9 月 8 日觀業字第 1123002067 函修正，並自 112 年 9 月 15 日生效</div>
+  </div>
+</div>
+
+<div style="text-align:center; margin-bottom:15px;">
+  <span class="c-review" style="margin:0; background:#f9f9f9;">本契約審閱期間至少一日，中華民國 ${d.reviewRoc||'　　年　月　日'} 由甲方攜回審閱</span>
+</div>
+
+<div class="party-block">
+  <div class="party-hdg">立契約書人（旅客，以下稱甲方）</div>
+  <table class="party-table">
+    <tr>
+      <td class="lbl">姓　　名</td>
+      <td>${bk(d.guestName,'bl-l')}　等共 ${bk(d.guestCount,'bl-s')} 人</td>
+    </tr>
+    <tr>
+      <td class="lbl">緊急聯絡人</td>
+      <td><span style="display:flex;gap:12px;flex-wrap:nowrap;align-items:baseline;">
+        <span>${bk(d.emergencyName,'bl-m')}</span>
+        <span>關係：${bk(d.emergencyRel,'bl-s')}</span>
+        <span>電話：${bk(d.emergencyPhone,'bl-l')}</span>
+      </span></td>
+    </tr>
+  </table>
+</div>
+
+<div class="party-block">
+  <div class="party-hdg">旅行業（以下稱乙方）</div>
+  <table class="party-table">
+    <tr><td class="lbl">公司名稱</td><td><strong>${p.name}</strong></td></tr>
+    <tr><td class="lbl">註冊編號</td><td>${p.regNo}</td></tr>
+    <tr><td class="lbl">負　責　人</td><td>${p.owner}</td></tr>
+    <tr><td class="lbl">營　業　所</td><td>${p.addr}</td></tr>
+    <tr><td class="lbl">電　話</td><td>${p.phone}${p.fax?' ／ 傳真：'+p.fax:''}</td></tr>
+  </table>
+</div>
+
+<hr class="divider" style="margin:10px 0;">
+<div class="mutual" style="margin-bottom:10px;">甲乙雙方同意就本旅遊事項，依下列約定辦理。</div>
+`;
+}
+
+/* ══════════════════════════════
+   Content Pages (Art. 1–37 + Sig)
+══════════════════════════════ */
+function buildContent(d){
+  const p=d.p;
+  const r=p.rate;
+
+  // Art.37 items — sequential numbering
+  const art37items=[];
+  let n37=1;
+  art37items.push(`${numToChinese(n37++)}、甲方 ${chk(!d.nameShareAgree)}不同意&ensp;${chk(d.nameShareAgree)}同意 乙方將其姓名提供給其他同團旅客。`);
+  if(d.optA){ art37items.push(`${numToChinese(n37++)}、行前資料於出發前7天給予；尾款統一於出發前7至14日收齊。`); }
+  art37items.push(`${numToChinese(n37++)}、出發當天，請自行攜帶效期內有效護照，遺漏或遺失所產生相關費用需自行吸收。`);
+  if(d.optC){ art37items.push(`${numToChinese(n37++)}、支付訂金等同旅遊契約成立，配合航空公司開立機票規定，開立機票日期不另行通知。`); }
+  if(d.optB){ art37items.push(`${numToChinese(n37++)}、團費不含單人房差費用新台幣 ${d.singleFee?'<u>'+fmtNum(d.singleFee)+'</u>':bk('','bl-m')} 元。`); }
+
+  return`
+${buildCoverBlock(d)}
+<!-- Art 1 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第一條（國外旅遊之意義）</span>　本契約所謂國外旅遊，係指到中華民國疆域以外其他國家或地區旅遊。赴中國大陸旅行者，準用本旅遊契約之約定。${d.airline1||d.airline2?`<br>　　${bk(d.airline1,'bl-m')}航空（去程）／${bk(d.airline2,'bl-m')}航空（回程），開票後無退票空間。`:''}
+  </p>
+</div>
+
+<!-- Art 2 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二條（適用之範圍及順序）</span>　甲乙雙方關於本旅遊之權利義務，依本契約條款之約定定之；本契約中未約定者，適用中華民國有關法令之規定。</p>
+</div>
+
+<!-- Art 3 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第三條（旅遊團名稱、旅遊行程及廣告責任）</span>　本旅遊團名稱為：${bk(d.tourName,'bl-xl')}</p>
+  <p class="art-blk-ni" style="text-indent:0;">一、旅遊地區（國家、城市或觀光地點）：${bk(d.tourArea,'bl-xl')}</p>
+  <p class="art-blk-ni" style="text-indent:0;">二、行程（啟程出發地點、回程之終止地點、日期、交通工具、住宿旅館、餐飲、遊覽、安排購物行程及其所附隨之服務說明）：如附件行程表</p>
+  <p class="art-blk">與本契約有關之附件、廣告、宣傳文件、行程表或說明會之說明內容均視為本契約內容之一部分。乙方應確保廣告內容之真實，對甲方所負之義務不得低於廣告之內容。未記載第一項內容或記載之內容與刊登廣告、宣傳文件、行程表不符者，以最有利於甲方之內容為準。實際航班時間及集合時間，依行前說明會資料為主。</p>
+</div>
+
+<!-- Art 4 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第四條（集合及出發時地）</span>　甲方應於 ${d.depRoc} ${d.depTime||bk('','bl-s')+'時'+bk('','bl-s')+'分'} 於 ${bk(d.depPlace,'bl-l')} 準時集合出發（請依說明會確認時間）。甲方未準時到約定地點集合致未能出發，亦未能中途加入旅遊者，視為甲方任意解除契約，乙方得依第十三條之約定，行使損害賠償請求權。</p>
+</div>
+
+<!-- Art 5 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第五條（旅遊費用及付款方式）</span>　旅遊費用：除雙方有特別約定者外，甲方應依下列約定繳付：每人新台幣 ${bk(d.fee?fmtNum(d.fee):'','bl-l')} 元整</p>
+  <p class="art-blk-ni" style="text-indent:0;">一、簽訂本契約時，甲方應以（現金、信用卡、轉帳、支票等方式）繳付新臺幣 ${bk(d.deposit?fmtNum(d.deposit):'','bl-m')} 元/人。</p>
+  <p class="art-blk-ni" style="text-indent:0;">二、其餘款項以（現金、信用卡、轉帳、支票等方式）於出發前七日或說明會時繳清。</p>
+  <p class="art-blk">前項之特別約定，除經雙方同意並增訂其他協議事項於本契約第三十七條，乙方不得以任何名義要求增加旅遊費用。</p>
+</div>
+
+<!-- Art 6 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第六條（旅客怠於給付旅遊費用之效力）</span>　甲方因可歸責自己之事由，怠於給付旅遊費用者，乙方得定相當期限催告甲方給付，甲方逾期不為給付者，乙方得終止契約。甲方應賠償之費用，依第十三條約定辦理；乙方如有其他損害，並得請求賠償。</p>
+</div>
+
+<!-- Art 7 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第七條（旅客協力義務）</span>　旅遊需甲方之行為始能完成，而甲方不為其行為者，乙方得定相當期限，催告甲方為之。甲方逾期不為其行為者，乙方得終止契約，並得請求賠償因契約終止而生之損害。旅遊開始後，乙方依前項規定終止契約時，甲方得請求乙方墊付費用將其送回原出發地。於到達後，由甲方附加年利率 <u>${r}%</u> 利息償還乙方。</p>
+</div>
+
+<!-- Art 8 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第八條（旅遊費用所涵蓋之項目）</span>　甲方依第五條約定繳納之旅遊費用，除雙方依第三十七條另有約定以外，應包括下列項目：</p>
+  <ol class="art-list" style="list-style:none;padding:0;">
+    <li>一、代辦證件之行政規費：乙方代理甲方辦理出國所需之手續費及簽證費及其他規費。</li>
+    <li>二、交通運輸費：旅程所需各種交通運輸之費用。</li>
+    <li>三、餐飲費：旅程中所列應由乙方安排之餐飲費用。</li>
+    <li>四、住宿費：旅程中所列住宿及旅館之費用，如甲方需要單人房，經乙方同意安排者，甲方應補繳所需差額。</li>
+    <li>五、遊覽費用：旅程中所列之一切遊覽費用及入場門票費等。</li>
+    <li>六、接送費：旅遊期間機場、港口、車站等與旅館間之一切接送費用。</li>
+    <li>七、行李費：團體行李往返機場、港口、車站等之一切接送費用。行李數量之重量依航空公司規定辦理。</li>
+    <li>八、稅捐：各地機場服務稅捐及團體餐宿稅捐。</li>
+    <li>九、服務費：領隊及其他乙方為甲方安排服務人員之報酬。</li>
+    <li>十、保險費：責任保險及履約保證保險。</li>
+  </ol>
+  ${(()=>{
+    const a1=d.airline1, a2=d.airline2, cb=d.checkedBag, co=d.carryOn;
+    if(!(a1||a2||cb||co)) return '';
+    let airlineStr='';
+    if(a1&&a2&&a1===a2) airlineStr=`<u>${a1}</u>航空`;
+    else if(a1&&a2) airlineStr=`<u>${a1}</u>（去）／<u>${a2}</u>（回）航空`;
+    else if(a1) airlineStr=`<u>${a1}</u>航空`;
+    else if(a2) airlineStr=`<u>${a2}</u>航空`;
+    else airlineStr='';
+    return `<p class="art-blk" style="margin-top:2px;">團費含稅險、住宿、當地交通、機票、行程表上有入內之景點門票，${airlineStr}來回托運行李 ${bk(cb,'bl-s')} 公斤＋手提行李 ${bk(co,'bl-s')} 公斤。</p>`;
+  })()}
+  ${(d.tipDaily||d.tipDays)?`<p class="art-blk" style="margin-top:2px;">團費不含每日小費新台幣 <u>${d.tipDaily?fmtNum(d.tipDaily):'___'}</u> 元 × <u>${d.tipDays||'___'}</u> 天，共計新台幣 <u>${d.tipTotal||'___'}</u> 元/人，請於國外給予領隊。</p>`:`<p class="art-blk" style="margin-top:2px;">團費不含每日小費新台幣 ${bk('','bl-s')} 元 × ${bk('','bl-s')} 天，共計新台幣 ${bk('','bl-m')} 元/人，請於國外給予領隊。</p>`}
+  <p class="art-blk" style="margin-top:2px;">前項第二款交通運輸費及第五款遊覽費用，其費用於契約簽訂後經政府機關或經營管理業者公布調高或調低逾百分之十者，應由甲方補足，或由乙方退還。</p>
+</div>
+<!-- Art 9 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第九條（旅遊費用所未涵蓋項目）</span>　第五條之旅遊費用，除雙方依第三十七條另有約定者外，不包含下列項目：</p>
+  <ol class="art-list" style="list-style:none;padding:0;">
+    <li>一、非本旅遊契約所列行程之一切費用。</li>
+    <li>二、甲方之個人費用：如自費行程費用、行李超重費、飲料及酒類、洗衣、電話、網際網路使用費、私人交通費、行程外陪同購物之報酬、自由活動費、個人傷病醫療費、宜自行給與提供個人服務者（如旅館客房服務人員）之小費或尋回遺失物費用及報酬。</li>
+    <li>三、未列入旅程之簽證、機票及其他有關費用。四、建議任意給予隨團領隊人員、當地導遊、司機之小費。五、保險費：甲方自行投保旅行平安保險之費用。六、其他由乙方代辦代收之費用。</li>
+  </ol>
+</div>
+
+<!-- Art 10 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十條（組團旅遊最低人數）</span>　本旅遊團須有 ${bk(d.minPax,'bl-s')} 人以上簽約參加始組成。如未達前定人數，乙方應於預訂出發之7日前通知甲方解除契約；怠於通知致甲方受損害者，乙方應賠償甲方損害。前項組團人數如未記載者，視為無最低組團人數；其保證出團者，亦同。乙方依第一項規定解除契約後，得退還甲方已交付之全部費用（已代繳之行政規費得予扣除），或徵得甲方同意訂定另一旅遊契約。</p>
+</div>
+
+<!-- Art 11 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十一條（代辦簽證、洽購機票）</span>　如確定所組團體能成行，乙方即應負責為甲方申辦護照及依旅程所需之簽證，並代訂妥機位及旅館。乙方應於預定出發七日前，或於舉行出國說明會時，將甲方之護照、簽證、機票、機位、旅館及其他必要事項向甲方報告，並以書面行程表確認之。乙方怠於履行上述義務時，甲方得拒絕參加旅遊並解除契約，乙方即應退還甲方所繳之所有費用。</p>
+</div>
+
+<!-- Art 12 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第十二條（因可歸責於旅行業之事由致無法成行）</span>　因可歸責於乙方之事由，致旅遊活動無法成行者，乙方應即通知甲方且說明事由，並退還甲方已繳之旅遊費用。乙方怠於通知者，應賠償甲方依旅遊費用之全部計算之違約金。乙方已通知者，依下表計算違約金：</p>
+  <table class="pen-tbl">
+    <tr><th>通知到達甲方時距出發日期</th><th>賠償旅遊費用比例</th></tr>
+    <tr><td>出發日前第41日以前</td><td>5%</td></tr>
+    <tr><td>出發日前第31至40日</td><td>10%</td></tr>
+    <tr><td>出發日前第21至30日</td><td>20%</td></tr>
+    <tr><td>出發日前第2至20日</td><td>30%</td></tr>
+    <tr><td>出發日前第1日</td><td>50%</td></tr>
+    <tr><td>出發當日以後</td><td>100%</td></tr>
+  </table>
+  <p class="art-blk">甲方如能證明其所受損害超過前項各款基準者，得就其實際損害請求賠償。</p>
+</div>
+
+<!-- Art 13 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第十三條（出發前旅客任意解除契約及其責任）</span>　甲方於旅遊活動開始前解除契約者，應依乙方提供之收據，繳交行政規費，並應賠償乙方之損失，其賠償基準如下（應先扣除行政規費後計算）：</p>
+  <table class="pen-tbl">
+    <tr><th>解除契約時距旅遊開始日期</th><th>賠償旅遊費用比例</th></tr>
+    <tr><td>旅遊開始前第41日以前</td><td>5%</td></tr>
+    <tr><td>旅遊開始前第31至40日</td><td>10%</td></tr>
+    <tr><td>旅遊開始前第21至30日</td><td>20%</td></tr>
+    <tr><td>旅遊開始前第2至20日</td><td>30%</td></tr>
+    <tr><td>旅遊開始前第1日</td><td>50%</td></tr>
+    <tr><td>旅遊開始日或開始後（或未通知不參加）</td><td>100%</td></tr>
+  </table>
+  <p class="art-blk">乙方如能證明其所受損害超過第一項之各款基準者，得就其實際損害請求賠償。</p>
+</div>
+
+<!-- Art 14 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十四條（出發前有法定原因解除契約）</span>　因不可抗力或不可歸責於雙方當事人之事由，致本契約之全部或一部無法履行時，任何一方得解除契約，且不負損害賠償責任。前項情形，乙方應提出已代繳之行政規費或履行本契約已支付之必要費用之單據，經核實後予以扣除，並將餘款退還甲方。任何一方知悉旅遊活動無法成行時，應即通知他方並說明其事由；其怠於通知致他方受有損害時，應負賠償責任。</p>
+</div>
+
+<!-- Art 15 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十五條（出發前客觀風險事由解除契約）</span>　出發前，本旅遊團所前往旅遊地區之一，有事實足認危害旅客生命、身體、健康、財產安全之虞者，準用前條之規定，得解除契約。但解除之一方，應另按旅遊費用百分之 <u>${d.compRate}</u>（不得超過百分之五）補償他方。</p>
+</div>
+
+<!-- Art 16 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十六條（領隊）</span>　乙方應指派領有領隊執業證之領隊。乙方違反前項規定，應賠償甲方每人以每日新臺幣一千五百元乘以全部旅遊日數，再除以實際出團人數計算之三倍違約金。甲方受有其他損害者，並得請求乙方損害賠償。領隊應帶領甲方出國旅遊，並為甲方辦理出入國境手續、交通、食宿、遊覽及其他完成旅遊所須之往返全程隨團服務。</p>
+</div>
+<!-- Art 17 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十七條（證照之保管及返還）</span>　乙方代理甲方辦理出國簽證或旅遊手續時，應妥慎保管甲方之各項證照，乙方如有遺失或毀損者，應行補辦；如致甲方受損害者，應賠償甲方之損害。甲方於旅遊期間，應自行保管其自有之旅遊證件。但基於辦理通關過境等手續之必要，或經乙方同意者，得交由乙方保管。乙方及其受僱人應以善良管理人之注意保管之；甲方得隨時取回，乙方及其受僱人不得拒絕。</p>
+</div>
+
+<!-- Art 18 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十八條（旅客之變更權）</span>　甲方於旅遊開始 <u>${d.art18num}</u> 日前，因故不能參加旅遊者，得變更由第三人參加旅遊。乙方非有正當理由，不得拒絕。前項情形，如因而增加費用，乙方得請求該變更後之第三人給付；如減少費用，甲方不得請求返還。甲方並應於接到乙方通知後 <u>2</u> 日內協同該第三人到乙方營業處所辦理契約承擔手續。承受本契約之第三人，與甲方雙方辦理承擔手續完畢起，承繼甲方基於本契約之一切權利義務。</p>
+</div>
+
+<!-- Art 19 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第十九條（旅行業務之轉讓）</span>　乙方於出發前如將本契約變更轉讓予其他旅行業者，應經甲方書面同意。甲方如不同意者，得解除契約，乙方應即時將甲方已繳之全部旅遊費用退還；甲方受有損害者，並得請求賠償。甲方於出發後始發覺或被告知本契約已轉讓其他旅行業，乙方應賠償甲方全部旅遊費用百分之五之違約金；甲方受有損害者，並得請求賠償。</p>
+</div>
+
+<!-- Art 20 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十條（國外旅行業責任歸屬）</span>　乙方委託國外旅行業安排旅遊活動，因國外旅行業有違反本契約或其他不法情事，致甲方受損害時，乙方應與自己之違約或不法行為負同一責任。但由甲方自行指定或旅行地特殊情形而無法選擇受託者，不在此限。</p>
+</div>
+
+<!-- Art 21 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十一條（賠償之代位）</span>　乙方於賠償甲方所受損害後，甲方應將其對第三人之損害賠償請求權讓與乙方，並交付行使損害賠償請求權所需之相關文件及證據。</p>
+</div>
+
+<!-- Art 22 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十二條（因可歸責於旅行業之事由致旅遊內容變更）</span>　旅程中之食宿、交通、觀光點及遊覽項目等，應依本契約所訂等級與內容辦理，甲方不得要求變更，但乙方同意甲方之要求而變更者，不在此限，惟其所增加之費用應由甲方負擔。因可歸責於乙方之事由，致未達成旅遊契約所定旅程、交通、食宿或遊覽項目等事宜時，甲方得請求乙方賠償各該差額二倍之違約金。乙方應提出差額計算之說明，如未提出時，其違約金之計算至少為全部旅遊費用之百分之五。甲方受有損害者，另得請求賠償。</p>
+</div>
+
+<!-- Art 23 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十三條（因可歸責於旅行業之事由致無法完成旅遊或致旅客遭留置）</span>　旅行團出發後，因可歸責於乙方之事由，致甲方因簽證、機票或其他問題無法完成其中之部分旅遊者，乙方除依第二十四條規定辦理外，另應以自己之費用安排甲方至次一旅遊地，與其他團員會合；無法完成旅遊之情形，對全部團員均屬存在時，並應依相當之條件安排其他旅遊活動代之；如無次一旅遊地時，應安排甲方返國。因可歸責於乙方之事由，致甲方遭恐怖分子留置、當地政府逮捕、羈押或留置時，乙方應賠償甲方以每日新台幣二萬元乘以逮捕羈押或留置日數計算之懲罰性違約金，並應負責迅速接洽救助事宜，將甲方安排返國，其所需一切費用，由乙方負擔。留置時數在五小時以上未滿一日者，以一日計算。</p>
+</div>
+
+<!-- Art 24 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十四條（因可歸責於旅行業之事由致行程延誤）</span>　因可歸責於乙方之事由，致延誤行程期間，甲方所支出之食宿或其他必要費用，應由乙方負擔。甲方就其時間之浪費，得按日請求賠償，每日賠償金額以全部旅遊費用除以全部旅遊日數計算，但以不超過全部旅遊日數為限。延誤時間在五小時以上未滿一日者，以一日計算。甲方受有其他損害者，另得請求賠償。</p>
+</div>
+
+<!-- Art 25 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十五條（旅行業棄置或留滯旅客）</span>　乙方於旅遊途中，因故意棄置或留滯甲方時，除應負擔棄置或留滯期間甲方支出之食宿及其他必要費用，按實計算退還甲方未完成旅程之費用，及由出發地至第一旅遊地與最後旅遊地返回之交通費用外，並應至少賠償依全部旅遊費用除以全部旅遊日數乘以棄置或留滯日數後相同金額五倍之違約金；重大過失者賠償三倍，過失者賠償一倍。留置時數在五小時以上未滿一日者，以一日計算。甲方受有損害者，另得請求賠償。</p>
+</div>
+
+<!-- Art 26 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十六條（旅遊途中因不可抗力或不可歸責於旅行業之事由致旅遊內容變更）</span>　旅遊途中因不可抗力或不可歸責於乙方之事由，致無法依預定之旅程、交通、食宿或遊覽項目等履行時，為維護本契約旅遊團體之安全及利益，乙方得變更旅程、遊覽項目或更換食宿、旅程；其因此所增加之費用，不得向甲方收取，所減少之費用，應退還甲方。甲方不同意前項變更旅程時，得終止本契約，並得請求乙方墊付費用將其送回原出發地，於到達後附加年利率 <u>${r}%</u> 利息償還乙方。</p>
+</div>
+<!-- Art 27 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十七條（責任歸屬及協辦）</span>　旅遊期間，因不可歸責於乙方之事由，致甲方搭乘飛機、輪船、火車、捷運、纜車等大眾運輸工具所受損害者，應由各該提供服務之業者直接對甲方負責。但乙方應盡善良管理人之注意，協助甲方處理。</p>
+</div>
+
+<!-- Art 28 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十八條（旅客終止契約後之回程安排）</span>　甲方於旅遊活動開始後，怠於配合乙方完成旅遊所需之行為致影響後續旅遊行程，而終止契約者，甲方得請求乙方墊付費用將其送回原出發地，於到達後附加年利率 <u>${r}%</u> 利息償還之，乙方不得拒絕。前項情形，乙方因甲方退出旅遊活動後，應可節省或無須支出之費用，應退還甲方。乙方因第一項事由所受之損害，得向甲方請求賠償。</p>
+</div>
+
+<!-- Art 29 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第二十九條（出發後旅客任意終止契約）</span>　甲方於旅遊活動開始後，中途離隊退出旅遊活動時，不得要求乙方退還旅遊費用。前項情形，乙方因甲方退出旅遊活動後，應可節省或無須支出之費用，應退還甲方。乙方並應為甲方安排脫隊後返回出發地之住宿及交通，其費用由甲方負擔。甲方於旅遊活動開始後，未能及時參加依本契約所排定之行程者，視為自願放棄其權利，不得向乙方要求退費或任何補償。</p>
+</div>
+
+<!-- Art 30 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第三十條（旅行業之協助處理義務）</span>　甲方在旅遊中發生身體或財產上之事故時，乙方應盡善良管理人之注意為必要之協助及處理。前項之事故，係因非可歸責於乙方之事由所致者，其所生之費用，由甲方負擔。</p>
+</div>
+
+<!-- Art 31 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第三十一條（旅行業應投保責任保險及履約保證保險）</span>　乙方應依主管機關之規定辦理責任保險及履約保證保險。責任保險投保金額：</p>
+  <table class="ins-tbl">
+    <tr><td>每一旅客意外死亡</td><td>新臺幣 250萬元</td></tr>
+    <tr><td>每一旅客因意外事故所致體傷之醫療費用</td><td>新臺幣 20萬元</td></tr>
+    <tr><td>國外旅遊善後處理費用</td><td>新臺幣 10萬元/人</td></tr>
+    <tr><td>每一旅客證件遺失之損害賠償費用</td><td>新臺幣 2,000元</td></tr>
+  </table>
+  <p class="art-blk">乙方如未依前項規定投保者，於發生旅遊事故或不能履約之情形，應以主管機關規定最低投保金額計算其應理賠金額之三倍作為賠償金額。乙方應於出團前，告知甲方有關投保旅行業責任保險之保險公司名稱及其連絡方式，以備甲方查詢。</p>
+</div>
+
+<!-- Art 32 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第三十二條（購物及瑕疵損害之處理方式）</span>　為顧及旅客之購物方便，乙方如安排甲方購買禮品時，應於本契約第三條所列行程中預先載明。乙方不得於旅遊途中，臨時安排購物行程。但經甲方要求或同意者，不在此限。乙方安排特定場所購物，所購物品有貨價與品質不相當或瑕疵者，甲方得於受領所購物品後一個月內，請求乙方協助處理。乙方不得以任何理由或名義要求甲方代為攜帶物品返國。</p>
+</div>
+
+<!-- Art 33 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第三十三條（誠信原則）</span>　甲乙雙方應以誠信原則履行本契約。乙方依旅行業管理規則之規定，委託他旅行業代為招攬時，不得以未直接收甲方繳納費用，或以非直接招攬甲方參加本旅遊，或以本契約實際上非由乙方參與簽訂為抗辯。</p>
+</div>
+
+<!-- Art 34 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第三十四條（消費爭議處理）</span>　本契約履約過程中發生爭議時，乙方應即主動與甲方協商解決之。乙方消費爭議處理申訴（客服）專線或電子信箱：<u>${p.email}</u>。乙方對甲方之消費爭議申訴，應於三個營業日內專人聯繫處理，並依據消費者保護法之規定，自申訴之日起十五日內妥適處理之。雙方經協商後仍無法解決爭議時，甲方得向交通部觀光署、直轄市或各縣（市）消費者保護官、消費者爭議調解委員會、中華民國旅行業品質保障協會或鄉（鎮、市、區）公所調解委員會提出調解（處）申請，乙方除有正當理由外，不得拒絕出席調解（處）會。</p>
+</div>
+
+<!-- Art 35 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第三十五條（個人資料之保護）</span>　乙方因履行本契約之需要，於代辦證件、安排交通工具、住宿、餐飲、遊覽及其所附隨服務之目的內，甲方同意乙方得依法規規定蒐集、處理、傳輸及利用其個人資料。</p>
+  <p class="art-blk-ni">甲方：${chk(!d.privacyAgree)}不同意（甲方如不同意，乙方將無法提供本契約之旅遊服務）&emsp;${chk(d.privacyAgree)}同意&emsp;簽名：<span class="bl bl-m"></span></p>
+  <p class="art-blk">前項甲方之個人資料，乙方負有保密義務，非經甲方書面同意或依法規規定，不得將其個人資料提供予第三人。第一項甲方個人資料蒐集之特定目的消失或旅遊終了時，乙方應主動或依甲方之請求，刪除、停止處理或利用甲方個人資料。</p>
+</div>
+
+<!-- Art 36 -->
+<div class="art">
+  <p class="art-blk"><span class="art-h">第三十六條（約定合意管轄法院）</span>　甲、乙雙方就本契約有關之爭議，以中華民國之法律為準據法。因本契約發生訴訟時，甲乙雙方同意以 <u>${p.court}</u> 地方法院為第一審管轄法院，但不得排除消費者保護法第四十七條或民事訴訟法第四百三十六條之九規定之小額訴訟管轄法院之適用。</p>
+</div>
+<!-- Art 37 -->
+<div class="art">
+  <p class="art-blk-ni"><span class="art-h">第三十七條（其他協議事項）</span>　甲乙雙方同意遵守下列各項：</p>
+  <div class="art-blk-ni">
+    ${art37items.map(item=>`<p style="font-size:9.5pt;line-height:1.45;margin-bottom:2px;text-indent:0;">${item}</p>`).join('')}
+  </div>
+  <p class="art-blk">前項協議事項，如有變更本契約其他條款之規定，除經交通部觀光署核准，其約定無效，但有利於甲方者，不在此限。</p>
+</div>
+
+<!-- Signature -->
+<div class="sig-wrap">
+  <div class="sig-top">
+    <div class="sig-hdg">訂約人甲方</div>
+    <div class="sig-row"><span class="sig-lbl">姓　　名</span><span class="sig-val">${d.guestName||''}</span></div>
+    <div class="sig-row"><span class="sig-lbl">住居所地址</span><span class="sig-val"></span></div>
+    <div class="sig-row"><span class="sig-lbl">身分證字號</span><span class="sig-val"></span></div>
+    <div class="sig-row"><span class="sig-lbl">電　　話</span><span class="sig-val"></span></div>
+  </div>
+  <div class="sig-bottom">
+    <div class="sig-box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div class="sig-hdg" style="margin-bottom:0;">乙方（旅行業）</div>
+        <div class="seal-placeholder">印章</div>
+      </div>
+      <div class="sig-row"><span class="sig-lbl">公司名稱</span><span class="sig-val">${p.name}</span></div>
+      <div class="sig-row"><span class="sig-lbl">註冊編號</span><span class="sig-val">${p.regNo}</span></div>
+      <div class="sig-row"><span class="sig-lbl">負　責　人</span><span class="sig-val">${p.owner}</span></div>
+      <div class="sig-row"><span class="sig-lbl">地　　址</span><span class="sig-val">${p.addr}</span></div>
+      <div class="sig-row"><span class="sig-lbl">電　　話</span><span class="sig-val">${p.phone}</span></div>
+    </div>
+    <div class="sig-box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div class="sig-hdg" style="margin-bottom:0;">乙方委託之旅行業副署</div>
+        <div class="seal-placeholder">印章</div>
+      </div>
+      <div class="sig-row"><span class="sig-lbl">公司名稱</span><span class="sig-val"></span></div>
+      <div class="sig-row"><span class="sig-lbl">註冊編號</span><span class="sig-val"></span></div>
+      <div class="sig-row"><span class="sig-lbl">負　責　人</span><span class="sig-val"></span></div>
+      <div class="sig-row"><span class="sig-lbl">電　　話</span><span class="sig-val"></span></div>
+    </div>
+  </div>
+</div>
+<div class="sig-date-row">
+  簽約日期：中華民國　　　　年　　　月　　　日（如未記載，以首次交付金額之日為簽約日期）<br>
+  簽約地點：（如未記載，以甲方住（居）所地為簽約地點）
+</div>
+`;}
+
+
+
+/* ══════════════════════════════
+   Utility
+══════════════════════════════ */
+function numToChinese(n){
+  const map=['零','一','二','三','四','五','六','七','八','九','十'];
+  return n<=10 ? map[n] : (n<20?'十'+map[n-10]:'');
+}
+</script>
+</body>
+</html>

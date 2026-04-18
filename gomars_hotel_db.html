@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>飯店資料庫 — GOMARS</title>
+<link rel="stylesheet" href="gomars_base.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg-page);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+.topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:700}
+.topbar-count{font-size:12px;color:var(--tx3);background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
+.topbar-right{margin-left:auto;display:flex;gap:8px}
+
+.filter-bar{display:flex;gap:10px;align-items:center;padding:12px 20px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:300px}
+.search-wrap input{width:100%;padding-left:30px}
+.search-wrap .ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--tx3);pointer-events:none}
+
+.tbl-wrap{flex:1;overflow-y:auto;padding:16px 20px}
+table{width:100%;border-collapse:collapse;background:var(--bg-card);border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+thead th{background:var(--bg-surface);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border-soft)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg-hover)}
+tbody td{padding:10px 12px;font-size:13px;color:var(--tx);vertical-align:middle}
+.dest-chip{display:inline-block;font-size:11px;background:var(--blb);color:var(--bl);border-radius:5px;padding:2px 7px;font-weight:600;white-space:nowrap}
+.stars-chip{font-size:13px;color:var(--amber);letter-spacing:-1px}
+.meal-chip{display:inline-block;font-size:11px;border-radius:5px;padding:2px 7px;font-weight:600}
+.meal-none{background:var(--bg-surface);color:var(--tx3)}
+.meal-breakfast{background:var(--grb);color:var(--gr)}
+.meal-ippaku{background:var(--amberb);color:var(--amber)}
+.addr-text{font-size:11px;color:var(--tx2);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty-row td{text-align:center;padding:48px;color:var(--tx3);font-size:13px}
+.ops{display:flex;gap:6px}
+
+/* ── Modal ── */
+.modal-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center}
+.modal-bd.open{display:flex}
+.modal{background:var(--bg-card);border-radius:12px;width:580px;max-width:calc(100vw - 32px);max-height:calc(100vh - 40px);display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.modal-hdr{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-hdr h3{font-size:15px;font-weight:700;flex:1}
+.close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx3);line-height:1;padding:2px 6px}
+.close-btn:hover{color:var(--tx)}
+.modal-body{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:600;color:var(--tx2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── Google Maps lookup ── */
+.lookup-row{display:flex;gap:8px;align-items:center}
+.lookup-row input{flex:1}
+.gmaps-results{border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.12);max-height:240px;overflow-y:auto;background:var(--bg-card)}
+.gmaps-result-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px}
+.gmaps-result-item:last-child{border-bottom:none}
+.gmaps-result-item:hover{background:var(--bg-surface)}
+.gmaps-result-item strong{display:block;color:var(--tx)}
+.gmaps-result-item span{color:var(--tx3);font-size:12px}
+
+/* ── Meal plan radios ── */
+.radio-group{display:flex;gap:20px}
+.radio-group label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.radio-group input[type=radio]{accent-color:var(--orbit)}
+.ippaku-hint{font-size:11px;color:var(--tx3);margin-top:4px}
+
+/* ── Info box ── */
+.info-box{background:var(--blb);border-left:3px solid var(--bl);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--bl);line-height:1.6}
+.info-box a{color:var(--bl);font-weight:600}
+
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999}
+.batch-bar{background:var(--bg-surface);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--tx2)}
+.batch-bar progress{flex:1;height:6px;border-radius:3px;accent-color:var(--orbit)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span style="font-size:18px">🏨</span>
+  <span class="topbar-title">飯店資料庫</span>
+  <span class="topbar-count" id="count-chip">0 筆</span>
+  <div class="topbar-right">
+    <button class="btn btn-ghost btn-sm" id="batch-btn" onclick="batchGmapsFill()">⚡ 批次補全地址</button>
+    <button class="btn btn-primary btn-sm" onclick="openModal()">＋ 新增飯店</button>
+  </div>
+</div>
+
+<div class="batch-bar" id="batch-bar" style="display:none">
+  <span id="batch-status">補全中…</span>
+  <progress id="batch-prog" max="100" value="0"></progress>
+  <span id="batch-count" style="white-space:nowrap;color:var(--tx3)"></span>
+</div>
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <span class="ico">🔍</span>
+    <input class="inp" id="search-inp" type="text" placeholder="搜尋飯店名…" oninput="renderTable()">
+  </div>
+  <select class="inp" id="filter-dest" style="min-width:180px" onchange="renderTable()">
+    <option value="">全部目的地</option>
+  </select>
+  <select class="inp" id="filter-stars" style="min-width:100px" onchange="renderTable()">
+    <option value="">全部星等</option>
+    <option value="5">★★★★★</option>
+    <option value="4">★★★★</option>
+    <option value="3">★★★</option>
+    <option value="2">★★</option>
+  </select>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>目的地</th>
+        <th>星等</th>
+        <th>飯店名稱</th>
+        <th>餐食方案</th>
+        <th>地址</th>
+        <th style="width:90px">操作</th>
+      </tr>
+    </thead>
+    <tbody id="tbl-body"></tbody>
+  </table>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-bd" id="modal-bd" onclick="onBdClick(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-title">新增飯店</h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 目的地 + 星等 -->
+      <div class="field-row">
+        <div class="field">
+          <label>目的地</label>
+          <select class="inp" id="f-dest"></select>
+        </div>
+        <div class="field">
+          <label>星等</label>
+          <select class="inp" id="f-stars">
+            <option value="">— 請選擇 —</option>
+            <option value="5">★★★★★ 五星</option>
+            <option value="4">★★★★ 四星</option>
+            <option value="3">★★★ 三星</option>
+            <option value="2">★★ 二星</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 飯店名稱 + Google Maps 查詢按鈕 -->
+      <div class="field">
+        <label>飯店名稱</label>
+        <div class="lookup-row">
+          <input class="inp" id="f-name" type="text" placeholder="例：京都格蘭比亞大飯店">
+          <button class="btn btn-ghost btn-sm" id="gmaps-btn" onclick="gmapsSearch()" style="white-space:nowrap;flex-shrink:0">
+            🗺 Google Maps 查詢
+          </button>
+        </div>
+        <!-- 搜尋結果清單 -->
+        <div class="gmaps-results" id="gmaps-results" style="display:none"></div>
+      </div>
+
+      <!-- API Key 提示（僅在 key 未設定時顯示） -->
+      <div class="info-box" id="gmaps-key-hint" style="display:none">
+        📌 Google Maps 查詢功能需要 API Key。請先在頁面 JS 頂部設定 <code>GOOGLE_MAPS_API_KEY</code>。
+      </div>
+
+      <!-- 地址 -->
+      <div class="field">
+        <label>地址</label>
+        <input class="inp" id="f-address" type="text" placeholder="自動帶入或手動填寫">
+      </div>
+
+      <!-- 官網 + 電話 -->
+      <div class="field-row">
+        <div class="field">
+          <label>官方網站</label>
+          <input class="inp" id="f-website" type="url" placeholder="https://…">
+        </div>
+        <div class="field">
+          <label>電話</label>
+          <input class="inp" id="f-phone" type="tel" placeholder="+81-XX-XXXX-XXXX">
+        </div>
+      </div>
+
+      <!-- 餐食方案 -->
+      <div class="field">
+        <label>餐食方案</label>
+        <div class="radio-group">
+          <label><input type="radio" name="meal-plan" value="" checked> 不含餐</label>
+          <label><input type="radio" name="meal-plan" value="breakfast"> 含早</label>
+          <label><input type="radio" name="meal-plan" value="ippaku"> 一泊二食</label>
+        </div>
+        <div class="ippaku-hint">一泊二食 = 含晚餐 ＋ 隔日早餐（溫泉旅館常見方案）</div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveHotel()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── 填入你的 Google Maps API Key（需啟用 Places API）──
+const GOOGLE_MAPS_API_KEY = 'AIzaSyDwHP8g3x97UFX7ls3c6xG4DdRt1zdkXco'
+
+const SUPABASE_URL      = 'https://wghvduyyuvbnggddvdal.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnaHZkdXl5dXZibmdnZGR2ZGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDc1MzIsImV4cCI6MjA5MDgyMzUzMn0.OavKg-TckxW0pJLhmvP92z4HB3eTVkJ6AFuh5jBJntA'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+const DEST_GROUPS = [
+  { label: '🇯🇵 日本', opts: [
+    '日本 — 北海道（新千歲．函館．旭川．帶廣）',
+    '日本 — 東北（青森．仙台．花卷．秋田．新潟）',
+    '日本 — 關東（東京．橫濱．箱根．伊豆．靜岡．日光．輕井澤）',
+    '日本 — 中部北陸（名古屋．小松．能登．富山．立山黑部）',
+    '日本 — 關西（大阪．京都．神戶．奈良．南紀．三重）',
+    '日本 — 四國（廣島．岡山．高松．米子．鳥取）',
+    '日本 — 九州（福岡．宮崎．鹿兒島．熊本）',
+    '日本 — 沖繩（琉球．久米島．宮古島）',
+  ]},
+  { label: '🇰🇷 韓國', opts: ['韓國 — 首爾 / 京畿', '韓國 — 釜山', '韓國 — 濟州島'] },
+  { label: '🇹🇭 泰國', opts: ['泰國 — 曼谷（芭達雅/華欣）', '泰國 — 泰北（清邁/清萊）', '泰國 — 普吉島'] },
+  { label: '🇲🇾 馬新', opts: ['新加坡', '馬新雙國遊', '馬來西亞 — 吉隆坡（馬六甲/海中天/邦喀島/新山）', '東馬/鄰國 — 沙巴/珍拉汀/汶萊', '馬來西亞 — 檳城．蘭卡威'] },
+  { label: '🇻🇳 越南', opts: ['越南 — 北越（河內/下龍灣/沙壩）', '越南 — 中越（峴港/順化/會安）', '越南 — 南越（胡志明/富國島/芽莊/大勒）'] },
+  { label: '🌏 東南亞其他', opts: ['峇里島（印尼）', '柬埔寨 — 吳哥 / 金邊', '菲律賓 — 宿霧 / 長灘島', '菲律賓 — 馬尼拉 / 巴拉望'] },
+  { label: '🇨🇳 中國大陸', opts: [
+    '華北 — 北京．天津', '華北 — 山西（太原）', '華北 — 內蒙',
+    '東北 — 大連．瀋陽．哈爾濱．長春',
+    '華東 — 江南（上海．杭州．寧波．南京．無錫）', '華東 — 山東（青島．濟南．煙台）', '華東 — 安徽（黃山）',
+    '華中 — 長沙．張家界．武漢', '華中 — 河南（鄭州．開封．洛陽）', '華中 — 陝西．西安', '華中 — 長江三峽',
+    '西南 — 四川（成都．重慶．九寨溝）', '西南 — 廣西（桂林．南寧）', '西南 — 雲南（昆明．大理．麗江．香格里拉）', '西南 — 貴州（貴陽）',
+    '西北 — 絲路', '西北 — 南北疆', '西北 — 西藏',
+    '華南 — 福建（福州．廈門．武夷山）', '華南 — 海南（海口．三亞）',
+  ]},
+  { label: '🇭🇰 港澳', opts: ['香港', '澳門', '珠海', '粵港澳大灣區'] },
+  { label: '🇲🇳 蒙古', opts: ['蒙古'] },
+  { label: '🇪🇺 歐洲', opts: [
+    '義大利 — 羅馬 / 佛羅倫斯 / 威尼斯', '法國 — 巴黎 / 普羅旺斯',
+    '西班牙 — 馬德里 / 巴塞隆納', '瑞士 — 蘇黎世 / 琉森',
+    '奧地利 — 維也納 / 薩爾斯堡', '德國 — 慕尼黑 / 柏林', '英國 — 倫敦',
+  ]},
+  { label: '🌍 中東 / 非洲 / 美洲', opts: [
+    '杜拜（阿聯酋）', '埃及 — 開羅 / 盧克索',
+    '美國 — 紐約', '美國 — 洛杉磯 / 拉斯維加斯', '澳洲 — 雪梨 / 墨爾本',
+  ]},
+  { label: '其他', opts: ['其他（備註說明）'] },
+]
+
+const MEAL_LABEL = { '': '不含餐', breakfast: '含早', ippaku: '一泊二食' }
+const MEAL_CLASS = { '': 'meal-none', breakfast: 'meal-breakfast', ippaku: 'meal-ippaku' }
+
+// ── State ──
+let _data   = []
+let _editId = null
+let _gmapsLoaded = false
+
+// ── Init ──
+function buildDestSelects() {
+  const filterSel = document.getElementById('filter-dest')
+  const modalSel  = document.getElementById('f-dest')
+  DEST_GROUPS.forEach(g => {
+    const og1 = document.createElement('optgroup')
+    const og2 = document.createElement('optgroup')
+    og1.label = og2.label = g.label
+    g.opts.forEach(o => {
+      og1.appendChild(new Option(o, o))
+      og2.appendChild(new Option(o, o))
+    })
+    filterSel.appendChild(og1)
+    modalSel.appendChild(og2)
+  })
+}
+
+async function loadHotels() {
+  const { data, error } = await sb
+    .from('gomars_hotels')
+    .select('*')
+    .order('dest')
+    .order('stars', { ascending: false })
+    .order('name')
+  if (error) { showToast('載入失敗：' + error.message, 'err'); return }
+  _data = data || []
+  renderTable()
+}
+
+// ── Render ──
+function renderTable() {
+  const q     = document.getElementById('search-inp').value.trim().toLowerCase()
+  const dest  = document.getElementById('filter-dest').value
+  const stars = document.getElementById('filter-stars').value
+  const rows  = _data.filter(r => {
+    if (dest  && r.dest  !== dest)          return false
+    if (stars && String(r.stars) !== stars) return false
+    if (q && !r.name?.toLowerCase().includes(q) && !r.dest?.toLowerCase().includes(q)) return false
+    return true
+  })
+  document.getElementById('count-chip').textContent = _data.length + ' 筆'
+  const tbody = document.getElementById('tbl-body')
+  if (!rows.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">尚無資料，請點「新增飯店」建立第一筆</td></tr>'
+    return
+  }
+  tbody.innerHTML = rows.map(r => {
+    const starsStr = r.stars ? '★'.repeat(r.stars) : '—'
+    const meal     = r.meal_plan || ''
+    const addrHtml = r.address
+      ? `<span class="addr-text" title="${escHtml(r.address)}">${escHtml(r.address)}</span>`
+      : '<span style="color:var(--tx3)">—</span>'
+    return `<tr>
+      <td><span class="dest-chip">${escHtml(r.dest || '—')}</span></td>
+      <td><span class="stars-chip">${starsStr}</span></td>
+      <td>
+        <div style="font-weight:600">${escHtml(r.name || '—')}</div>
+        ${r.website ? `<a href="${escHtml(r.website)}" target="_blank" style="font-size:11px;color:var(--bl)">官網 ↗</a>` : ''}
+      </td>
+      <td><span class="meal-chip ${MEAL_CLASS[meal]}">${MEAL_LABEL[meal]}</span></td>
+      <td>${addrHtml}</td>
+      <td><div class="ops">
+        <button class="btn btn-ghost btn-sm" onclick="editHotel('${r.id}')">編輯</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteHotel('${r.id}')">刪除</button>
+      </div></td>
+    </tr>`
+  }).join('')
+}
+
+// ── Modal open/close ──
+function openModal(id) {
+  _editId = id || null
+  document.getElementById('gmaps-results').style.display = 'none'
+  document.getElementById('gmaps-key-hint').style.display = 'none'
+  document.getElementById('modal-title').textContent = id ? '編輯飯店' : '新增飯店'
+  document.getElementById('f-dest').value    = ''
+  document.getElementById('f-stars').value   = ''
+  document.getElementById('f-name').value    = ''
+  document.getElementById('f-address').value = ''
+  document.getElementById('f-website').value = ''
+  document.getElementById('f-phone').value   = ''
+  document.querySelector('input[name="meal-plan"][value=""]').checked = true
+
+  if (id) {
+    const r = _data.find(x => x.id === id)
+    if (r) {
+      document.getElementById('f-dest').value    = r.dest    || ''
+      document.getElementById('f-stars').value   = r.stars != null ? String(r.stars) : ''
+      document.getElementById('f-name').value    = r.name    || ''
+      document.getElementById('f-address').value = r.address || ''
+      document.getElementById('f-website').value = r.website || ''
+      document.getElementById('f-phone').value   = r.phone   || ''
+      const meal  = r.meal_plan || ''
+      const radio = document.querySelector(`input[name="meal-plan"][value="${meal}"]`)
+      if (radio) radio.checked = true
+    }
+  }
+  document.getElementById('modal-bd').classList.add('open')
+  document.getElementById('f-name').focus()
+}
+
+function editHotel(id) { openModal(id) }
+
+function closeModal() {
+  document.getElementById('modal-bd').classList.remove('open')
+  closeGmapsLookup()
+}
+
+function onBdClick(e) {
+  if (e.target === document.getElementById('modal-bd')) closeModal()
+}
+
+// ── Google Maps Places lookup ──
+async function gmapsSearch() {
+  if (!GOOGLE_MAPS_API_KEY) {
+    document.getElementById('gmaps-key-hint').style.display = 'block'
+    return
+  }
+  document.getElementById('gmaps-key-hint').style.display = 'none'
+
+  const name = document.getElementById('f-name').value.trim()
+  if (!name) { showToast('請先填寫飯店名稱再查詢', 'err'); return }
+
+  const btn     = document.getElementById('gmaps-btn')
+  const results = document.getElementById('gmaps-results')
+  btn.disabled  = true
+  btn.textContent = '搜尋中…'
+  results.innerHTML = ''
+  results.style.display = 'none'
+
+  if (!_gmapsLoaded) {
+    try {
+      await loadGoogleMapsScript()
+      _gmapsLoaded = true
+    } catch {
+      showToast('Maps API 載入失敗，請確認已啟用 Maps JavaScript API', 'err')
+      btn.disabled = false
+      btn.textContent = '🗺 Google Maps 查詢'
+      return
+    }
+  }
+
+  try {
+    const { AutocompleteSuggestion } = await google.maps.importLibrary('places')
+    const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      input: name,
+      includedPrimaryTypes: ['lodging'],
+    })
+
+    if (!suggestions?.length) {
+      results.innerHTML = '<div class="gmaps-result-item" style="color:var(--tx3);cursor:default">未找到相關飯店，請嘗試其他關鍵字</div>'
+    } else {
+      suggestions.forEach(s => {
+        const pred = s.placePrediction
+        const main = pred.mainText?.text || ''
+        const sub  = pred.secondaryText?.text || ''
+        const div  = document.createElement('div')
+        div.className = 'gmaps-result-item'
+        div.innerHTML = `<strong>${main}</strong>${sub ? `<span>${sub}</span>` : ''}`
+        div.onclick = () => gmapsSelect(pred.toPlace(), results)
+        results.appendChild(div)
+      })
+    }
+    results.style.display = 'block'
+  } catch (e) {
+    showToast('搜尋失敗：' + e.message, 'err')
+  }
+
+  btn.disabled = false
+  btn.textContent = '🗺 Google Maps 查詢'
+}
+
+async function gmapsSelect(place, results) {
+  results.innerHTML = '<div class="gmaps-result-item" style="color:var(--tx3);cursor:default">載入詳情中…</div>'
+  try {
+    await place.fetchFields({
+      fields: ['formattedAddress', 'websiteURI', 'nationalPhoneNumber', 'internationalPhoneNumber', 'displayName'],
+    })
+    if (place.formattedAddress) document.getElementById('f-address').value = place.formattedAddress
+    if (place.websiteURI)       document.getElementById('f-website').value = place.websiteURI
+    const phone = place.nationalPhoneNumber || place.internationalPhoneNumber || ''
+    if (phone) document.getElementById('f-phone').value = phone
+    showToast('已帶入飯店資訊', 'ok')
+    results.style.display = 'none'
+  } catch (e) {
+    showToast('帶入失敗：' + e.message, 'err')
+    results.style.display = 'none'
+  }
+}
+
+function loadGoogleMapsScript() {
+  return new Promise((resolve, reject) => {
+    if (window.google?.maps) { resolve(); return }
+    const s = document.createElement('script')
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&loading=async&language=zh-TW`
+    s.onload  = resolve
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
+
+// ── Batch Google Maps fill ──
+async function batchGmapsFill() {
+  if (!GOOGLE_MAPS_API_KEY) { showToast('請先設定 Google Maps API Key', 'err'); return }
+
+  const targets = _data.filter(h => !h.address)
+  if (!targets.length) { showToast('所有飯店已有地址資料', 'ok'); return }
+
+  const btn    = document.getElementById('batch-btn')
+  const bar    = document.getElementById('batch-bar')
+  const status = document.getElementById('batch-status')
+  const prog   = document.getElementById('batch-prog')
+  const count  = document.getElementById('batch-count')
+  btn.disabled = true
+  bar.style.display = 'flex'
+  prog.max = targets.length
+
+  if (!_gmapsLoaded) {
+    status.textContent = '載入 Google Maps API…'
+    try { await loadGoogleMapsScript(); _gmapsLoaded = true }
+    catch { showToast('Maps API 載入失敗', 'err'); btn.disabled = false; bar.style.display = 'none'; return }
+  }
+
+  const { AutocompleteSuggestion } = await google.maps.importLibrary('places')
+  let filled = 0, failed = 0
+
+  for (let i = 0; i < targets.length; i++) {
+    const hotel = targets[i]
+    status.textContent = `補全中：${hotel.name}`
+    prog.value = i
+    count.textContent = `${i}/${targets.length}`
+
+    try {
+      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: hotel.name,
+        includedPrimaryTypes: ['lodging'],
+      })
+      if (!suggestions?.length) { failed++; continue }
+
+      const place = suggestions[0].placePrediction.toPlace()
+      await place.fetchFields({ fields: ['formattedAddress', 'websiteURI', 'nationalPhoneNumber', 'internationalPhoneNumber'] })
+
+      const patch = {
+        address:    place.formattedAddress || null,
+        website:    place.websiteURI || null,
+        phone:      place.nationalPhoneNumber || place.internationalPhoneNumber || null,
+        updated_at: new Date().toISOString(),
+      }
+      const { error } = await sb.from('gomars_hotels').update(patch).eq('id', hotel.id)
+      if (!error) { Object.assign(hotel, patch); filled++ } else { failed++ }
+    } catch { failed++ }
+
+    await new Promise(r => setTimeout(r, 200))
+  }
+
+  renderTable()
+  bar.style.display = 'none'
+  btn.disabled = false
+  showToast(failed > 0 ? `已補全 ${filled} 筆，${failed} 筆未找到` : `已補全 ${filled} 筆飯店資料`, 'ok')
+}
+
+// ── Save ──
+async function saveHotel() {
+  const dest  = document.getElementById('f-dest').value.trim()
+  const stars = document.getElementById('f-stars').value
+  const name  = document.getElementById('f-name').value.trim()
+  if (!dest) { showToast('請選擇目的地', 'err'); return }
+  if (!name) { showToast('請填寫飯店名稱', 'err'); return }
+
+  const payload = {
+    dest,
+    stars:     stars ? Number(stars) : null,
+    name,
+    address:   document.getElementById('f-address').value.trim() || null,
+    website:   document.getElementById('f-website').value.trim() || null,
+    phone:     document.getElementById('f-phone').value.trim()   || null,
+    meal_plan: document.querySelector('input[name="meal-plan"]:checked')?.value || '',
+    updated_at: new Date().toISOString(),
+  }
+  if (_editId) payload.id = _editId
+
+  const { data, error } = await sb.from('gomars_hotels').upsert(payload, { onConflict: 'id' }).select()
+  if (error) { showToast('儲存失敗：' + error.message, 'err'); return }
+
+  const saved = data[0]
+  if (_editId) {
+    _data = _data.map(r => r.id === _editId ? saved : r)
+    showToast('已更新', 'ok')
+  } else {
+    _data.unshift(saved)
+    showToast('已新增', 'ok')
+  }
+  closeModal()
+  renderTable()
+}
+
+// ── Delete ──
+async function deleteHotel(id) {
+  if (!confirm('確定要刪除這筆飯店資料？')) return
+  const { error } = await sb.from('gomars_hotels').delete().eq('id', id)
+  if (error) { showToast('刪除失敗：' + error.message, 'err'); return }
+  _data = _data.filter(r => r.id !== id)
+  showToast('已刪除', 'ok')
+  renderTable()
+}
+
+// ── Toast / Util ──
+function showToast(msg, type = 'info') {
+  const wrap = document.getElementById('toast-wrap')
+  const el   = document.createElement('div')
+  el.className = `toast ${type}`
+  el.textContent = msg
+  wrap.appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+buildDestSelects()
+loadHotels()
+</script>
+</body>
+</html>

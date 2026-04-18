@@ -273,16 +273,7 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
 .stat-lbl{font-size:11px;color:var(--tx3);margin-top:4px;}
 .stat-change{font-size:11px;margin-top:6px;color:var(--gr);}
 
-.card{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;margin-bottom:14px;box-shadow:var(--shadow);}
-.card-hdr{padding:12px 16px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.card-title{font-size:13px;font-weight:600;color:var(--tx);}
-.card-body{padding:14px 16px;}
-
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;}
-.badge-orange{background:#FFF3E0;color:#B85C00;}
-.badge-green{background:var(--grb);color:var(--grd);}
-.badge-blue{background:var(--blb);color:var(--bld);}
-.badge-gray{background:var(--g100);color:var(--g600);}
+/* .card, .badge variants — see gomars_base.css */
 
 .data-table{width:100%;border-collapse:collapse;}
 .data-table th{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:.5px solid var(--border);}
@@ -299,20 +290,7 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
 .coming-soon .cs-title{font-size:15px;font-weight:600;color:var(--tx2);}
 .coming-soon .cs-sub{font-size:12px;}
 
-/* ── SHARED FORM / BUTTONS ── */
-.btn{padding:7px 14px;border-radius:7px;border:.5px solid var(--border);background:transparent;font-size:12px;cursor:pointer;color:var(--tx);font-family:var(--font);font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
-.btn:hover{background:var(--bg-hover);}
-.btn-primary{background:var(--br);color:#fff;border-color:var(--br);}
-.btn-primary:hover{background:var(--brd);}
-.btn-ghost{color:var(--br);border-color:var(--brm);}
-.btn-ghost:hover{background:var(--brl);}
-.btn-sm{padding:5px 10px;font-size:11px;}
-.btn-danger{color:#A32D2D;border-color:#F7C1C1;}
-.btn-danger:hover{background:#FCEBEB;}
-.inp{font-size:13px;color:var(--tx);background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:7px 10px;width:100%;font-family:var(--font);outline:none;transition:border .15s;}
-.inp:focus{border-color:var(--br);background:var(--bg-card);}
-.inp::placeholder{color:var(--tx3);}
-.inp select{-webkit-appearance:none;}
+/* ── SHARED FORM / BUTTONS — see gomars_base.css ── */
 .f{display:flex;flex-direction:column;gap:4px;}
 .f.full{grid-column:1/-1;}
 .lbl{font-size:11px;color:var(--tx3);font-weight:500;}
@@ -578,18 +556,11 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
 @media(max-width:900px){.settings-layout{grid-template-columns:1fr;}.arch-modules{grid-template-columns:1fr 1fr;}.cis-chips{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:640px){.g2{grid-template-columns:1fr;}.arch-modules{grid-template-columns:1fr;}}
 
-/* ── TOAST ── */
-.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
-.toast{
-  padding:10px 16px;border-radius:8px;font-size:13px;font-family:var(--font);
-  box-shadow:var(--shadow-md);pointer-events:auto;
-  animation:toastIn .2s ease;
-  display:flex;align-items:center;gap:8px;max-width:300px;
-}
-.toast.info{background:var(--bg-card);border:.5px solid var(--border);color:var(--tx);}
-.toast.ok{background:#E6F4ED;border:.5px solid #B2DAC8;color:#155C39;}
-.toast.err{background:#FCEBEB;border:.5px solid #FABABA;color:#A32D2D;}
-@keyframes toastIn{from{opacity:0;transform:translateX(12px);}to{opacity:1;transform:none;}}
+/* ── TOAST — see gomars_base.css ── */
+
+/* ── #view-customers iframe ── */
+#view-customers{padding:0;overflow:hidden;}
+#crm-iframe{width:100%;height:100%;border:none;display:block;}
 </style>
 </head>
 <body>
@@ -730,6 +701,9 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
         <button class="nav-item" data-view="gifts" onclick="switchView('gifts',this)">
           <span class="ni">🎁</span><span class="nl">贈品價目表</span>
         </button>
+        <button class="nav-item" data-view="contract-gen" onclick="switchView('contract-gen',this)">
+          <span class="ni">📄</span><span class="nl">合約產生器</span>
+        </button>
       </div>
       <div class="sb-section">
         <div class="sb-section-lbl">系統</div>
@@ -831,11 +805,7 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
 
     <!-- ── 客戶管理 ── -->
     <div class="view" id="view-customers">
-      <div class="coming-soon">
-        <div class="cs-icon">👥</div>
-        <div class="cs-title">客戶管理</div>
-        <div class="cs-sub">搜尋、篩選、跟進紀錄 — 開發中<br>資料表：customers、follow_ups</div>
-      </div>
+      <iframe src="admin_customers.html" id="crm-iframe" title="客戶管理"></iframe>
     </div>
 
     <!-- ── 訂單管理 ── -->
@@ -1004,13 +974,13 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
     </div>
 
     <!-- ── 門票資料庫 ── -->
-    <div class="view" id="view-ticketdb">
-      <div class="coming-soon"><div class="cs-icon">🎫</div><div class="cs-title">門票資料庫</div><div class="cs-sub">開發中</div></div>
+    <div class="view" id="view-ticketdb" style="padding:0;height:calc(100vh - 64px);">
+      <iframe src="gomars_ticket_db.html" style="width:100%;height:100%;border:none;"></iframe>
     </div>
 
     <!-- ── 飯店資料庫 ── -->
-    <div class="view" id="view-hoteldb">
-      <div class="coming-soon"><div class="cs-icon">🏨</div><div class="cs-title">飯店資料庫</div><div class="cs-sub">開發中</div></div>
+    <div class="view" id="view-hoteldb" style="padding:0;height:calc(100vh - 64px);">
+      <iframe src="gomars_hotel_db.html" style="width:100%;height:100%;border:none;"></iframe>
     </div>
 
     <!-- ── 旅遊手冊/說資 ── -->
@@ -1039,8 +1009,13 @@ body{display:flex;flex-direction:column;transition:background .2s,color .2s;}
     </div>
 
     <!-- ── 贈品價目表 ── -->
-    <div class="view" id="view-gifts">
-      <div class="coming-soon"><div class="cs-icon">🎁</div><div class="cs-title">贈品價目表</div><div class="cs-sub">開發中</div></div>
+    <div class="view" id="view-gifts" style="padding:0; height:calc(100vh - 64px);">
+      <iframe src="gomars_gifts.html" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+
+    <!-- ── 合約產生器 ── -->
+    <div class="view" id="view-contract-gen" style="padding:0; height:calc(100vh - 64px);">
+      <iframe src="contract_generator.html" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
     <!-- ── 開發者日誌 ── -->
@@ -1726,6 +1701,7 @@ const viewMeta = {
   simcard:        { title: '網卡價目表',        sub: '' },
   transfer:       { title: '機場接駁價目表',    sub: '' },
   gifts:          { title: '贈品價目表',        sub: '' },
+  'contract-gen': { title: '合約產生器',        sub: '' },
   devlog:         { title: '開發者日誌',        sub: '' },
   settings:       { title: '設定',              sub: '' },
 }
@@ -1742,7 +1718,9 @@ function switchView(id, btn) {
   document.getElementById('topbar-title').textContent = meta.title || id
   document.getElementById('topbar-sub').textContent   = meta.sub   || ''
 
-  if (id === 'cases') loadCases()
+  if (id === 'cases')    loadCases()
+  if (id === 'ticketdb') { const f = document.getElementById('ticketdb-iframe'); if (!f.src) f.src = 'gomars_ticket_db.html' }
+  if (id === 'hoteldb')  { const f = document.getElementById('hoteldb-iframe');  if (!f.src) f.src = 'gomars_hotel_db.html' }
 }
 
 // ══════════════════════════════════════
@@ -2009,10 +1987,16 @@ async function clearTrash() {
 let _currentCase   = null
 let _iframeLoaded  = {}
 
-function openCase(id) {
+async function openCase(id) {
   const c = _casesData.find(x => x.id === id)
   if (!c) return
-  _currentCase  = c
+  const { data: full, error: ferr } = await sb
+    .from('gomars_cases')
+    .select('inquiry_data, quote_data')
+    .eq('id', id)
+    .single()
+  if (ferr) { showToast('載入案件詳細資料失敗：' + ferr.message, 'error'); return }
+  _currentCase  = { ...c, inquiry_data: full.inquiry_data, quote_data: full.quote_data }
   _iframeLoaded = {}
 
   // Update topbar: show back button + case info
@@ -2054,7 +2038,20 @@ function switchCaseTab(tab) {
               : tab === 'cost-quote' ? 'gomars_quote.html' : ''
     if (src) {
       const iframe = document.getElementById(`cp-${tab}-iframe`)
-      if (iframe) iframe.src = src
+      if (iframe) {
+        if (tab === 'inquiry') {
+          localStorage.setItem('gomars_admin_load', JSON.stringify({
+            id: _currentCase?.id,
+            case_number: _currentCase?.case_number,
+            client_name: _currentCase?.client_name,
+            destination: _currentCase?.destination,
+            depart_date: _currentCase?.depart_date,
+            days: _currentCase?.days,
+            inquiry_data: _currentCase?.inquiry_data || null
+          }))
+        }
+        iframe.src = src
+      }
     }
     _iframeLoaded[tab] = true
   }
@@ -2802,12 +2799,26 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCases()
 })
 
-// Re-render when switching to flightdb view
+// Re-render when switching to flightdb / customers view
 const _origSwitchView = switchView
 switchView = function(id, btn) {
   _origSwitchView(id, btn)
   if (id === 'flightdb') renderFlightTable()
+  if (id === 'customers') {
+    const iframe = document.getElementById('crm-iframe')
+    if (iframe?.contentWindow) iframe.contentWindow.postMessage({ action: 'refresh' }, '*')
+  }
 }
+
+// ── 接收子 iframe 的 badge 更新 ──
+window.addEventListener('message', (e) => {
+  if (e.data?.action === 'updateBadge') {
+    const el = document.getElementById(e.data.id)
+    if (el) el.textContent = e.data.value
+  }
+})
+
+// CRM 客戶管理已移至 admin_customers.html
 </script>
 </body>
 </html>

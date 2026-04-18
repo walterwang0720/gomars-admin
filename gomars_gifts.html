@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOMARS 贈品價目表</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --mars: #C43A10;
+  --orbit: #EA5404;
+  --gr: #1D7A4E;
+  --bl: #185FA5;
+  --bg: #F5F5F5;
+  --surface: #FFFFFF;
+  --border: #E0E0E0;
+  --text: #1A1A1A;
+  --text-sub: #666;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ===== Topbar ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+.topbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mars);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-title span.icon { font-size: 20px; }
+.supplier-badge {
+  background: linear-gradient(135deg, var(--orbit), var(--mars));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Category Tabs ===== */
+.cat-tabs {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  gap: 4px;
+}
+.cat-tab {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-sub);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .15s;
+  position: relative;
+  top: 1px;
+}
+.cat-tab:hover { color: var(--mars); }
+.cat-tab.active {
+  color: var(--mars);
+  border-bottom-color: var(--mars);
+  font-weight: 600;
+}
+
+/* ===== Main Content ===== */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+}
+
+/* ===== Card ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+/* ===== Ordering Panel ===== */
+.ordering-panel .panel-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.ordering-panel .panel-header:hover { background: #fafafa; }
+.panel-header .panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+.panel-header .panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-icon {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all .15s;
+}
+.btn-icon:hover {
+  background: var(--bg);
+  border-color: #bbb;
+  color: var(--text);
+}
+.btn-icon.primary {
+  border-color: var(--bl);
+  color: var(--bl);
+}
+.btn-icon.primary:hover {
+  background: #EBF2FB;
+}
+.toggle-chevron {
+  font-size: 12px;
+  color: var(--text-sub);
+  transition: transform .2s;
+}
+.toggle-chevron.collapsed { transform: rotate(180deg); }
+
+.ordering-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all .2s;
+}
+.ordering-body.hidden { display: none; }
+
+.ordering-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.ordering-row .row-label {
+  min-width: 100px;
+  font-size: 13px;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.ordering-row .row-value {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-word;
+}
+.ordering-row .row-value a {
+  color: var(--bl);
+  text-decoration: none;
+}
+.ordering-row .row-value a:hover { text-decoration: underline; }
+.ordering-row .row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.btn-copy {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text-sub);
+  transition: all .15s;
+}
+.btn-copy:hover { border-color: var(--bl); color: var(--bl); background: #EBF2FB; }
+.btn-copy.copied { border-color: var(--gr); color: var(--gr); background: #EBF7F2; }
+
+.masked-text { letter-spacing: 3px; }
+.btn-toggle-pw {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text-sub);
+  transition: all .15s;
+}
+.btn-toggle-pw:hover { border-color: #aaa; color: var(--text); }
+
+.steps-list, .notes-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.empty-placeholder {
+  color: var(--text-sub);
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* ===== Filter Bar ===== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.filter-bar select, .filter-bar input {
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .15s;
+}
+.filter-bar select:focus, .filter-bar input:focus {
+  border-color: var(--bl);
+  background: #fff;
+}
+.filter-bar input[type="text"] { flex: 1; min-width: 200px; }
+.filter-bar label {
+  font-size: 12px;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.filter-status-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.filter-status-btn {
+  background: var(--bg);
+  border: none;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all .15s;
+  border-right: 1px solid var(--border);
+}
+.filter-status-btn:last-child { border-right: none; }
+.filter-status-btn:hover { background: #eee; color: var(--text); }
+.filter-status-btn.active {
+  background: var(--mars);
+  color: #fff;
+}
+
+.filter-spacer { flex: 1; }
+
+/* ===== Results Info & Controls ===== */
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.results-count {
+  font-size: 13px;
+  color: var(--text-sub);
+  flex: 1;
+}
+.btn-sm {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-sub);
+  transition: all .15s;
+}
+.btn-sm:hover { border-color: #aaa; color: var(--text); background: var(--bg); }
+
+/* ===== Product Groups ===== */
+.product-groups { display: flex; flex-direction: column; gap: 8px; }
+
+.product-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.group-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s;
+  gap: 10px;
+}
+.group-header:hover { background: #FAFAFA; }
+.group-chevron {
+  font-size: 11px;
+  color: var(--text-sub);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.group-chevron.open { transform: rotate(90deg); }
+.group-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+.group-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.badge-count {
+  background: #F0F0F0;
+  color: var(--text-sub);
+}
+.badge-esim {
+  background: #EBF2FB;
+  color: var(--bl);
+}
+.badge-sim {
+  background: #FFF3EE;
+  color: var(--orbit);
+}
+.badge-active {
+  background: #EBF7F2;
+  color: var(--gr);
+}
+.badge-inactive {
+  background: #F0F0F0;
+  color: #999;
+}
+
+/* ===== Spec Table ===== */
+.spec-table-wrap {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.spec-table-wrap.open { display: block; }
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.spec-table thead th {
+  background: #F7F7F7;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 8px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.spec-table thead th:last-child { text-align: center; }
+.spec-table tbody tr {
+  border-bottom: 1px solid #F0F0F0;
+  transition: background .1s;
+}
+.spec-table tbody tr:last-child { border-bottom: none; }
+.spec-table tbody tr:hover { background: #FAFAFA; }
+.spec-table td {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text);
+}
+.spec-table td.spec-col { color: var(--text); font-weight: 500; }
+.spec-table td.price-col {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+.spec-table td.price-channel {
+  color: var(--mars);
+  font-weight: 600;
+}
+.spec-table td.status-col { text-align: center; }
+
+/* ===== Loading Skeleton ===== */
+.skeleton-wrap { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.skeleton-line {
+  background: linear-gradient(90deg, #F0F0F0 25%, #E0E0E0 50%, #F0F0F0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 14px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== Toast ===== */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #333;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all .25s;
+  pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { background: var(--gr); }
+#toast.error { background: var(--mars); }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 12px;
+  width: 560px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.modal-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  flex: 1;
+  color: var(--text);
+}
+.btn-close-modal {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-sub);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+.btn-close-modal:hover { background: var(--bg); color: var(--text); }
+.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.form-group input, .form-group textarea {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+  resize: vertical;
+}
+.form-group input:focus, .form-group textarea:focus {
+  border-color: var(--bl);
+  box-shadow: 0 0 0 3px rgba(24,95,165,.1);
+}
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.btn-cancel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-sub);
+  transition: all .15s;
+}
+.btn-cancel:hover { border-color: #aaa; color: var(--text); }
+.btn-save {
+  background: var(--bl);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 600;
+  transition: all .15s;
+}
+.btn-save:hover { background: #1450a0; }
+.btn-save:disabled { background: #aaa; cursor: not-allowed; }
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-sub);
+}
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-title">
+    <span class="icon">🎁</span>
+    <span>贈品價目表</span>
+  </div>
+  <span class="supplier-badge">卡薩羅馬</span>
+</div>
+
+<!-- Category Tabs -->
+<div class="cat-tabs">
+  <button class="cat-tab active" data-cat="網卡">網卡</button>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Ordering Panel -->
+  <div class="card ordering-panel" id="orderingPanel">
+    <div class="panel-header" id="panelHeaderToggle">
+      <div class="panel-title">📋 下單方式</div>
+      <div class="panel-actions" onclick="event.stopPropagation()">
+        <button class="btn-icon primary" onclick="openEditModal()">✏️ 編輯</button>
+      </div>
+      <span class="toggle-chevron" id="panelChevron">▲</span>
+    </div>
+    <div class="ordering-body" id="orderingBody">
+      <div id="orderingContent">
+        <div class="empty-state" style="padding:20px 0">
+          <div style="color:var(--text-sub);font-size:13px;">載入中…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <label>類型</label>
+    <select id="filterType">
+      <option value="">全部類型</option>
+      <option value="eSIM">eSIM</option>
+      <option value="實體卡">實體卡</option>
+    </select>
+    <label>地區</label>
+    <select id="filterRegion">
+      <option value="">全部地區</option>
+    </select>
+    <input type="text" id="filterSearch" placeholder="🔍 搜尋商品名稱 / 規格…">
+    <span class="filter-spacer"></span>
+    <div class="filter-status-group">
+      <button class="filter-status-btn active" data-status="">全部</button>
+      <button class="filter-status-btn" data-status="active">上架中</button>
+    </div>
+  </div>
+
+  <!-- Table Controls -->
+  <div class="table-controls">
+    <div class="results-count" id="resultsCount">—</div>
+    <button class="btn-sm" id="btnToggleAll" onclick="toggleAll()">全部展開</button>
+  </div>
+
+  <!-- Product Groups -->
+  <div id="productGroups" class="product-groups">
+    <!-- Skeleton -->
+    <div class="skeleton-wrap" id="skeletonWrap">
+      <div class="skeleton-card"><div class="skeleton-line" style="width:60%"></div><div class="skeleton-line" style="width:20%;margin-left:auto"></div></div>
+      <div class="skeleton-card"><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line" style="width:15%;margin-left:auto"></div></div>
+      <div class="skeleton-card"><div class="skeleton-line" style="width:70%"></div><div class="skeleton-line" style="width:18%;margin-left:auto"></div></div>
+      <div class="skeleton-card"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line" style="width:20%;margin-left:auto"></div></div>
+      <div class="skeleton-card"><div class="skeleton-line" style="width:65%"></div><div class="skeleton-line" style="width:12%;margin-left:auto"></div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ 編輯下單方式</h3>
+      <button class="btn-close-modal" onclick="closeEditModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>🔗 訂購網址</label>
+        <input type="url" id="editUrl" placeholder="https://…">
+      </div>
+      <div class="form-group">
+        <label>👤 登入帳號</label>
+        <input type="text" id="editAccount" placeholder="帳號">
+      </div>
+      <div class="form-group">
+        <label>🔑 登入密碼</label>
+        <input type="text" id="editPassword" placeholder="密碼">
+      </div>
+      <div class="form-group">
+        <label>📝 下單步驟（每行一步）</label>
+        <textarea id="editSteps" rows="5" placeholder="步驟1&#10;步驟2&#10;步驟3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>⚠️ 注意事項（每行一項）</label>
+        <textarea id="editNotes" rows="4" placeholder="注意事項1&#10;注意事項2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">取消</button>
+      <button class="btn-save" id="btnSave" onclick="saveOrdering()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ===== Supabase Config =====
+const SUPA_URL = 'https://wghvduyyuvbnggddvdal.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnaHZkdXl5dXZibmdnZGR2ZGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDc1MzIsImV4cCI6MjA5MDgyMzUzMn0.OavKg-TckxW0pJLhmvP92z4HB3eTVkJ6AFuh5jBJntA';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ===== State =====
+let _allData = [];
+let _orderingData = null;
+let _panelOpen = true;
+let _allExpanded = false;
+let _pwVisible = false;
+let _activeStatus = '';
+
+// ===== Toast =====
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (type ? ' ' + type : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 3000);
+}
+
+// ===== Copy to Clipboard =====
+async function copyText(text, btnEl) {
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btnEl) {
+      const orig = btnEl.textContent;
+      btnEl.textContent = '✓ 已複製';
+      btnEl.classList.add('copied');
+      setTimeout(() => { btnEl.textContent = orig; btnEl.classList.remove('copied'); }, 1500);
+    } else {
+      toast('已複製到剪貼簿', 'success');
+    }
+  } catch(e) {
+    toast('複製失敗', 'error');
+  }
+}
+
+// ===== Panel Toggle =====
+document.getElementById('panelHeaderToggle').addEventListener('click', function() {
+  _panelOpen = !_panelOpen;
+  const body = document.getElementById('orderingBody');
+  const chevron = document.getElementById('panelChevron');
+  body.classList.toggle('hidden', !_panelOpen);
+  chevron.classList.toggle('collapsed', !_panelOpen);
+});
+
+// ===== Load Ordering Info =====
+async function loadOrdering() {
+  try {
+    const { data, error } = await sb
+      .from('supply_ordering')
+      .select('*')
+      .eq('supplier', '卡薩羅馬')
+      .eq('category', '網卡')
+      .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    _orderingData = data || {};
+    renderOrdering();
+  } catch(e) {
+    console.error('loadOrdering error:', e);
+    _orderingData = {};
+    renderOrdering();
+  }
+}
+
+// ===== Render Ordering Panel =====
+function renderOrdering() {
+  const d = _orderingData || {};
+  const url = d.url || '';
+  const account = d.login_account || '';
+  const password = d.login_password || '';
+  const steps = d.order_steps || '';
+  const notes = d.notes || '';
+
+  const stepsHtml = steps && steps.trim() && steps.trim() !== '（待填寫）'
+    ? steps.trim().split('\n').filter(s => s.trim()).map((s,i) => `<li>${escHtml(s)}</li>`).join('')
+    : '';
+  const notesHtml = notes && notes.trim() && notes.trim() !== '（待填寫）'
+    ? notes.trim().split('\n').filter(s => s.trim()).map(s => `<li>${escHtml(s)}</li>`).join('')
+    : '';
+
+  const html = `
+    <div class="ordering-row">
+      <div class="row-label">🔗 訂購網址</div>
+      <div class="row-value">
+        ${url ? `<a href="${escHtml(url)}" target="_blank" rel="noopener">${escHtml(url)}</a>` : '<span class="empty-placeholder">（未填寫）</span>'}
+      </div>
+      <div class="row-actions">
+        ${url ? `<button class="btn-copy" onclick="copyText('${escAttr(url)}', this)">複製</button>` : ''}
+      </div>
+    </div>
+
+    <div class="ordering-row">
+      <div class="row-label">👤 登入帳號</div>
+      <div class="row-value">
+        ${account ? escHtml(account) : '<span class="empty-placeholder">（未填寫）</span>'}
+      </div>
+      <div class="row-actions">
+        ${account ? `<button class="btn-copy" onclick="copyText('${escAttr(account)}', this)">複製</button>` : ''}
+      </div>
+    </div>
+
+    <div class="ordering-row">
+      <div class="row-label">🔑 登入密碼</div>
+      <div class="row-value">
+        ${password
+          ? `<span id="pwDisplay" class="masked-text">${_pwVisible ? escHtml(password) : '••••••••'}</span>`
+          : '<span class="empty-placeholder">（未填寫）</span>'}
+      </div>
+      <div class="row-actions">
+        ${password ? `
+          <button class="btn-toggle-pw" onclick="togglePassword('${escAttr(password)}')" id="btnTogglePw">${_pwVisible ? '隱藏' : '顯示'}</button>
+          <button class="btn-copy" onclick="copyText('${escAttr(password)}', this)">複製</button>
+        ` : ''}
+      </div>
+    </div>
+
+    <div class="ordering-row" style="align-items:flex-start">
+      <div class="row-label" style="padding-top:2px">📝 下單步驟</div>
+      <div class="row-value">
+        ${stepsHtml
+          ? `<ol class="steps-list">${stepsHtml}</ol>`
+          : '<span class="empty-placeholder">（未填寫）</span>'}
+      </div>
+    </div>
+
+    <div class="ordering-row" style="align-items:flex-start">
+      <div class="row-label" style="padding-top:2px">⚠️ 注意事項</div>
+      <div class="row-value">
+        ${notesHtml
+          ? `<ul class="steps-list">${notesHtml}</ul>`
+          : '<span class="empty-placeholder">（未填寫）</span>'}
+      </div>
+    </div>
+  `;
+  document.getElementById('orderingContent').innerHTML = html;
+}
+
+function togglePassword(pw) {
+  _pwVisible = !_pwVisible;
+  const display = document.getElementById('pwDisplay');
+  const btn = document.getElementById('btnTogglePw');
+  if (display) display.textContent = _pwVisible ? pw : '••••••••';
+  if (btn) btn.textContent = _pwVisible ? '隱藏' : '顯示';
+}
+
+// ===== Edit Modal =====
+function openEditModal() {
+  const d = _orderingData || {};
+  document.getElementById('editUrl').value = d.url || '';
+  document.getElementById('editAccount').value = d.login_account || '';
+  document.getElementById('editPassword').value = d.login_password || '';
+  const steps = d.order_steps || '';
+  const notes = d.notes || '';
+  document.getElementById('editSteps').value = (steps === '（待填寫）') ? '' : steps;
+  document.getElementById('editNotes').value = (notes === '（待填寫）') ? '' : notes;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+}
+
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+
+async function saveOrdering() {
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.textContent = '儲存中…';
+  const payload = {
+    supplier: '卡薩羅馬',
+    category: '網卡',
+    url: document.getElementById('editUrl').value.trim(),
+    login_account: document.getElementById('editAccount').value.trim(),
+    login_password: document.getElementById('editPassword').value.trim(),
+    order_steps: document.getElementById('editSteps').value.trim(),
+    notes: document.getElementById('editNotes').value.trim(),
+    updated_at: new Date().toISOString()
+  };
+  try {
+    const { error } = await sb.from('supply_ordering').upsert(payload, { onConflict: 'supplier,category' });
+    if (error) throw error;
+    _orderingData = { ..._orderingData, ...payload };
+    renderOrdering();
+    closeEditModal();
+    toast('下單方式已儲存', 'success');
+  } catch(e) {
+    console.error('saveOrdering error:', e);
+    toast('儲存失敗：' + (e.message || e), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '儲存';
+  }
+}
+
+// ===== Load Product Data =====
+async function loadData() {
+  try {
+    let allRows = [];
+    const pageSize = 1000;
+    let from = 0;
+    while (true) {
+      const { data, error } = await sb
+        .from('supply_catalog')
+        .select('*')
+        .eq('supplier', '卡薩羅馬')
+        .eq('category', '網卡')
+        .order('product_name', { ascending: true })
+        .range(from, from + pageSize - 1);
+      if (error) throw error;
+      allRows = allRows.concat(data || []);
+      if (!data || data.length < pageSize) break;
+      from += pageSize;
+    }
+    _allData = allRows;
+    populateRegionFilter();
+    renderGroups();
+  } catch(e) {
+    console.error('loadData error:', e);
+    document.getElementById('skeletonWrap').remove();
+    document.getElementById('productGroups').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <p>資料載入失敗：${escHtml(e.message || '請確認 Supabase 連線')}</p>
+      </div>`;
+    toast('資料載入失敗', 'error');
+  }
+}
+
+// ===== Extract Region & Type =====
+function extractRegion(name) {
+  // Match 【...】 brackets, clean out eSIM/實體卡/經銷商 keywords
+  const m = name.match(/【([^】]+)】/);
+  if (!m) return '';
+  let region = m[1];
+  region = region.replace(/eSIM/gi, '').replace(/實體卡/g, '').replace(/經銷商/g, '').trim();
+  // Normalize multi-country
+  if (region.includes('東南亞')) return '東南亞多國';
+  if (region.includes('歐洲')) return '歐洲35國';
+  if (region.includes('紐澳')) return '紐澳';
+  if (region.includes('日韓')) return '日韓通用';
+  if (region.includes('中港澳')) return '中港澳';
+  if (region.includes('埃及') || region.includes('南非')) return '埃及/南非';
+  return region.trim() || '';
+}
+
+function extractType(name) {
+  if (name.includes('eSIM')) return 'eSIM';
+  if (name.includes('實體卡')) return '實體卡';
+  return '';
+}
+
+// ===== Populate Region Filter =====
+function populateRegionFilter() {
+  const regions = [...new Set(_allData.map(r => extractRegion(r.product_name)).filter(Boolean))].sort();
+  const sel = document.getElementById('filterRegion');
+  sel.innerHTML = '<option value="">全部地區</option>';
+  regions.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r;
+    opt.textContent = r;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== Filter Data =====
+function filterData() {
+  const type = document.getElementById('filterType').value;
+  const region = document.getElementById('filterRegion').value;
+  const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+  const status = _activeStatus;
+
+  return _allData.filter(r => {
+    if (type && extractType(r.product_name) !== type) return false;
+    if (region && extractRegion(r.product_name) !== region) return false;
+    if (status === 'active' && r.spec_status !== 'active') return false;
+    if (search) {
+      const haystack = (r.product_name + ' ' + r.spec).toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+// ===== Render Groups =====
+function renderGroups(autoExpand = false) {
+  const filtered = filterData();
+  const search = document.getElementById('filterSearch').value.trim();
+  const hasFilter = !!search || !!document.getElementById('filterType').value
+    || !!document.getElementById('filterRegion').value || _activeStatus === 'active';
+
+  // Group by product_name
+  const groups = {};
+  filtered.forEach(r => {
+    if (!groups[r.product_name]) groups[r.product_name] = [];
+    groups[r.product_name].push(r);
+  });
+
+  const groupNames = Object.keys(groups).sort();
+
+  const container = document.getElementById('productGroups');
+
+  if (groupNames.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>找不到符合條件的商品</p></div>`;
+    document.getElementById('resultsCount').textContent = '共 0 筆規格';
+    return;
+  }
+
+  const specTotal = filtered.length;
+  document.getElementById('resultsCount').textContent = `共 ${groupNames.length} 個商品、${specTotal} 筆規格`;
+
+  const shouldExpand = hasFilter || _allExpanded;
+
+  const html = groupNames.map(name => {
+    const specs = groups[name];
+    const type = extractType(name);
+    const region = extractRegion(name);
+    const activeCount = specs.filter(s => s.spec_status === 'active').length;
+
+    const typeBadge = type === 'eSIM'
+      ? `<span class="badge badge-esim">eSIM</span>`
+      : type === '實體卡'
+      ? `<span class="badge badge-sim">實體卡</span>`
+      : '';
+
+    const specRows = specs.map(s => {
+      const statusBadge = s.spec_status === 'active'
+        ? `<span class="badge badge-active">上架</span>`
+        : `<span class="badge badge-inactive">下架</span>`;
+      return `
+        <tr>
+          <td class="spec-col">${escHtml(s.spec)}</td>
+          <td class="price-col">NT$ ${s.retail_price.toLocaleString()}</td>
+          <td class="price-col price-channel">NT$ ${s.channel_price.toLocaleString()}</td>
+          <td class="status-col">${statusBadge}</td>
+        </tr>`;
+    }).join('');
+
+    const groupId = 'grp_' + btoa(encodeURIComponent(name)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+    const isOpen = shouldExpand;
+
+    return `
+      <div class="product-group">
+        <div class="group-header" onclick="toggleGroup('${groupId}')">
+          <span class="group-chevron ${isOpen ? 'open' : ''}" id="chv_${groupId}">▶</span>
+          <span class="group-name">${escHtml(name)}</span>
+          <div class="group-badges">
+            ${typeBadge}
+            <span class="badge badge-count">${specs.length} 規格</span>
+            ${activeCount < specs.length ? `<span class="badge badge-inactive">${specs.length - activeCount} 下架</span>` : ''}
+          </div>
+        </div>
+        <div class="spec-table-wrap ${isOpen ? 'open' : ''}" id="${groupId}">
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>規格</th>
+                <th>售價</th>
+                <th>通路現價</th>
+                <th style="text-align:center">狀態</th>
+              </tr>
+            </thead>
+            <tbody>${specRows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = html;
+  updateToggleAllBtn();
+}
+
+// ===== Toggle Group =====
+function toggleGroup(id) {
+  const wrap = document.getElementById(id);
+  const chv = document.getElementById('chv_' + id);
+  if (!wrap) return;
+  const isOpen = wrap.classList.toggle('open');
+  chv.classList.toggle('open', isOpen);
+  updateToggleAllBtn();
+}
+
+// ===== Toggle All =====
+function toggleAll() {
+  _allExpanded = !_allExpanded;
+  document.querySelectorAll('.spec-table-wrap').forEach(el => {
+    el.classList.toggle('open', _allExpanded);
+  });
+  document.querySelectorAll('.group-chevron').forEach(el => {
+    el.classList.toggle('open', _allExpanded);
+  });
+  updateToggleAllBtn();
+}
+
+function updateToggleAllBtn() {
+  const all = document.querySelectorAll('.spec-table-wrap');
+  const opened = document.querySelectorAll('.spec-table-wrap.open');
+  const btn = document.getElementById('btnToggleAll');
+  if (!btn || all.length === 0) return;
+  _allExpanded = opened.length === all.length;
+  btn.textContent = _allExpanded ? '全部收合' : '全部展開';
+}
+
+// ===== Filter Listeners =====
+function attachFilters() {
+  document.getElementById('filterType').addEventListener('change', () => renderGroups());
+  document.getElementById('filterRegion').addEventListener('change', () => renderGroups());
+  document.getElementById('filterSearch').addEventListener('input', () => renderGroups());
+  document.querySelectorAll('.filter-status-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-status-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      _activeStatus = this.dataset.status;
+      renderGroups();
+    });
+  });
+}
+
+// ===== HTML Escaping =====
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function escAttr(str) {
+  return String(str)
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;');
+}
+
+// ===== Init =====
+async function init() {
+  attachFilters();
+  await Promise.all([loadOrdering(), loadData()]);
+  // Remove skeleton once data is ready
+  const sk = document.getElementById('skeletonWrap');
+  if (sk) sk.remove();
+}
+
+init();
+</script>
+</body>
+</html>

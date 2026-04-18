@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>客戶管理</title>
+<link rel="stylesheet" href="gomars_base.css">
+<style>
+body{margin:0;padding:0;background:var(--bg-surface);overflow-y:auto;}
+
+/* ══════════════════════════════════════
+   CRM — 客戶管理
+══════════════════════════════════════ */
+.crm-wrap{padding:20px;display:flex;flex-direction:column;gap:14px;}
+.crm-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.crm-stat-card{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);}
+.crm-stat-val{font-size:26px;font-weight:700;line-height:1;}
+.crm-stat-lbl{font-size:11px;color:var(--tx3);margin-top:4px;}
+.crm-stat-sub{font-size:11px;margin-top:6px;}
+.crm-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.crm-seg{display:flex;background:var(--bg-surface);border:.5px solid var(--border);border-radius:8px;padding:2px;gap:2px;}
+.crm-seg-btn{padding:5px 12px;border-radius:6px;border:none;background:transparent;font-family:var(--font);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.crm-seg-btn.on{background:var(--bg-card);color:var(--tx);font-weight:500;box-shadow:var(--shadow);}
+.crm-table-wrap{background:var(--bg-card);border:.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.crm-table{width:100%;border-collapse:collapse;}
+.crm-table th{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:9px 14px;text-align:left;border-bottom:.5px solid var(--border);background:var(--bg-surface);}
+.crm-table td{padding:10px 14px;font-size:12.5px;border-bottom:.5px solid var(--border-soft);color:var(--tx);vertical-align:middle;}
+.crm-table tr:last-child td{border-bottom:none;}
+.crm-table tbody tr:hover td{background:var(--bg-surface);cursor:pointer;}
+.crm-company{font-weight:600;}
+.crm-contact{color:var(--tx2);font-size:12px;}
+.badge-cactive{background:var(--grb);color:var(--grd);}
+.badge-cpending{background:#FFF3E0;color:#B85C00;}
+.badge-cinactive{background:var(--g100);color:var(--g600);}
+
+/* ── Customer Detail Modal (right slide-in) ── */
+.cust-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-start;justify-content:flex-end;}
+.cust-overlay.open{display:flex;}
+.cust-modal{width:860px;max-width:96vw;height:100vh;background:var(--bg-card);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.2);overflow:hidden;}
+.cust-modal-hdr{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.cust-modal-body{flex:1;display:grid;grid-template-columns:1fr 300px;min-height:0;overflow:hidden;}
+.cust-modal-left{padding:20px;border-right:.5px solid var(--border);overflow-y:auto;}
+.cust-modal-right{padding:16px;overflow-y:auto;background:var(--bg-surface);display:flex;flex-direction:column;gap:12px;}
+.cust-avatar{width:44px;height:44px;border-radius:10px;background:var(--brl);border:.5px solid var(--brm);color:var(--orbit);font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cust-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.cust-field{display:flex;flex-direction:column;gap:3px;}
+.cust-field-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);}
+.cust-field-val{font-size:13px;color:var(--tx);}
+.timeline-item{display:flex;gap:10px;padding:9px 14px;border-bottom:.5px solid var(--border);}
+.timeline-item:last-child{border-bottom:none;}
+.timeline-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.timeline-meta{font-size:11px;color:var(--tx3);margin-top:3px;}
+.quote-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg-card);border:.5px solid var(--border);border-radius:8px;}
+.quote-title{font-size:12px;font-weight:600;color:var(--tx);}
+.qsp{padding:2px 7px;border-radius:999px;font-size:10px;font-weight:600;}
+.qsp-won{background:var(--grb);color:var(--grd);}
+.qsp-sent{background:var(--blb);color:var(--bld);}
+.qsp-draft{background:var(--g100);color:var(--g600);}
+.crm-mini-stat{padding:10px;background:var(--bg-surface);border-radius:8px;text-align:center;}
+.crm-mini-val{font-size:18px;font-weight:700;line-height:1;}
+.crm-mini-lbl{font-size:10px;color:var(--tx3);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<!-- 客戶列表 -->
+<div class="crm-wrap">
+
+  <!-- 統計卡片 -->
+  <div class="crm-stat-grid">
+    <div class="crm-stat-card">
+      <div class="crm-stat-val" id="crm-stat-total" style="color:var(--tx);">—</div>
+      <div class="crm-stat-lbl">總客戶數</div>
+      <div class="crm-stat-sub" style="color:var(--tx3);">全部往來客戶</div>
+    </div>
+    <div class="crm-stat-card">
+      <div class="crm-stat-val" id="crm-stat-active" style="color:var(--gr);">—</div>
+      <div class="crm-stat-lbl">活躍客戶</div>
+      <div class="crm-stat-sub" style="color:var(--gr);">持續往來中</div>
+    </div>
+    <div class="crm-stat-card">
+      <div class="crm-stat-val" id="crm-stat-pending" style="color:var(--dust);">—</div>
+      <div class="crm-stat-lbl">待跟進</div>
+      <div class="crm-stat-sub" style="color:var(--dust);">尚待確認</div>
+    </div>
+    <div class="crm-stat-card">
+      <div class="crm-stat-val" id="crm-stat-rate" style="color:var(--bl);">—</div>
+      <div class="crm-stat-lbl">報價成交率</div>
+      <div class="crm-stat-sub" style="color:var(--bl);">成交 / 報價總數</div>
+    </div>
+  </div>
+
+  <!-- 搜尋與篩選 -->
+  <div class="crm-toolbar">
+    <input class="inp" id="crm-search" placeholder="🔍 搜尋公司名、聯絡人、產業…"
+      oninput="renderCustomers()" style="flex:1;min-width:200px;max-width:320px;"/>
+    <div class="crm-seg" id="crm-status-seg">
+      <button class="crm-seg-btn on" onclick="setCrmFilter('all',this)">全部</button>
+      <button class="crm-seg-btn" onclick="setCrmFilter('active',this)">活躍</button>
+      <button class="crm-seg-btn" onclick="setCrmFilter('pending',this)">跟進中</button>
+      <button class="crm-seg-btn" onclick="setCrmFilter('inactive',this)">停用</button>
+    </div>
+    <button class="btn btn-primary btn-sm">＋ 新增客戶</button>
+  </div>
+
+  <!-- 客戶列表 -->
+  <div class="crm-table-wrap">
+    <table class="crm-table">
+      <thead>
+        <tr>
+          <th>公司</th>
+          <th>聯絡人</th>
+          <th>電話</th>
+          <th>產業</th>
+          <th>狀態</th>
+          <th>最後跟進</th>
+          <th>負責業務</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="crm-tbody">
+        <tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:28px;">載入中…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════
+     客戶詳情 Modal（右側滑出）
+══════════════════════════════════════ -->
+<div class="cust-overlay" id="cust-overlay" onclick="if(event.target===this)closeCustDetail()">
+  <div class="cust-modal">
+
+    <!-- Modal Header -->
+    <div class="cust-modal-hdr">
+      <div class="cust-avatar" id="cust-modal-avatar">A</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:16px;font-weight:700;color:var(--tx);line-height:1.2;" id="cust-modal-company">—</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:2px;" id="cust-modal-meta">—</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;" id="cust-modal-badges"></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        <button class="btn btn-sm" style="opacity:.45;cursor:not-allowed;" title="LINE 通知（開發中）">LINE 通知</button>
+        <button class="btn btn-sm btn-primary" onclick="closeCustDetail()">✕ 關閉</button>
+      </div>
+    </div>
+
+    <!-- Modal Body: Left (60%) + Right (40%) -->
+    <div class="cust-modal-body">
+
+      <!-- ── 左欄：基本資料 ── -->
+      <div class="cust-modal-left">
+
+        <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:14px;padding-bottom:8px;border-bottom:.5px solid var(--border);">
+          基本資料
+        </div>
+
+        <div class="cust-field-grid">
+          <div class="cust-field">
+            <div class="cust-field-lbl">主要聯絡人</div>
+            <div class="cust-field-val" id="cf-contact">—</div>
+          </div>
+          <div class="cust-field">
+            <div class="cust-field-lbl">電話</div>
+            <div class="cust-field-val" id="cf-phone">—</div>
+          </div>
+          <div class="cust-field">
+            <div class="cust-field-lbl">Email</div>
+            <div class="cust-field-val" id="cf-email">—</div>
+          </div>
+          <div class="cust-field">
+            <div class="cust-field-lbl">產業</div>
+            <div class="cust-field-val" id="cf-industry">—</div>
+          </div>
+          <div class="cust-field">
+            <div class="cust-field-lbl">負責業務</div>
+            <div class="cust-field-val" id="cf-owner">—</div>
+          </div>
+          <div class="cust-field">
+            <div class="cust-field-lbl">建立日期</div>
+            <div class="cust-field-val" id="cf-created">—</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <div class="cust-field-lbl" style="margin-bottom:5px;">備註</div>
+          <div style="font-size:13px;color:var(--tx2);line-height:1.7;background:var(--bg-surface);padding:10px 12px;border-radius:8px;border:.5px solid var(--border);" id="cf-notes">尚無備註</div>
+        </div>
+
+        <!-- 客戶概況統計 -->
+        <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:12px;padding-bottom:8px;border-bottom:.5px solid var(--border);">
+          客戶概況
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          <div class="crm-mini-stat">
+            <div class="crm-mini-val" id="cf-months" style="color:var(--tx);">—</div>
+            <div class="crm-mini-lbl">往來月數</div>
+          </div>
+          <div class="crm-mini-stat">
+            <div class="crm-mini-val" id="cf-follows" style="color:var(--tx);">—</div>
+            <div class="crm-mini-lbl">跟進次數</div>
+          </div>
+          <div class="crm-mini-stat">
+            <div class="crm-mini-val" id="cf-won" style="color:var(--gr);">—</div>
+            <div class="crm-mini-lbl">成交金額(K)</div>
+          </div>
+          <div class="crm-mini-stat">
+            <div class="crm-mini-val" id="cf-rate" style="color:var(--bl);">—</div>
+            <div class="crm-mini-lbl">成交率</div>
+          </div>
+        </div>
+
+        <!-- 其他操作 -->
+        <div style="margin-top:20px;padding-top:16px;border-top:.5px solid var(--border);">
+          <div style="font-size:11px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">其他操作</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-sm">移交負責人</button>
+            <button class="btn btn-sm">標記為停用</button>
+            <button class="btn btn-sm btn-danger">刪除客戶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 右欄：跟進時間軸 + 報價紀錄 ── -->
+      <div class="cust-modal-right">
+
+        <!-- 跟進時間軸 -->
+        <div class="card" style="margin:0;">
+          <div class="card-hdr">
+            <span class="card-title">跟進時間軸</span>
+            <button class="btn btn-sm">＋ 新增</button>
+          </div>
+          <div id="cf-timeline" style="padding:0 0 4px;">
+            <div style="padding:16px;text-align:center;font-size:12px;color:var(--tx3);">尚無跟進紀錄</div>
+          </div>
+        </div>
+
+        <!-- 報價 / 訂單 -->
+        <div class="card" style="margin:0;">
+          <div class="card-hdr">
+            <span class="card-title">報價 / 訂單</span>
+            <button class="btn btn-sm btn-primary">＋ 新增報價</button>
+          </div>
+          <div id="cf-quotes" style="padding:8px;display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:12px;color:var(--tx3);text-align:center;padding:8px 0;">尚無報價紀錄</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  Supabase（未來接真實資料用）
+// ══════════════════════════════════════
+// const SUPABASE_URL = 'https://wghvduyyuvbnggddvdal.supabase.co'
+// const SUPABASE_ANON_KEY = '...'
+// const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ══════════════════════════════════════
+//  Mock Data
+// ══════════════════════════════════════
+const mockCustomers = [
+  {
+    id: 'C001', company: '宏遠企業股份有限公司', contact_name: '陳大明',
+    phone: '02-2345-6789', email: 'chen@hong-far.com.tw',
+    industry: '製造業', status: 'active', owner: '王小美', created_at: '2024-08-15',
+    notes: '每年日本/東南亞各一次，預算中等偏高，決策快速，習慣 Line 溝通。',
+    follow_ups: [
+      { type: 'call',  date: '2026-04-03', summary: '確認五月日本行程報價', next: '發報價單' },
+      { type: 'visit', date: '2026-03-18', summary: '公司拜訪，介紹春季方案', next: '' },
+      { type: 'email', date: '2026-02-25', summary: '寄送農曆新年賀卡及方案', next: '' },
+    ],
+    orders: [
+      { title: '2025 日本春季五日遊', amount: 85000, status: 'won' },
+      { title: '2026 五月沖繩報價',   amount: 92000, status: 'sent' },
+    ],
+  },
+  {
+    id: 'C002', company: '日月潭休閒農場', contact_name: '林怡君',
+    phone: '049-285-0000', email: 'lin@slt-farm.com',
+    industry: '休閒農業', status: 'pending', owner: '李志偉', created_at: '2025-01-10',
+    notes: '主要需求為員工旅遊，每年約 50 人，偏好國內或短程東南亞。',
+    follow_ups: [
+      { type: 'call',  date: '2026-03-30', summary: '確認四月尾牙旅遊意願', next: '等回覆' },
+      { type: 'email', date: '2026-03-01', summary: '寄送巴里島方案報價',   next: '' },
+    ],
+    orders: [
+      { title: '員工旅遊 — 清境農場', amount: 45000,  status: 'won' },
+      { title: '巴里島五日',           amount: 128000, status: 'draft' },
+    ],
+  },
+  {
+    id: 'C003', company: '台灣半導體設備協會', contact_name: '黃志誠',
+    phone: '03-578-9900', email: 'huang@tsea.org.tw',
+    industry: '科技/半導體', status: 'active', owner: '王小美', created_at: '2024-11-22',
+    notes: '年度學術考察團，日本/德國為主要目的地，重視行程品質與住宿等級。',
+    follow_ups: [
+      { type: 'visit', date: '2026-04-05', summary: '簡報日本 SEMICON 考察方案', next: '確認人數' },
+    ],
+    orders: [
+      { title: '2025 SEMICON 日本考察', amount: 320000, status: 'won' },
+      { title: '2026 德國 SEMICON',     amount: 580000, status: 'sent' },
+    ],
+  },
+  {
+    id: 'C004', company: '陽光不動產仲介', contact_name: '吳佳穎',
+    phone: '02-8765-4321', email: 'wu@sunshine-re.com.tw',
+    industry: '不動產', status: 'pending', owner: '李志偉', created_at: '2025-03-05',
+    notes: '新客戶，透過老客戶介紹，首次合作。詢問韓國獎勵旅遊。',
+    follow_ups: [
+      { type: 'quote', date: '2026-04-01', summary: '發送韓國五天報價方案', next: '跟進確認' },
+    ],
+    orders: [
+      { title: '韓國獎勵旅遊方案', amount: 210000, status: 'sent' },
+    ],
+  },
+  {
+    id: 'C005', company: '長虹建設有限公司', contact_name: '蔡明哲',
+    phone: '02-2234-5678', email: 'tsai@changhong.com.tw',
+    industry: '建設/營造', status: 'inactive', owner: '王小美', created_at: '2023-06-14',
+    notes: '已兩年無新案，最後一次合作為 2024 年初。可考慮重啟聯繫。',
+    follow_ups: [],
+    orders: [
+      { title: '北海道六日遊', amount: 175000, status: 'won' },
+    ],
+  },
+  {
+    id: 'C006', company: '啟航科技股份有限公司', contact_name: '賴俊宏',
+    phone: '02-6655-4433', email: 'lai@qihang.tech',
+    industry: '資訊科技', status: 'active', owner: '李志偉', created_at: '2025-06-01',
+    notes: '新創公司，員工以年輕族群為主，傾向主題式旅遊（音樂祭、球賽觀光）。',
+    follow_ups: [
+      { type: 'email', date: '2026-03-28', summary: '詢問日本演唱會行程可行性', next: '確認場次資訊' },
+    ],
+    orders: [
+      { title: '富士山音樂祭五日', amount: 96000, status: 'draft' },
+    ],
+  },
+]
+
+let _crmFilter = 'all'
+
+const CRM_STATUS_MAP = {
+  active:   { label: '活躍',   cls: 'badge badge-cactive' },
+  pending:  { label: '跟進中', cls: 'badge badge-cpending' },
+  inactive: { label: '停用',   cls: 'badge badge-cinactive' },
+}
+const CRM_FOLLOW_LABEL = { call: '電話', visit: '拜訪', email: 'Email', quote: '報價' }
+const CRM_FOLLOW_COLOR = { call: 'var(--bl)', visit: 'var(--gr)', email: 'var(--g400)', quote: 'var(--orbit)' }
+const CRM_ORDER_STATUS = {
+  won:   { label: '成交',   cls: 'qsp qsp-won' },
+  sent:  { label: '已送出', cls: 'qsp qsp-sent' },
+  draft: { label: '草稿',   cls: 'qsp qsp-draft' },
+}
+
+function setCrmFilter(val, btn) {
+  _crmFilter = val
+  document.querySelectorAll('#crm-status-seg .crm-seg-btn').forEach(b => b.classList.remove('on'))
+  if (btn) btn.classList.add('on')
+  renderCustomers()
+}
+
+function renderCustomers() {
+  const q = (document.getElementById('crm-search')?.value || '').toLowerCase()
+  let list = mockCustomers
+  if (_crmFilter !== 'all') list = list.filter(c => c.status === _crmFilter)
+  if (q) list = list.filter(c =>
+    c.company.toLowerCase().includes(q) ||
+    c.contact_name.toLowerCase().includes(q) ||
+    (c.industry || '').toLowerCase().includes(q)
+  )
+
+  // Stats
+  const allOrders = mockCustomers.flatMap(c => c.orders)
+  const wonCount  = allOrders.filter(o => o.status === 'won').length
+  const rate = allOrders.length ? Math.round(wonCount / allOrders.length * 100) : 0
+  document.getElementById('crm-stat-total').textContent   = mockCustomers.length
+  document.getElementById('crm-stat-active').textContent  = mockCustomers.filter(c => c.status === 'active').length
+  document.getElementById('crm-stat-pending').textContent = mockCustomers.filter(c => c.status === 'pending').length
+  document.getElementById('crm-stat-rate').textContent    = rate + '%'
+
+  // Notify parent to update sidebar badge
+  window.parent.postMessage({ action: 'updateBadge', id: 'badge-customers', value: mockCustomers.length }, '*')
+
+  const tbody = document.getElementById('crm-tbody')
+  if (!tbody) return
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:28px;">無符合條件的客戶</td></tr>'
+    return
+  }
+  tbody.innerHTML = list.map(c => {
+    const s = CRM_STATUS_MAP[c.status] || { label: c.status, cls: 'badge' }
+    const lastFollow = c.follow_ups[0]?.date || '—'
+    return `<tr onclick="openCustDetail('${c.id}')">
+      <td><div class="crm-company">${c.company}</div></td>
+      <td><div class="crm-contact">${c.contact_name}</div></td>
+      <td style="font-size:12px;color:var(--tx2);">${c.phone}</td>
+      <td><span class="badge badge-blue" style="font-size:10px;">${c.industry || '—'}</span></td>
+      <td><span class="${s.cls}">${s.label}</span></td>
+      <td style="font-size:12px;color:var(--tx3);">${lastFollow}</td>
+      <td style="font-size:12px;color:var(--tx2);">${c.owner}</td>
+      <td><button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openCustDetail('${c.id}')">詳情 →</button></td>
+    </tr>`
+  }).join('')
+}
+
+function openCustDetail(id) {
+  const c = mockCustomers.find(x => x.id === id)
+  if (!c) return
+  const overlay = document.getElementById('cust-overlay')
+
+  // Header
+  document.getElementById('cust-modal-avatar').textContent  = c.company.charAt(0)
+  document.getElementById('cust-modal-company').textContent = c.company
+  document.getElementById('cust-modal-meta').textContent    = `客戶編號：${c.id} ・ 建立：${c.created_at}`
+
+  const s = CRM_STATUS_MAP[c.status] || { label: c.status, cls: 'badge' }
+  document.getElementById('cust-modal-badges').innerHTML =
+    `<span class="${s.cls}">${s.label}</span>` +
+    (c.industry ? `<span class="badge badge-blue" style="font-size:10px;">${c.industry}</span>` : '')
+
+  // Fields
+  document.getElementById('cf-contact').textContent  = c.contact_name || '—'
+  document.getElementById('cf-phone').textContent    = c.phone || '—'
+  document.getElementById('cf-email').textContent    = c.email || '—'
+  document.getElementById('cf-industry').textContent = c.industry || '—'
+  document.getElementById('cf-owner').textContent    = c.owner || '—'
+  document.getElementById('cf-created').textContent  = c.created_at
+  document.getElementById('cf-notes').textContent    = c.notes || '尚無備註'
+
+  // Mini stats
+  const created  = new Date(c.created_at)
+  const months   = Math.max(0, Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24 * 30)))
+  const wonOrders = c.orders.filter(o => o.status === 'won')
+  const totalWon  = wonOrders.reduce((acc, o) => acc + (o.amount || 0), 0)
+  const winRate   = c.orders.length ? Math.round(wonOrders.length / c.orders.length * 100) : 0
+  document.getElementById('cf-months').textContent  = months
+  document.getElementById('cf-follows').textContent = c.follow_ups.length
+  document.getElementById('cf-won').textContent     = Math.round(totalWon / 1000) + 'K'
+  document.getElementById('cf-rate').textContent    = c.orders.length ? winRate + '%' : '—'
+
+  // Timeline
+  const tlEl = document.getElementById('cf-timeline')
+  tlEl.innerHTML = c.follow_ups.length
+    ? c.follow_ups.map(f => `
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:${CRM_FOLLOW_COLOR[f.type] || 'var(--g400)'};"></div>
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;">
+              ${CRM_FOLLOW_LABEL[f.type] || f.type}
+            </div>
+            <div style="font-size:12.5px;color:var(--tx);line-height:1.5;">${f.summary}</div>
+            ${f.next ? `<div style="font-size:11px;color:var(--orbit);font-weight:600;margin-top:3px;">→ ${f.next}</div>` : ''}
+            <div class="timeline-meta">${f.date}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="padding:16px;text-align:center;font-size:12px;color:var(--tx3);">尚無跟進紀錄</div>'
+
+  // Quotes
+  const qEl = document.getElementById('cf-quotes')
+  qEl.innerHTML = c.orders.length
+    ? c.orders.map(o => {
+        const qs = CRM_ORDER_STATUS[o.status] || { label: o.status, cls: 'qsp qsp-draft' }
+        return `<div class="quote-item">
+          <div>
+            <div class="quote-title">${o.title}</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px;">NT$ ${(o.amount || 0).toLocaleString()}</div>
+          </div>
+          <span class="${qs.cls}">${qs.label}</span>
+        </div>`
+      }).join('')
+    : '<div style="font-size:12px;color:var(--tx3);text-align:center;padding:8px 0;">尚無報價紀錄</div>'
+
+  overlay.classList.add('open')
+}
+
+function closeCustDetail() {
+  document.getElementById('cust-overlay').classList.remove('open')
+}
+
+// ── 監聽來自父視窗的指令 ──
+window.addEventListener('message', (e) => {
+  if (e.data?.action === 'refresh') renderCustomers()
+})
+
+// ── 初始化 ──
+renderCustomers()
+</script>
+</body>
+</html>

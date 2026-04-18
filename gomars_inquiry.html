@@ -247,7 +247,7 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
   <span class="doc-title" style="font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;">供應商詢價單</span>
   <div class="save-dot unsaved" id="save-dot" style="margin-left:6px;flex-shrink:0;"></div>
   <span id="status-label" style="color:var(--tx2);font-size:12px;white-space:nowrap;">未儲存</span>
-  <span class="ver-chip" id="ver-chip">詢 v1</span>
+  <span class="ver-chip" id="ver-chip" onclick="openVerModal()" title="查看版本紀錄" style="cursor:pointer">詢 v1</span>
   <span id="last-save" style="font-size:11px;color:var(--tx3);white-space:nowrap;"></span>
   <div class="spacer"></div>
   <button class="tb-btn" onclick="clearForm()">🗑 清除重填</button>
@@ -363,12 +363,14 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
         <span class="lbl">目的地</span>
         <select class="inp" id="dest" onchange="markUnsaved();updatePreview()">
           <optgroup label="🇯🇵 日本">
-            <option>日本 — 東京 / 關東</option>
-            <option>日本 — 大阪 / 京都 / 奈良</option>
-            <option>日本 — 北海道</option>
-            <option>日本 — 九州（福岡/熊本）</option>
-            <option>日本 — 沖繩</option>
-            <option>日本 — 名古屋 / 中部</option>
+            <option>日本 — 北海道（新千歲．函館．旭川．帶廣）</option>
+            <option>日本 — 東北（青森．仙台．花卷．秋田．新潟）</option>
+            <option>日本 — 關東（東京．橫濱．箱根．伊豆．靜岡．日光．輕井澤）</option>
+            <option>日本 — 中部北陸（名古屋．小松．能登．富山．立山黑部）</option>
+            <option>日本 — 關西（大阪．京都．神戶．奈良．南紀．三重）</option>
+            <option>日本 — 四國（廣島．岡山．高松．米子．鳥取）</option>
+            <option>日本 — 九州（福岡．宮崎．鹿兒島．熊本）</option>
+            <option>日本 — 沖繩（琉球．久米島．宮古島）</option>
           </optgroup>
           <optgroup label="🇰🇷 韓國">
             <option>韓國 — 首爾 / 京畿</option>
@@ -376,22 +378,58 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
             <option>韓國 — 濟州島</option>
           </optgroup>
           <optgroup label="🇹🇭 泰國">
-            <option>泰國 — 曼谷</option>
-            <option>泰國 — 清邁</option>
+            <option>泰國 — 曼谷（芭達雅/華欣）</option>
+            <option>泰國 — 泰北（清邁/清萊）</option>
             <option>泰國 — 普吉島</option>
-            <option>泰國 — 芭達雅</option>
+          </optgroup>
+          <optgroup label="🇲🇾 馬新">
+            <option>新加坡</option>
+            <option>馬新雙國遊</option>
+            <option>馬來西亞 — 吉隆坡（馬六甲/海中天/邦喀島/新山）</option>
+            <option>東馬/鄰國 — 沙巴/珍拉汀/汶萊</option>
+            <option>馬來西亞 — 檳城．蘭卡威</option>
           </optgroup>
           <optgroup label="🇻🇳 越南">
-            <option>越南 — 河內</option>
-            <option>越南 — 峴港 / 會安</option>
-            <option>越南 — 胡志明</option>
-            <option>越南 — 富國島</option>
+            <option>越南 — 北越（河內/下龍灣/沙壩）</option>
+            <option>越南 — 中越（峴港/順化/會安）</option>
+            <option>越南 — 南越（胡志明/富國島/芽莊/大勒）</option>
           </optgroup>
           <optgroup label="🌏 東南亞其他">
             <option>峇里島（印尼）</option>
-            <option>新加坡</option>
-            <option>馬來西亞 — 吉隆坡</option>
-            <option>菲律賓 — 宿霧 / 薄荷島</option>
+            <option>柬埔寨 — 吳哥 / 金邊</option>
+            <option>菲律賓 — 宿霧 / 長灘島</option>
+            <option>菲律賓 — 馬尼拉 / 巴拉望</option>
+          </optgroup>
+          <optgroup label="🇨🇳 中國大陸">
+            <option>華北 — 北京．天津</option>
+            <option>華北 — 山西（太原）</option>
+            <option>華北 — 內蒙</option>
+            <option>東北 — 大連．瀋陽．哈爾濱．長春</option>
+            <option>華東 — 江南（上海．杭州．寧波．南京．無錫）</option>
+            <option>華東 — 山東（青島．濟南．煙台）</option>
+            <option>華東 — 安徽（黃山）</option>
+            <option>華中 — 長沙．張家界．武漢</option>
+            <option>華中 — 河南（鄭州．開封．洛陽）</option>
+            <option>華中 — 陝西．西安</option>
+            <option>華中 — 長江三峽</option>
+            <option>西南 — 四川（成都．重慶．九寨溝）</option>
+            <option>西南 — 廣西（桂林．南寧）</option>
+            <option>西南 — 雲南（昆明．大理．麗江．香格里拉）</option>
+            <option>西南 — 貴州（貴陽）</option>
+            <option>西北 — 絲路</option>
+            <option>西北 — 南北疆</option>
+            <option>西北 — 西藏</option>
+            <option>華南 — 福建（福州．廈門．武夷山）</option>
+            <option>華南 — 海南（海口．三亞）</option>
+          </optgroup>
+          <optgroup label="🇭🇰 港澳">
+            <option>香港</option>
+            <option>澳門</option>
+            <option>珠海</option>
+            <option>粵港澳大灣區</option>
+          </optgroup>
+          <optgroup label="🇲🇳 蒙古">
+            <option>蒙古</option>
           </optgroup>
           <optgroup label="🇪🇺 歐洲">
             <option>義大利 — 羅馬 / 佛羅倫斯 / 威尼斯</option>
@@ -408,10 +446,6 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
             <option>美國 — 紐約</option>
             <option>美國 — 洛杉磯 / 拉斯維加斯</option>
             <option>澳洲 — 雪梨 / 墨爾本</option>
-          </optgroup>
-          <optgroup label="🇨🇳 中港澳">
-            <option>香港</option><option>澳門</option>
-            <option>中國 — 北京</option><option>中國 — 上海</option>
           </optgroup>
           <optgroup label="其他"><option>其他（備註說明）</option></optgroup>
         </select>
@@ -555,12 +589,41 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
   <span class="badge badge-orange" id="doc-id">NEW</span>
   <span style="font-size:12px;color:var(--tx2);" id="doc-subtitle">新增詢價單</span>
   <div class="ml-auto gap6">
-    <button class="btn" style="background:var(--bl);color:#fff;border-color:var(--bl);" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="saveToCloud()">☁️ 儲存案件</button>
+    <button class="btn" style="background:var(--bl);color:#fff;border-color:var(--bl);" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="confirmSave()">☁️ 儲存案件</button>
     <button class="btn" style="background:var(--gr);color:#fff;border-color:var(--gr);" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="openPrint()">📄 列印 / 匯出</button>
     <button class="btn primary" id="btn-to-quote" onclick="toQuote()" style="display:none">轉報價 →</button>
   </div>
 </div>
 
+
+<!-- Confirm Save Modal -->
+<div class="modal-overlay hidden" id="confirm-save-modal">
+  <div class="modal" style="max-width:360px;">
+    <h3>💾 確認儲存新版本</h3>
+    <p id="confirm-save-desc" style="color:var(--tx2);font-size:14px;line-height:1.6;margin-bottom:4px;"></p>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal('confirm-save-modal')">取消</button>
+      <button class="btn primary" onclick="closeModal('confirm-save-modal');saveToCloud()">確認儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attraction Import Modal -->
+<div class="modal-overlay hidden" id="import-attr-modal">
+  <div class="modal" style="max-width:480px;">
+    <h3>📍 景點匯入確認</h3>
+    <p id="import-attr-desc" style="font-size:13px;color:var(--tx2);margin:6px 0 12px;"></p>
+    <div id="import-attr-list" style="display:flex;flex-direction:column;gap:10px;max-height:50vh;overflow-y:auto;"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn ghost" style="font-size:12px;padding:4px 10px;" onclick="importAttrSelectAll(true)">全選</button>
+      <button class="btn ghost" style="font-size:12px;padding:4px 10px;" onclick="importAttrSelectAll(false)">全不選</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal('import-attr-modal')">取消</button>
+      <button class="btn primary" onclick="doImportAttractions()">確認匯入</button>
+    </div>
+  </div>
+</div>
 
 <!-- Print Modal -->
 <div class="modal-overlay hidden" id="print-modal">
@@ -689,6 +752,64 @@ let inqDays = [];
 function updateVerChip(){
   document.getElementById('ver-chip').textContent=`詢 v${state.version}`;
 }
+async function openVerModal(){
+  if(!state.caseId){ toast('請先儲存案件後才能查看版本紀錄'); return; }
+  document.getElementById('ver-overlay').style.display='';
+  document.getElementById('ver-panel').style.display='';
+  const listEl=document.getElementById('ver-list');
+  listEl.innerHTML='<div style="color:var(--tx3);padding:12px 0">載入中…</div>';
+  const {data,error}=await sb.from('inquiry_versions')
+    .select('id,version,saved_at')
+    .eq('case_id',state.caseId)
+    .order('version',{ascending:false});
+  if(error||!data?.length){
+    listEl.innerHTML='<div style="color:var(--tx3);padding:12px 0">尚無版本紀錄（下次儲存後將自動建立）</div>';
+    return;
+  }
+  listEl.innerHTML=data.map(v=>{
+    const ts=new Date(v.saved_at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const isCurrent=v.version===state.version;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <span style="font-weight:700;color:${isCurrent?'var(--orbit)':'var(--tx)'};margin-right:8px">v${v.version}</span>
+        <span style="font-size:12px;color:var(--tx3)">${ts}</span>
+        ${isCurrent?'<span style="font-size:10px;background:var(--brl);color:var(--orbit);padding:1px 6px;border-radius:4px;margin-left:6px">目前版本</span>':''}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${isCurrent?'':`<button class="ghost" style="font-size:12px;padding:3px 10px" onclick="loadHistoryVersion('${v.id}')">載入</button>`}
+        ${isCurrent?'':`<button class="danger" style="font-size:12px;padding:3px 8px" onclick="deleteVersion('${v.id}',${v.version},this)">刪除</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+function closeVerModal(){
+  document.getElementById('ver-overlay').style.display='none';
+  document.getElementById('ver-panel').style.display='none';
+}
+async function deleteVersion(id, version, btn){
+  if(btn.dataset.confirm !== '1'){
+    btn.dataset.confirm='1';
+    btn.textContent='確定？';
+    btn.style.background='var(--mars)';
+    setTimeout(()=>{ btn.dataset.confirm=''; btn.textContent='刪除'; btn.style.background=''; }, 3000);
+    return;
+  }
+  btn.disabled=true;
+  const {error}=await sb.from('inquiry_versions').delete().eq('id',id);
+  if(error){ toast('刪除失敗：'+error.message); btn.disabled=false; return; }
+  toast(`v${version} 已刪除`);
+  openVerModal();
+}
+async function loadHistoryVersion(id){
+  const {data,error}=await sb.from('inquiry_versions').select('version,data').eq('id',id).single();
+  if(error){ toast('載入版本失敗：'+error.message); return; }
+  closeVerModal();
+  loadState(data.data);
+  state.version=data.version;
+  updateVerChip();
+  markUnsaved();
+  toast(`已載入 v${data.version}，修改後儲存將產生新版本`);
+}
 
 // ══════════════════════════════════════════
 // INIT
@@ -701,6 +822,36 @@ window.onload = function(){
   addRoomRow();
   initItems();
   addFlightCombo();
+  // Admin bridge: load specific case data when opened from case detail view
+  const adminLoad = localStorage.getItem('gomars_admin_load');
+  if (adminLoad) {
+    localStorage.removeItem('gomars_admin_load');
+    try {
+      const parsed = JSON.parse(adminLoad);
+      if (parsed.inquiry_data) {
+        // New format: full collectData() result has nested _save
+        // Old format: only _save fields spread at top level — wrap it
+        const d = parsed.inquiry_data._save
+          ? parsed.inquiry_data  // new format: full collectData()
+          : {                    // old format: only _save fields spread
+              _save: parsed.inquiry_data,
+              client: parsed.client_name,
+              dest: parsed.destination,
+              depDate: parsed.depart_date,
+              nights: parsed.days,
+            };
+        loadState(d);
+        // Restore case identity so next save updates (not inserts) this case
+        state.caseId     = parsed.id || null;
+        state.caseNumber = parsed.case_number || null;
+        state.version    = parsed.inquiry_data?._version || 0;
+        if (state.caseId) { updateVerChip(); markSaved(); }
+        toast(`已載入案件 ${parsed.case_number} 的詢價資料`);
+      }
+    } catch(e) {}
+    setInterval(autoSaveLS, 90000);
+    return;
+  }
   // Check draft
   const saved = localStorage.getItem('gomars_inquiry_draft');
   if(saved){
@@ -1681,6 +1832,15 @@ function autoSaveLS(){
   markSaved();
   toast('已暫存至瀏覽器（關閉頁面不會遺失）');
 }
+function confirmSave(){
+  const nextVer = (state.version || 0) + 1;
+  const desc = state.caseId
+    ? `案號 ${state.caseNumber}　目前 v${state.version} → 儲存為 v${nextVer}`
+    : '新案件，儲存後將自動產生案號';
+  document.getElementById('confirm-save-desc').textContent = desc;
+  document.getElementById('confirm-save-modal').classList.remove('hidden');
+}
+
 async function saveToCloud(){
   const data=collectData();
   const now=new Date();
@@ -1729,7 +1889,7 @@ async function saveToCloud(){
     depart_date:data.depDate||null,
     days:typeof data.nights==='number'?data.nights:null,
     pax:(data.adult||0)+(data.childBed||0)+(data.childNobed||0)||null,
-    inquiry_data:{...(data._save||{}),_version:state.version},
+    inquiry_data:{...data,_version:state.version},
     inquiry_status:'draft',
     updated_at:now.toISOString(),
   };
@@ -1747,9 +1907,110 @@ async function saveToCloud(){
   document.getElementById('doc-id').textContent=state.caseNumber||'NEW';
   markSaved();
   updateVerChip();
+  // 版本快照
+  if(state.caseId){
+    const {error:verErr}=await sb.from('inquiry_versions').insert({
+      case_id: state.caseId,
+      version: state.version,
+      data: {...data, _version: state.version},
+      saved_at: now.toISOString(),
+    });
+    if(verErr) toast('版本快照失敗：'+verErr.message);
+  }
   const syncMsg=syncCount>0?`，同步 ${syncCount} 筆航班`:'';
   toast(`已儲存至雲端${syncMsg} ✓`);
+  syncHotelsToDB(data.dest).catch(()=>{});
+  openImportAttrModal(data.dest, data.days);
 }
+function extractAttrCandidates(days) {
+  const SKIP = ['早餐','午餐','晚餐','飯店','hotel','Hotel','機場','空港','搭機','搭乘',
+    '桃園','松山','小港','高雄','基隆','自由','休息','自理','check','入住','退房',
+    '辦理','購物','接送','集合','出發','抵達','台灣'];
+  const seen = new Set();
+  for (const day of days) {
+    if (!day.route) continue;
+    day.route.split(/[→、，\n]+/).forEach(p => {
+      const name = p.trim();
+      if (name.length < 2 || seen.has(name)) return;
+      if (SKIP.some(k => name.includes(k))) return;
+      seen.add(name);
+    });
+  }
+  return [...seen];
+}
+
+async function openImportAttrModal(dest, days) {
+  const candidates = extractAttrCandidates(days);
+  if (!candidates.length) return;
+  const { data: existing } = await sb.from('gomars_tickets').select('name');
+  const existingNames = (existing || []).map(r => r.name);
+  window._importAttrState = { candidates, existingNames, dest };
+  const listEl = document.getElementById('import-attr-list');
+  listEl.innerHTML = candidates.map((name, i) => {
+    const similar = existingNames.filter(n => n !== name && (n.includes(name) || name.includes(n)));
+    const similarHtml = similar.length
+      ? `<div style="margin-top:6px;padding-left:24px;font-size:12px;color:var(--tx2);">
+          <label style="display:block;margin-bottom:3px;">
+            <input type="radio" name="attr-merge-${i}" value="new" checked> 新增「${name}」
+          </label>
+          ${similar.map(s => `<label style="display:block;margin-bottom:3px;">
+            <input type="radio" name="attr-merge-${i}" value="${s}"> 沿用資料庫「${s}」（同一景點）
+          </label>`).join('')}
+        </div>`
+      : `<span style="font-size:12px;color:var(--tx3);margin-left:8px;">→ 新增</span>`;
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+        <input type="checkbox" class="attr-cb" data-idx="${i}" checked style="margin-top:2px;">
+        <span style="font-size:14px;font-weight:600;">${name}</span>
+      </label>
+      ${similarHtml}
+    </div>`;
+  }).join('');
+  document.getElementById('import-attr-desc').textContent = `從行程偵測到 ${candidates.length} 個景點，請確認要新增的項目：`;
+  document.getElementById('import-attr-modal').classList.remove('hidden');
+}
+
+function importAttrSelectAll(checked) {
+  document.querySelectorAll('.attr-cb').forEach(cb => cb.checked = checked);
+}
+
+async function doImportAttractions() {
+  closeModal('import-attr-modal');
+  const { candidates, dest } = window._importAttrState || {};
+  if (!candidates) return;
+  const toInsert = [];
+  document.querySelectorAll('.attr-cb').forEach(cb => {
+    if (!cb.checked) return;
+    const idx = +cb.dataset.idx;
+    const name = candidates[idx];
+    const radio = document.querySelector(`input[name="attr-merge-${idx}"]:checked`);
+    if (!radio || radio.value === 'new') toInsert.push(name);
+  });
+  if (!toInsert.length) return;
+  const { error } = await sb.from('gomars_tickets').insert(
+    toInsert.map(name => ({ name, dest, updated_at: new Date().toISOString() }))
+  );
+  if (error) { toast('景點匯入失敗：' + error.message); return; }
+  toast(`已匯入 ${toInsert.length} 個景點到門票資料庫 ✓`);
+}
+
+async function syncHotelsToDB(dest) {
+  if (!dest) return
+  const names = [...new Set(
+    inqDays.slice(0, inqDays.length - 1)
+      .flatMap(d => d.hotels)
+      .map(h => h.trim())
+      .filter(h => h && h !== '溫暖的家')
+  )]
+  if (!names.length) return
+  const { data: existing } = await sb.from('gomars_hotels').select('name').in('name', names)
+  const existingSet = new Set((existing || []).map(r => r.name))
+  const newRows = names.filter(n => !existingSet.has(n)).map(n => ({ dest, name: n }))
+  if (!newRows.length) return
+  const { error } = await sb.from('gomars_hotels').insert(newRows)
+  if (!error) toast(`已同步 ${newRows.length} 筆新飯店至資料庫`)
+}
+
 function loadState(data){
   const s = data._save || {};
 
@@ -1757,6 +2018,7 @@ function loadState(data){
   if(data.client) document.getElementById('client').value=data.client;
   if(data.dest) document.getElementById('dest').value=data.dest;
   if(data.depDate) document.getElementById('dep-date').value=data.depDate;
+  if(data.retDate){ const el=document.getElementById('ret-auto'); if(el) el.value=data.retDate; }
   if(data.notes) document.getElementById('notes').value=data.notes;
   if(typeof data.nights==='number') document.getElementById('nights').value=data.nights;
 
@@ -1769,6 +2031,9 @@ function loadState(data){
   if(typeof data.childBed==='number') document.getElementById('pax-child-bed').value=data.childBed;
   if(typeof data.childNobed==='number') document.getElementById('pax-child-nobed').value=data.childNobed;
   if(typeof data.infant==='number') document.getElementById('pax-infant').value=data.infant;
+
+  // inquiryType
+  if(s.inquiryType){ state.inquiryType=s.inquiryType; }
 
   // groupAttr
   if(s.groupAttrVal){
@@ -1888,7 +2153,7 @@ function loadState(data){
   if(data.days&&data.days.length) inqDays=data.days;
 
   // Version
-  if(data._meta?.version){ state.version=data._meta.version; updateVerChip(); }
+  if(data._version){ state.version=data._version; updateVerChip(); }
 
   calcDates();
   const dep=document.getElementById('dep-date').value;
@@ -2340,5 +2605,20 @@ function toast(msg){
   setTimeout(()=>el.classList.remove('show'),2800);
 }
 </script>
+
+<!-- 版本紀錄 Modal -->
+<div id="ver-overlay" onclick="closeVerModal()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:900"></div>
+<div id="ver-panel"
+     style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            width:420px;max-width:92vw;max-height:70vh;overflow-y:auto;
+            background:var(--bg-card);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);
+            z-index:901;padding:20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <span style="font-weight:700;font-size:15px">版本紀錄</span>
+    <button onclick="closeVerModal()" class="ghost" style="padding:2px 10px;font-size:13px">✕</button>
+  </div>
+  <div id="ver-list"></div>
+</div>
 </body>
 </html>
